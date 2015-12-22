@@ -1,17 +1,12 @@
 package sdk.ideas.tracker;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -81,7 +76,7 @@ public class Tracker
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_SUCCESS,
 								ResponseCode.METHOLD_START_TRACKER, "success");
 					}
-					else if (msg.arg1 <= -6)
+					else if (msg.arg1 <= ResponseCode.ERR_MAX)
 					{
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
 								ResponseCode.METHOLD_START_TRACKER, "error in transfer data to server ");
@@ -99,7 +94,7 @@ public class Tracker
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_SUCCESS,
 								ResponseCode.METHOLD_TRACKER, "success");
 					}
-					else if (msg.arg1 <= -6)
+					else if (msg.arg1 <= ResponseCode.ERR_MAX)
 					{
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
 								ResponseCode.METHOLD_TRACKER, "error in transfer data to server ");
@@ -151,10 +146,17 @@ public class Tracker
 	 * 50 )
 	 */
 
+	public int startTracker(String app_id)
+	{
+		return startTracker(app_id, "NA", null, null);
+	}
+
 	public int startTracker(String app_id, String fb_id, String fb_name, String fb_email)
 	{
-		if ((!StringUtility.stringCheck(app_id, 1, 20)) || (!StringUtility.stringCheck(fb_id, 0, 20))
-				|| (!StringUtility.stringCheck(fb_name, 0, 50)) || (!StringUtility.stringCheck(fb_email, 0, 50)))
+		String strFbName = StringUtility.convertNull(fb_name);
+		String strFbEmail = StringUtility.convertNull(fb_email);
+
+		if ((!StringUtility.stringCheck(app_id, 1, 20)) || (!StringUtility.stringCheck(fb_id, 0, 20)))
 		{
 			transferMessage.showLinkServerMessageResult(ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL,
 					ResponseCode.METHOLD_START_TRACKER, "one of row too more character or null");
@@ -164,8 +166,8 @@ public class Tracker
 
 		startTrackerParm.put("APP_ID", app_id);
 		startTrackerParm.put("FB_ID", fb_id);
-		startTrackerParm.put("FB_NAME", fb_name);
-		startTrackerParm.put("FB_EMAIL", fb_email);
+		startTrackerParm.put("FB_NAME", strFbName);
+		startTrackerParm.put("FB_EMAIL", strFbEmail);
 
 		init();
 		return 0;
@@ -239,7 +241,7 @@ public class Tracker
 
 		this.ID = (parm.get("MAC") + parm.get("PHONE") + parm.get("APP_ID") + mailForID);
 		parm.put("ID", this.ID);
-		parm.put("DATE", new SimpleDateFormat("yyyy.MM.dd  HH:mm:ss").format(new Date()));
+		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.TAIWAN).format(new Date()));
 		return 0;
 	}
 
@@ -257,7 +259,7 @@ public class Tracker
 	{
 		if (availableTracker == false)
 		{
-			transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION, ResponseCode.METHOLD_TRACKER,
+			transferMessage.showLinkServerMessageResult(ResponseCode.ERR_NOT_INIT, ResponseCode.METHOLD_TRACKER,
 					"can not start tracker cause startTarcker fail or stopTracker run");
 			return;
 		}
@@ -273,12 +275,11 @@ public class Tracker
 			return;
 
 		}
-
+		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.TAIWAN).format(new Date()));
 		parm.values().removeAll(Collections.singleton(""));
 
 		JSONObject jsonParm = new JSONObject(parm);
 
-		Logs.showTrace("284");
 		this.sendEvent(jsonParm.toString(), TAG_APPSENSOR_TRACKER);
 
 		parm.clear();
@@ -402,8 +403,8 @@ public class Tracker
 		else
 		{
 
-			transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
-					ResponseCode.METHOLD_START_TRACKER, "Get App Sensor Server URL Fail");
+			transferMessage.showLinkServerMessageResult(ResponseCode.ERR_NOT_INIT, ResponseCode.METHOLD_START_TRACKER,
+					"Start Tracker Fail: Can't connect Server");
 			// Logs.showTrace("Get App Sensor Server URL Fail, Return Code:" +
 			// String.valueOf(nReturnCode) + " Error:"
 			// + strContent);

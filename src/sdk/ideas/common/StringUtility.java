@@ -8,6 +8,7 @@ public abstract class StringUtility
 			return true;
 		return false;
 	}
+
 	public static boolean stringCheck(String src, int minLength, int maxLength)
 	{
 		if (null == src)
@@ -48,8 +49,8 @@ public abstract class StringUtility
 	/** Check String is numeric data type **/
 	public static boolean isNumeric(String str)
 	{
-		if(!isValid(str))
+		if (!isValid(str))
 			return false;
-		return str.matches("[-+]?\\d*\\.?\\d+");  
+		return str.matches("[-+]?\\d*\\.?\\d+");
 	}
 }

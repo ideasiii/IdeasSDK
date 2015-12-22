@@ -12,12 +12,13 @@ import sdk.ideas.common.ResponseCode;
 
 public class CmpClient
 {
-	public static final int	ERR_PACKET_LENGTH	= -6;
-	public static final int	ERR_PACKET_SEQUENCE	= -7;
-	public static final int	ERR_REQUEST_FAIL	= -8;
-	public static final int	ERR_SOCKET_INVALID	= -9;
-	public static final int	ERR_INVALID_PARAM	= -10;
-	public static final int	ERR_LOG_DATA_LENGTH	= -11;
+	private static final int	ERR_CMP				= -1000;
+	public static final int		ERR_PACKET_LENGTH	= -6 + ERR_CMP;
+	public static final int		ERR_PACKET_SEQUENCE	= -7 + ERR_CMP;
+	public static final int		ERR_REQUEST_FAIL	= -8 + ERR_CMP;
+	public static final int		ERR_SOCKET_INVALID	= -9 + ERR_CMP;
+	public static final int		ERR_INVALID_PARAM	= -10 + ERR_CMP;
+	public static final int		ERR_LOG_DATA_LENGTH	= -11 + ERR_CMP;
 
 	private final String VERSION = "CMP Client Version 0.15.12.14";
 
