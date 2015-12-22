@@ -14,19 +14,19 @@ import java.lang.Throwable;
 
 public abstract class Logs
 {
-	private static final int	mnEnable		= Type.VALID;
-	private static final int	mnTraceLevel	= Type.TRACE_LEVEL_SIMPLE;
+	private static final int mnEnable = Type.VALID;
+	private static final int mnTraceLevel = Type.TRACE_LEVEL_SIMPLE;
 
 	private static class LogInfo
 	{
-		String	strFile			= "";
-		String	strClassPath	= "";
-		String	strClassName	= "";
-		String	strMethod		= "";
-		int		nLine			= Type.INVALID;
+		String strFile = "";
+		String strClassPath = "";
+		String strClassName = "";
+		String strMethod = "";
+		int nLine = Type.INVALID;
 	}
 
-	private static LogInfo	logInfo	= new LogInfo();
+	private static LogInfo logInfo = new LogInfo();
 
 	@SuppressWarnings("unused")
 	public static void showTrace(String msg)
@@ -37,7 +37,7 @@ public abstract class Logs
 			return;
 		}
 
-		if (msg.length() > 0)
+		if (null != msg && msg.length() > 0)
 		{
 			Throwable throwable = new Throwable();
 			logInfo.strFile = throwable.getStackTrace()[1].getFileName();
@@ -49,21 +49,18 @@ public abstract class Logs
 			String strLog = null;
 			switch (mnTraceLevel)
 			{
-				case Type.TRACE_LEVEL_SIMPLE:
-					strLog = "[TRACE] " + msg;
-					break;
-				case Type.TRACE_LEVEL_NORMAL:
-					strLog = "[TRACE] " + " class: " + logInfo.strClassPath
-							+ " line: " + logInfo.nLine + " Msg: " + msg;
-					break;
-				case Type.TRACE_LEVEL_DETAIL:
-					strLog = "[TRACE] " + "file: " + logInfo.strFile
-							+ " class: " + logInfo.strClassPath + " method: "
-							+ logInfo.strMethod + " line: " + logInfo.nLine
-							+ " Msg: " + msg;
-					break;
-				default:
-					return;
+			case Type.TRACE_LEVEL_SIMPLE:
+				strLog = "[TRACE] " + msg;
+				break;
+			case Type.TRACE_LEVEL_NORMAL:
+				strLog = "[TRACE] " + " class: " + logInfo.strClassPath + " line: " + logInfo.nLine + " Msg: " + msg;
+				break;
+			case Type.TRACE_LEVEL_DETAIL:
+				strLog = "[TRACE] " + "file: " + logInfo.strFile + " class: " + logInfo.strClassPath + " method: "
+						+ logInfo.strMethod + " line: " + logInfo.nLine + " Msg: " + msg;
+				break;
+			default:
+				return;
 			}
 
 			Log.d(logInfo.strClassName, strLog);

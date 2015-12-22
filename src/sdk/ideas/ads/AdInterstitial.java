@@ -15,6 +15,7 @@ public class AdInterstitial extends RelativeLayout
 {
 	private Context mContext = null;
 	private InterstitialAd mInterstitialAd = null;
+	private AdListeners mListener = null;
 	public AdInterstitial(Context context)
 	{
 		super(context);
@@ -23,15 +24,18 @@ public class AdInterstitial extends RelativeLayout
 		
 	}
 	
-	public boolean InterstitialAdShow()
+	public boolean interstitialAdShow()
 	{
 		 if (mInterstitialAd.isLoaded())
 		 {
 			 mInterstitialAd.show();
+			
 			 return true;
           }
 		 else
 		 {
+			 mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_STILL_LOADING, AdErrorCode.AD_INTERSTITIAL,
+						"interstitial Ad still loading!");
 			 return false;
 		 }
 		
@@ -45,9 +49,78 @@ public class AdInterstitial extends RelativeLayout
 
 	}
 	
-	public InterstitialAd getMInterstitialAd()
+	public void setOnAdListener(AdListeners listener)
 	{
-		return mInterstitialAd;
+		if (null != listener)
+		{
+			mListener = listener;
+		}
+		
+
+		mInterstitialAd.setAdListener(new AdListener()
+		{
+			@Override
+			public void onAdClosed()
+			{
+				requestNewInterstitial();
+				mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL,
+						"Ad close successful");
+				Logs.showTrace("Ad closed.");
+			}
+
+			@Override
+			public void onAdFailedToLoad(int errorCode)
+			{
+				switch (errorCode)
+				{
+				case 0:
+					Logs.showTrace("error ad cause ERROR_CODE_INTERNAL_ERROR");
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_INTERNAL_ERROR, AdErrorCode.AD_INTERSTITIAL,
+							"ERROR_CODE_INTERNAL_ERROR");
+					break;
+				case 1:
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_INVALID_REQUEST, AdErrorCode.AD_INTERSTITIAL,
+							"ERROR_CODE_INVALID_REQUEST");
+
+					break;
+				case 2:
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_NETWORK_ERROR, AdErrorCode.AD_INTERSTITIAL,
+							"ERROR_CODE_NETWORK_ERROR");
+
+					break;
+				case 3:
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_NO_FILL, AdErrorCode.AD_INTERSTITIAL,
+							"ERROR_CODE_NO_FILL");
+
+					break;
+				default:
+					// mListener.showAdResult(AdErrorCode.ERROR_CODE_INTERNAL_ERROR,
+					// AdErrorCode.AD_BANNER, "ERROR_CODE_INTERNAL_ERROR");
+
+					break;
+
+				}
+			}
+
+			@Override
+			public void onAdOpened()
+			{
+				Logs.showTrace("Ad opened.");
+				 mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL,
+							"Ad open!");
+			}
+
+			@Override
+			public void onAdLeftApplication()
+			{
+				 mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL,
+							"Ad left application.");
+				Logs.showTrace("Ad left application.");
+			}
+
+		});
+		
+		
 	}
 
 	public AdInterstitial(Context context, AttributeSet attrs, int defStyle)
@@ -57,7 +130,12 @@ public class AdInterstitial extends RelativeLayout
 		mContext = context;
 
 	}
-	public void CreateADInterstitial(final String adID)
+	public void createADInterstitial()
+	{
+		createADInterstitial(Common.INTERSTITIAL_AD_UNIT_ID);
+		
+	}
+	public void createADInterstitial(final String adID)
 	{
 		((Activity) mContext).runOnUiThread(new Runnable()
 		{
@@ -74,53 +152,7 @@ public class AdInterstitial extends RelativeLayout
 					mInterstitialAd.setAdUnitId(Common.INTERSTITIAL_AD_UNIT_ID);
 				}
 				requestNewInterstitial();
-
-				mInterstitialAd.setAdListener(new AdListener()
-				{
-					@Override
-					public void onAdClosed()
-					{
-						requestNewInterstitial();
-						Logs.showTrace("Ad closed.");
-					}
-
-					@Override
-					public void onAdFailedToLoad(int errorCode)
-					{
-						switch (errorCode)
-						{
-						case AdErrorCode.ERROR_CODE_INTERNAL_ERROR:
-							Logs.showTrace("error ad cause ERROR_CODE_INTERNAL_ERROR");
-							break;
-						case AdErrorCode.ERROR_CODE_INVALID_REQUEST:
-							Logs.showTrace("error ad cause ERROR_CODE_INVALID_REQUEST");
-							break;
-						case AdErrorCode.ERROR_CODE_NETWORK_ERROR:
-							Logs.showTrace("error ad cause ERROR_CODE_NETWORK_ERROR");
-							break;
-						case AdErrorCode.ERROR_CODE_NO_FILL:
-							Logs.showTrace("error ad cause ERROR_CODE_NO_FILL");
-							break;
-						default:
-							Logs.showTrace("error ad cause Unknown");
-							break;
-
-						}
-					}
-
-					@Override
-					public void onAdOpened()
-					{
-						Logs.showTrace("Ad opened.");
-					}
-
-					@Override
-					public void onAdLeftApplication()
-					{
-						Logs.showTrace("Ad left application.");
-					}
-
-				});
+				
 			}
 		});
 		   

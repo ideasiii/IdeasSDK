@@ -13,11 +13,13 @@ import android.view.ViewParent;
 import android.widget.RelativeLayout;
 import sdk.ideas.common.Common;
 import sdk.ideas.common.Logs;
+import sdk.ideas.tracker.Tracker;
 
 public class AdBanner extends RelativeLayout
 {
 	private Context mContext = null;
 	private AdView mAdView = null;
+	private AdListeners mListener = null;
 	
 	public AdBanner(Context context)
 	{
@@ -42,9 +44,111 @@ public class AdBanner extends RelativeLayout
 		mContext = context;
 
 	}
+	public void adPause()
+	{
+		mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+				"Ad pause");
+		Logs.showTrace("Ad pause");
+		mAdView.pause();
+	}
 	
+	public void adResume()
+	{
+		mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+				"Ad resume");
+		Logs.showTrace("Ad resume");
+		mAdView.resume();
+	}
+	public void adDestory()
+	{
+		mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+				"Ad destory");
+		Logs.showTrace("Ad destory");
+		mAdView.destroy();
+	}
 	
-	public void CreateAdBanner( final AdSize  adsize, final String  adID)
+	public void createAdBanner()
+	{
+		
+		createAdBanner( AdBannerSize.SMART_BANNER, Common.BANNER_AD_UNIT_ID);
+	}
+	public void setOnAdListener(AdListeners listener)
+	{
+		if (null != listener)
+		{
+			mListener = listener;
+		}
+		
+		mAdView.setAdListener(new AdListener() 
+		{
+            @Override
+            public void onAdLoaded() 
+            {
+            	mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+        				"Ad loaded");
+                Logs.showTrace("Ad loaded.");
+            }
+
+            @Override
+            public void onAdFailedToLoad(int errorCode) 
+            {
+            	switch (errorCode)
+            	{
+				case 0:
+					Logs.showTrace("error ad cause ERROR_CODE_INTERNAL_ERROR");
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_INTERNAL_ERROR, AdErrorCode.AD_BANNER,
+							"ERROR_CODE_INTERNAL_ERROR");
+					break;
+				case 1:
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_INVALID_REQUEST, AdErrorCode.AD_BANNER,
+							"ERROR_CODE_INVALID_REQUEST");
+
+					break;
+				case 2:
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_NETWORK_ERROR, AdErrorCode.AD_BANNER,
+							"ERROR_CODE_NETWORK_ERROR");
+
+					break;
+				case 3:
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_NO_FILL, AdErrorCode.AD_BANNER, "ERROR_CODE_NO_FILL");
+
+					break;
+				default:
+					// mListener.showAdResult(AdErrorCode.ERROR_CODE_INTERNAL_ERROR,
+					// AdErrorCode.AD_BANNER, "ERROR_CODE_INTERNAL_ERROR");
+
+					break;
+            	}
+            }
+
+            @Override
+            public void onAdOpened()
+            {
+            	mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+        				"Ad opened");
+            	 Logs.showTrace("Ad opened.");
+            }
+
+            @Override
+            public void onAdClosed() 
+            {
+            	mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+        				"Ad closed");
+            	 Logs.showTrace("Ad closed.");
+            }
+
+            @Override
+            public void onAdLeftApplication() 
+            {
+            	mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_BANNER,
+        				"Ad left application.");
+            	 Logs.showTrace("Ad left application.");
+            }
+           
+        });
+	}
+	
+	public void createAdBanner( final AdSize  adsize, final String  adID)
 	{
 		//Thread banner = new Thread(new AdBannerRunnable(adsize,adID));
 		//banner.start();
@@ -67,148 +171,10 @@ public class AdBanner extends RelativeLayout
 				addView(mAdView);	
 				mAdView.loadAd(new AdRequest.Builder()
 						.build());
-				
-				mAdView.setAdListener(new AdListener() 
-				{
-		            @Override
-		            public void onAdLoaded() 
-		            {
-		                Logs.showTrace("Ad loaded.");
-		            }
-
-		            @Override
-		            public void onAdFailedToLoad(int errorCode) 
-		            {
-		            	switch (errorCode)
-		            	{
-		            	case AdErrorCode.ERROR_CODE_INTERNAL_ERROR:
-		            		Logs.showTrace("error ad cause ERROR_CODE_INTERNAL_ERROR");
-		            		break;
-		            	case AdErrorCode.ERROR_CODE_INVALID_REQUEST:
-		            		Logs.showTrace("error ad cause ERROR_CODE_INVALID_REQUEST");
-		            		break;
-		            	case AdErrorCode.ERROR_CODE_NETWORK_ERROR:
-		            		Logs.showTrace("error ad cause ERROR_CODE_NETWORK_ERROR");
-		            		break;
-		            	case AdErrorCode.ERROR_CODE_NO_FILL:
-		            	Logs.showTrace("error ad cause ERROR_CODE_NO_FILL");
-		            		break;
-		            	default:
-		            	Logs.showTrace("error ad cause Unknown");
-		            		break;
-		            	}
-		            }
-
-		            @Override
-		            public void onAdOpened()
-		            {
-		            	 Logs.showTrace("Ad opened.");
-		            }
-
-		            @Override
-		            public void onAdClosed() 
-		            {
-		            	 Logs.showTrace("Ad closed.");
-		            }
-
-		            @Override
-		            public void onAdLeftApplication() 
-		            {
-		            	 Logs.showTrace("Ad left application.");
-		            }
-		           
-		        });
 		    }
 		});
 		
 	}
-	
-	class AdBannerRunnable implements Runnable
-	{
-		
-		private AdSize adsize;
-		private String adID;
-		
-		public AdBannerRunnable(AdSize adsize, String id)
-		{
-			this.adsize = adsize;
-			this.adID = id;
-			
-		}
-		@Override
-		public void run()
-		{
-			// TODO Auto-generated method stub
-			 mAdView = new AdView(mContext);
-			
-			mAdView.setAdSize(adsize);
-			if(adID ==null)
-			{
-				mAdView.setAdUnitId(Common.BANNER_AD_UNIT_ID);
-			} else
-			{
-				mAdView.setAdUnitId(adID);
-			}
-			addView(mAdView);	
-			mAdView.loadAd(new AdRequest.Builder()
-					.build());
-			
-			mAdView.setAdListener(new AdListener() 
-			{
-	            @Override
-	            public void onAdLoaded() 
-	            {
-	                Logs.showTrace("Ad loaded.");
-	            }
-
-	            @Override
-	            public void onAdFailedToLoad(int errorCode) 
-	            {
-	            	switch (errorCode)
-	            	{
-	            	case AdErrorCode.ERROR_CODE_INTERNAL_ERROR:
-	            		Logs.showTrace("error ad cause ERROR_CODE_INTERNAL_ERROR");
-	            		break;
-	            	case AdErrorCode.ERROR_CODE_INVALID_REQUEST:
-	            		Logs.showTrace("error ad cause ERROR_CODE_INVALID_REQUEST");
-	            		break;
-	            	case AdErrorCode.ERROR_CODE_NETWORK_ERROR:
-	            		Logs.showTrace("error ad cause ERROR_CODE_NETWORK_ERROR");
-	            		break;
-	            	case AdErrorCode.ERROR_CODE_NO_FILL:
-	            	Logs.showTrace("error ad cause ERROR_CODE_NO_FILL");
-	            		break;
-	            	default:
-	            	Logs.showTrace("error ad cause Unknown");
-	            		break;
-	            	}
-	            }
-
-	            @Override
-	            public void onAdOpened()
-	            {
-	            	 Logs.showTrace("Ad opened.");
-	            }
-
-	            @Override
-	            public void onAdClosed() 
-	            {
-	            	 Logs.showTrace("Ad closed.");
-	            }
-
-	            @Override
-	            public void onAdLeftApplication() 
-	            {
-	            	 Logs.showTrace("Ad left application.");
-	            }
-	           
-	        });
-		} 
-		
-		
-	}
-	
-	
 	
 }
 	
