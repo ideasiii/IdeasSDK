@@ -31,6 +31,7 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 	private PlayStorePurchaseListener mPlayStorePurchaseListener = null;
 	private Context mContext = null;
 	private String mPublicKey = null;
+	private AdRequest mAdRequest = null;
 	private int mError = 1;
 
 	public AdInterstitialPlayStorePurchase(Context context)
@@ -62,21 +63,35 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 
 	public boolean interstitialAdShow()
 	{
-
-		if (mInterstitialAd.isLoaded())
+		if(null!=mInterstitialAd && null!=mListener)
 		{
-			mInterstitialAd.show();
-
-			return true;
-		} else if (mError < 1)
+			if (mError < 1)
+			{
+				mListener.showAdResult(mError, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "some error to show ads");
+				requestNewInterstitial();
+				return false;
+			} 
+			else if (mInterstitialAd.isLoaded())
+			{
+				mInterstitialAd.show();
+	
+				return true;
+			} 
+			else
+			{
+				mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_STILL_LOADING,
+						AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "interstitial Ad still loading!");
+				return false;
+			}
+		}
+		else
 		{
-			mListener.showAdResult(mError, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "some error to show ads");
-			requestNewInterstitial();
-			return false;
-		} else
-		{
-			mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_STILL_LOADING,
-					AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "interstitial Ad still loading!");
+			if(null == mInterstitialAd && null!=mListener)
+			{
+				mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_UNCREATED,
+						AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+						"purchase interstitial Ad not created caused by uid is null!");
+			}
 			return false;
 		}
 	}
@@ -87,133 +102,148 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 		{
 			mListener = listener;
 		}
-
-		mInterstitialAd.setAdListener(new AdListener()
-		{
-			@Override
-			public void onAdClosed()
-			{
-				requestNewInterstitial();
-				mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
-						"Ad close successful");
-				Logs.showTrace("Ad closed.");
-			}
-
-			@Override
-			public void onAdFailedToLoad(int errorCode)
-			{
-
-				switch (errorCode)
-				{
-				case 0:
-					Logs.showTrace("error ad cause ERROR_CODE_INTERNAL_ERROR");
-					mError = AdErrorCode.ERROR_CODE_INTERNAL_ERROR;
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_INTERNAL_ERROR,
-							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "ERROR_CODE_INTERNAL_ERROR");
-
-					break;
-				case 1:
-					mError = AdErrorCode.ERROR_CODE_INVALID_REQUEST;
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_INVALID_REQUEST,
-							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "ERROR_CODE_INVALID_REQUEST");
-
-					break;
-				case 2:
-					mError = AdErrorCode.ERROR_CODE_NETWORK_ERROR;
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_NETWORK_ERROR,
-							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "ERROR_CODE_NETWORK_ERROR");
-
-					break;
-				case 3:
-					mError = AdErrorCode.ERROR_CODE_NO_FILL;
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_NO_FILL,
-							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "ERROR_CODE_NO_FILL");
-
-					break;
-				default:
-					mError = -999;
-					mListener.showAdResult(errorCode, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "some error");
-
-					break;
-
-				}
-			}
-
-			@Override
-			public void onAdOpened()
-			{
-				Logs.showTrace("Ad opened.");
-				mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
-						"Ad open!");
-			}
-
-			@Override
-			public void onAdLeftApplication()
-			{
-				mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
-						"Ad left application.");
-				Logs.showTrace("Ad left application.");
-			}
-
-		});
-
-	}
-
-	public void createADInterstitial(final String adID)
-	{
-		if (mContext == null)
+		else
 		{
 			return;
 		}
+		
+		if(null != mInterstitialAd)
+		{
+			mInterstitialAd.setAdListener(new AdListener()
+			{
+				@Override
+				public void onAdClosed()
+				{
+					requestNewInterstitial();
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+							"Ad close successful");
+					Logs.showTrace("Ad closed.");
+				}
+	
+				@Override
+				public void onAdFailedToLoad(int errorCode)
+				{
+	
+					switch (errorCode)
+					{
+					case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+						mError = AdErrorCode.ERROR_CODE_INTERNAL_ERROR;
+						mListener.showAdResult(AdErrorCode.ERROR_CODE_INTERNAL_ERROR,
+								AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+								"Something happened internally; for instance, an invalid response was received from the ad server.");
 
+						break;
+					case AdRequest.ERROR_CODE_INVALID_REQUEST:
+						mError = AdErrorCode.ERROR_CODE_INVALID_REQUEST;
+						mListener.showAdResult(AdErrorCode.ERROR_CODE_INVALID_REQUEST,
+								AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+								"The ad request was invalid; for instance, the ad unit ID was incorrect.");
+
+						break;
+					case AdRequest.ERROR_CODE_NETWORK_ERROR:
+						mError = AdErrorCode.ERROR_CODE_NETWORK_ERROR;
+						mListener.showAdResult(AdErrorCode.ERROR_CODE_NETWORK_ERROR,
+								AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+								"The ad request was unsuccessful due to network connectivity.");
+
+						break;
+					case AdRequest.ERROR_CODE_NO_FILL:
+						mError = AdErrorCode.ERROR_CODE_NO_FILL;
+						mListener.showAdResult(AdErrorCode.ERROR_CODE_NO_FILL,
+								AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+								"The ad request was successful, but no ad was returned due to lack of ad inventory.");
+
+						break;
+					default:
+						mError = AdErrorCode.ERROR_CODE_UNKNOWED;
+						mListener.showAdResult(mError, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "some error");
+
+						break;
+	
+					}
+				}
+	
+				@Override
+				public void onAdOpened()
+				{
+					Logs.showTrace("Ad opened.");
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+							"Ad open!");
+				}
+	
+				@Override
+				public void onAdLeftApplication()
+				{
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+							"Ad left application.");
+					Logs.showTrace("Ad left application.");
+				}
+	
+			});
+		}
+		else
+		{
+			mError = AdErrorCode.ERROR_CODE_AD_UNCREATED;
+			mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_UNCREATED, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+					"purchase interstitial Ad not created caused by uid is null");
+			
+		}
+
+	}
+
+	public void createADInterstitialPlayStorePurchase(final String adID)
+	{
+		if(null == adID)
+		{
+			return;
+		}
 		((Activity) mContext).runOnUiThread(new Runnable()
 		{
 			@Override
 			public void run()
 			{
 				// Code for the UiThread
-				mInterstitialAd = new InterstitialAd(mContext);
-				
+				mInterstitialAd = new InterstitialAd(mContext);	
 				mInterstitialAd.setPlayStorePurchaseParams(mPlayStorePurchaseListener, mPublicKey);
-
-				if (adID != null)
-				{	
-					mInterstitialAd.setAdUnitId(adID);
-					
-				} else
-				{
-					mInterstitialAd.setAdUnitId(Common.INTERSTITIAL_AD_UNIT_ID);
-				}
+				mInterstitialAd.setAdUnitId(adID);
+				
 				requestNewInterstitial();
-
 			}
 
 		});
 
 	}
 
-	private void requestNewInterstitial()
-	{
-		AdRequest adRequest = new AdRequest.Builder().build();
-
-		mInterstitialAd.loadAd(adRequest);
+	 private void requestNewInterstitial() 
+	 {
+		if (null != mInterstitialAd)
+		{
+			if (null != this.mAdRequest)
+			{
+				mInterstitialAd.loadAd(mAdRequest);
+			} else
+			{
+				mInterstitialAd.loadAd(new AdRequest.Builder().build());
+			}
+		}
+		else
+		{
+			mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_UNCREATED, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+					"purchase interstitial Ad not created ");
+		}
 	}
 
 	public void setPurchaseParams(String publicKey)
 	{
 		mPublicKey = publicKey;
-		Logs.showTrace("201");
-
 	}
 
 	@Override
 	public boolean isValidPurchase(String sku)
 	{
 		// Optional: check if the product has already been purchased.
-		
 		try
 		{
-			
 			if (null != getOwnedProducts() && getOwnedProducts().contains(sku))
 			{
 				// Handle the case if product is already purchased.
