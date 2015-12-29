@@ -4,7 +4,6 @@ package sdk.ideas.ads;
 
 import com.google.android.gms.ads.AdSize;
 
-import sdk.ideas.common.Logs;
 
 public abstract class AdBannerSize
 {

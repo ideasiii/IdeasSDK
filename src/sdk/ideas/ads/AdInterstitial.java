@@ -3,12 +3,10 @@ package sdk.ideas.ads;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-
 import android.app.Activity;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
-import sdk.ideas.common.Common;
 import sdk.ideas.common.Logs;
 
 public class AdInterstitial extends RelativeLayout
