@@ -119,14 +119,12 @@ public class CmpClient
 
 			respData.put("REQ_BODY_INIT_TYPE", initType);
 
-			// 結束字元
 			buf.put((byte) 0);
 
 			buf.flip();
 			outSocket.write(buf.array());
 			buf.clear();
 
-			// 255 補齊body return 回來資訊
 			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE + 255);
 
 			nLength = inSocket.read(buf.array());
@@ -157,7 +155,7 @@ public class CmpClient
 					response.mstrContent = respData.get("RESP_BODY");
 				}
 
-				// debug用
+				// debug
 
 				/*
 				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
@@ -304,7 +302,7 @@ public class CmpClient
 				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
 				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
 
-				// debug用
+				// debug
 				// Logs.showTrace(respData.get("REQ_BODY_SIGN_UP_DATA"));
 				Logs.showTrace(respData.get("RESP_LENGTH"));
 				Logs.showTrace(respData.get("RESP_ID"));
@@ -347,8 +345,6 @@ public class CmpClient
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
 			return;
 		}
-		// 檢查其長度 不能大於 2000 bytes
-		// Logs.showTrace("361");
 		try
 		{
 			if (accessLogData.getBytes("US-ASCII").length > 2000)
@@ -442,7 +438,6 @@ public class CmpClient
 				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
 				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
 
-				// debug用
 				Logs.showTrace(respData.get("RESP_LENGTH"));
 				Logs.showTrace(respData.get("RESP_ID"));
 				Logs.showTrace(respData.get("RESP_STATUS"));
@@ -468,6 +463,16 @@ public class CmpClient
 		}
 
 	}
+	
+	public static void mdmRequest(final String strIP, final int nPort, String mdmType, String mdmData,
+			HashMap<String, String> respData, Response response)
+	{
+		
+		//....
+		
+	}
+	
+	
 
 	private static int checkResponse(ByteBuffer buf, int nSequence)
 	{
