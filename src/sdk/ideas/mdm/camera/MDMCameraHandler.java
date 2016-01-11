@@ -1,19 +1,21 @@
 package sdk.ideas.mdm.camera;
 
-import android.content.Context;
 import sdk.ideas.common.Logs;
+import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
 
 public class MDMCameraHandler
 {
 	private ControlCamera camera = null;
-	public MDMCameraHandler (Context context)
+	
+	public MDMCameraHandler (PolicyData data)
 	{
-		camera = new ControlCamera(context);
+		camera = new ControlCamera(data);
 		
 	}
-	public void setCamera(boolean disable)
+
+	public void setCameraDisable(boolean disable)
 	{
-		if(null!= camera)
+		if (null != camera)
 		{
 			camera.setCamera(disable);
 		}
@@ -21,7 +23,15 @@ public class MDMCameraHandler
 		{
 			Logs.showTrace("not new MDMCameraHandler");
 		}
+	}
+	public boolean getCameraStatus()
+	{
+		if(null!=camera)
+		{
+			return camera.getCameraStatus();
 		}
+		return false;
+	}
 	
 	
 

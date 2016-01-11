@@ -9,7 +9,7 @@ public abstract class Common
 	public final static String INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-4351303625351134/4481552801";
 	public final static int TYPE_BANNER_AD 	    	   = 1;
 	public final static int TYPE_INTERSTITIALAD 	   = 2;
-	public static String Version = "0.15.12.18";
+	public static String Version = "0.16.01.11";
 	
 	public static String URL_APPSENSOR_INIT 			= "54.199.198.94";
 	public static int 	 PORT_APPSENSOR_INIT 			= 6607;

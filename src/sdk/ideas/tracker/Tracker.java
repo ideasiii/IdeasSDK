@@ -355,7 +355,7 @@ public class Tracker
 	 * }
 	 */
 
-	public void init()
+	private void init()
 	{
 		Thread t = new Thread(new sendSocketRunnable(TAG_APPSENSOR_INIT));
 		Logs.showTrace("in 375");
@@ -373,7 +373,7 @@ public class Tracker
 				JSONObject dataArray = new JSONObject(strContent);
 				JSONObject startTrackerData = null, trackerData = null;
 
-				// 透過id判斷 哪個是tracker,start tracker 的資料
+				
 				if (((JSONObject) dataArray.getJSONArray("server").get(0)).get("id").equals(0))
 				{
 					startTrackerData = ((JSONObject) dataArray.getJSONArray("server").get(0));
@@ -424,7 +424,7 @@ public class Tracker
 	 * }
 	 */
 
-	public void sendEvent(String jsonString, final int nTag)
+	protected void sendEvent(String jsonString, final int nTag)
 	{
 
 		if (null == Common.URL_APPSENSOR_STARTTRACKER)
@@ -592,12 +592,12 @@ public class Tracker
 	 * null; private HashMap<String, String> parm = null; private int mnTag = 0;
 	 * 
 	 * @Override public void run() { HttpClient.Response response = new
-	 * HttpClient.Response(); sendGetData(mstrURL, parm, response); /* //以下為send
+	 * HttpClient.Response(); sendGetData(mstrURL, parm, response); /* 
 	 * message Message msg = new Message(); msg.what = MSG_RESPONSE; msg.arg1 =
 	 * response.mnCode; msg.arg2 = mnTag; msg.obj = response.mstrContent;
 	 * theHandler.sendMessage(msg); msg = null;
 	 * 
-	 * //以下為 post message
+	 * 
 	 * 
 	 * Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag,
 	 * response.mstrContent);
