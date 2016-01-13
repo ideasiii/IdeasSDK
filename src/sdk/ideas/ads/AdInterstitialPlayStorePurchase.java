@@ -1,7 +1,6 @@
 package sdk.ideas.ads;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.ArrayList;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -16,19 +15,18 @@ import android.widget.RelativeLayout;
 import sdk.ideas.common.Logs;
 import com.android.vending.billing.*;
 
-
 public class AdInterstitialPlayStorePurchase extends RelativeLayout implements PlayStorePurchaseListener
 {
 	public static final int BILLING_RESPONSE_RESULT_OK = 0;
 
-	private InterstitialAd mInterstitialAd;
-	private IInAppBillingService mService;
-	private AdListeners mListener = null;
-	private PlayStorePurchaseListener mPlayStorePurchaseListener = null;
-	private Context mContext = null;
-	private String mPublicKey = null;
-	private AdRequest mAdRequest = null;
-	private int mError = 1;
+	private InterstitialAd				mInterstitialAd;
+	private IInAppBillingService		mService;
+	private AdListeners					mListener					= null;
+	private PlayStorePurchaseListener	mPlayStorePurchaseListener	= null;
+	private Context						mContext					= null;
+	private String						mPublicKey					= null;
+	private AdRequest					mAdRequest					= null;
+	private int							mError						= 1;
 
 	public AdInterstitialPlayStorePurchase(Context context)
 	{
@@ -38,7 +36,6 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 		// TODO Auto-generated constructor stub
 	}
 
-	
 	public AdInterstitialPlayStorePurchase(Context context, AttributeSet attrs, int defStyle)
 	{
 		super(context, attrs, defStyle);
@@ -59,20 +56,21 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 
 	public boolean interstitialAdShow()
 	{
-		if(null!=mInterstitialAd && null!=mListener)
+		if (null != mInterstitialAd && null != mListener)
 		{
 			if (mError < 1)
 			{
-				mListener.showAdResult(mError, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "some error to show ads");
+				mListener.showAdResult(mError, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
+						"some error to show ads");
 				requestNewInterstitial();
 				return false;
-			} 
+			}
 			else if (mInterstitialAd.isLoaded())
 			{
 				mInterstitialAd.show();
-	
+
 				return true;
-			} 
+			}
 			else
 			{
 				mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_STILL_LOADING,
@@ -82,7 +80,7 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 		}
 		else
 		{
-			if(null == mInterstitialAd && null!=mListener)
+			if (null == mInterstitialAd && null != mListener)
 			{
 				mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_UNCREATED,
 						AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
@@ -102,8 +100,8 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 		{
 			return;
 		}
-		
-		if(null != mInterstitialAd)
+
+		if (null != mInterstitialAd)
 		{
 			mInterstitialAd.setAdListener(new AdListener()
 			{
@@ -111,16 +109,16 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 				public void onAdClosed()
 				{
 					requestNewInterstitial();
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
-							"Ad close successful");
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS,
+							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "Ad close successful");
 					Logs.showTrace("Ad closed.");
 				}
-	
+
 				@Override
 				public void onAdFailedToLoad(int errorCode)
 				{
-	
-					switch (errorCode)
+
+					switch(errorCode)
 					{
 					case AdRequest.ERROR_CODE_INTERNAL_ERROR:
 						mError = AdErrorCode.ERROR_CODE_INTERNAL_ERROR;
@@ -155,26 +153,26 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 						mListener.showAdResult(mError, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "some error");
 
 						break;
-	
+
 					}
 				}
-	
+
 				@Override
 				public void onAdOpened()
 				{
 					Logs.showTrace("Ad opened.");
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
-							"Ad open!");
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS,
+							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "Ad open!");
 				}
-	
+
 				@Override
 				public void onAdLeftApplication()
 				{
-					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
-							"Ad left application.");
+					mListener.showAdResult(AdErrorCode.ERROR_CODE_SUCCESS,
+							AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE, "Ad left application.");
 					Logs.showTrace("Ad left application.");
 				}
-	
+
 			});
 		}
 		else
@@ -182,14 +180,14 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 			mError = AdErrorCode.ERROR_CODE_AD_UNCREATED;
 			mListener.showAdResult(AdErrorCode.ERROR_CODE_AD_UNCREATED, AdErrorCode.AD_INTERSTITIAL_PLAY_STORE_PURCHASE,
 					"purchase interstitial Ad not created caused by uid is null");
-			
+
 		}
 
 	}
 
 	public void createADInterstitialPlayStorePurchase(final String adID)
 	{
-		if(null == adID)
+		if (null == adID)
 		{
 			return;
 		}
@@ -199,10 +197,10 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 			public void run()
 			{
 				// Code for the UiThread
-				mInterstitialAd = new InterstitialAd(mContext);	
+				mInterstitialAd = new InterstitialAd(mContext);
 				mInterstitialAd.setPlayStorePurchaseParams(mPlayStorePurchaseListener, mPublicKey);
 				mInterstitialAd.setAdUnitId(adID);
-				
+
 				requestNewInterstitial();
 			}
 
@@ -210,14 +208,15 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 
 	}
 
-	 private void requestNewInterstitial() 
-	 {
+	private void requestNewInterstitial()
+	{
 		if (null != mInterstitialAd)
 		{
 			if (null != this.mAdRequest)
 			{
 				mInterstitialAd.loadAd(mAdRequest);
-			} else
+			}
+			else
 			{
 				mInterstitialAd.loadAd(new AdRequest.Builder().build());
 			}
@@ -245,14 +244,17 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 				// Handle the case if product is already purchased.
 				return false;
 			}
-		} catch (RemoteException e)
+		}
+		catch (RemoteException e)
 		{
 			Logs.showTrace("Query purchased product failed.");
 			return false;
-		} catch (NullPointerException e)
+		}
+		catch (NullPointerException e)
 		{
 			Logs.showTrace(e.toString());
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			Logs.showTrace(e.getMessage());
 		}
@@ -262,7 +264,7 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 	@Override
 	public void onInAppPurchaseFinished(InAppPurchaseResult result)
 	{
-		
+
 		Logs.showTrace("onInAppPurchaseFinished Start");
 		int resultCode = result.getResultCode();
 		Logs.showTrace("result code: " + resultCode);
@@ -277,13 +279,14 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 
 			// Finish purchase and consume product.
 			result.finishPurchase();
-			 if (responseCode == BILLING_RESPONSE_RESULT_OK)
-			 {
-				 
-				 // Optional: your custom process goes here, e.g., add coins after
-				 // purchase.
-				 Logs.showTrace("success to purchase product: " + sku);
-			 }
+			if (responseCode == BILLING_RESPONSE_RESULT_OK)
+			{
+
+				// Optional: your custom process goes here, e.g., add coins
+				// after
+				// purchase.
+				Logs.showTrace("success to purchase product: " + sku);
+			}
 		}
 		else
 		{
@@ -293,24 +296,25 @@ public class AdInterstitialPlayStorePurchase extends RelativeLayout implements P
 
 	}
 
-	private List getOwnedProducts() throws RemoteException
+	private ArrayList<String> getOwnedProducts() throws RemoteException
 	{
 		// Query for purchased items.
 		// See
 		// http://developer.android.com/google/play/billing/billing_reference.html
 		// and
 		// http://developer.android.com/google/play/billing/billing_integrate.html
-		
+
 		Bundle ownedItems = mService.getPurchases(3, mContext.getPackageName(), "inapp", null);
-		
+
 		int response = ownedItems.getInt("RESPONSE_CODE");
 		Logs.showTrace("Response code of purchased item query");
 		if (response == 0)
 		{
 			return ownedItems.getStringArrayList("INAPP_PURCHASE_ITEM_LIST");
 		}
-		
-		return Collections.emptyList();
+		ArrayList<String> emptyList = new ArrayList<String>();
+
+		return emptyList;
 	}
 
 }
