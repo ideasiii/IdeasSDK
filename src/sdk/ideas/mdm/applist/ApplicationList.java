@@ -10,15 +10,7 @@ import sdk.ideas.common.Logs;
 
 public class ApplicationList
 {
-
-	private Context mContext = null;
-
-	public ApplicationList(Context context)
-	{
-		mContext = context;
-	}
-
-	public String[] getApplicationListasArray()
+	public static String[] getApplicationListasArray(Context mContext)
 	{
 		PackageManager pm = mContext.getPackageManager();
 		List<ApplicationInfo> apps = pm.getInstalledApplications(0);
@@ -30,7 +22,7 @@ public class ApplicationList
 		return applicationNames;
 	}
 
-	public ArrayList<AppInfo> getInstalledApps(boolean getSysPackages)
+	public static ArrayList<AppInfo> getInstalledApps(Context mContext,boolean getSysPackages)
 	{
 		ArrayList<AppInfo> res = new ArrayList<AppInfo>();
 		List<PackageInfo> packs = mContext.getPackageManager().getInstalledPackages(0);
@@ -52,7 +44,7 @@ public class ApplicationList
 		return res;
 	}
 
-	public String getAppNameFromPackage(String packageName)
+	public static String getAppNameFromPackage(Context mContext,String packageName)
 	{
 		boolean getSysPackages = true;
 		String appName = "";
@@ -114,7 +106,7 @@ public class ApplicationList
 	 * context.sendBroadcast(in); }
 	 */
 
-	public class AppInfo
+	public static class AppInfo
 	{
 		public String appName        = "";
 		public String appPackageName = "";
@@ -133,7 +125,7 @@ public class ApplicationList
 		// public String icon = null;
 		public void print()
 		{
-			Logs.showTrace("app: " +appName + " package: " + appPackageName + "version:  " + appVersionName + "version code:  " + appVersionCode);
+			Logs.showTrace("app: " +appName + " package: " + appPackageName + " version: " + appVersionName + "version code:  " + appVersionCode);
 		}
 	}
 

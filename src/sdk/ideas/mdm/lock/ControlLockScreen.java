@@ -5,14 +5,14 @@ import android.content.ComponentName;
 import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
 
-public class ControlLockSceen
+public class ControlLockScreen
 {
 	public  DevicePolicyManager devicePolicyManager = null;
 	private ComponentName lockAdmin = null;
 
 	
 	
-	public ControlLockSceen(PolicyData data)
+	public ControlLockScreen(PolicyData data)
 	{
 		if (null != data)
 		{

@@ -8,13 +8,13 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
 
 @SuppressLint("NewApi")
-public class ControlLockSceenPassword
+public class ControlLockScreenPassword
 {
 
 	private DevicePolicyManager devicePolicyManager = null;
 	private ComponentName lockAdmin = null;
 
-	public ControlLockSceenPassword(PolicyData data)
+	public ControlLockScreenPassword(PolicyData data)
 	{
 		if (null != data)
 		{

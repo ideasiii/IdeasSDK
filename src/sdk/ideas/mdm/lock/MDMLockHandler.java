@@ -6,8 +6,8 @@ import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
 
 public class MDMLockHandler
 {
-	private ControlLockSceen locker = null;
-	private ControlLockSceenPassword passwordLocker = null;
+	private ControlLockScreen locker = null;
+	private ControlLockScreenPassword passwordLocker = null;
 	private boolean mLockByPassword = false;
 	
 	private int mPasswordQuality;
@@ -22,11 +22,11 @@ public class MDMLockHandler
 		mContext = data.getContext();
 		if (mLockByPassword == false)
 		{
-			locker = new ControlLockSceen(data);
+			locker = new ControlLockScreen(data);
 		}
 		else
 		{
-			passwordLocker = new ControlLockSceenPassword(data);
+			passwordLocker = new ControlLockScreenPassword(data);
 		}
 	}
 	public void lockStatusBar()

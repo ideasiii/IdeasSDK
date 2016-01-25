@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.restore;
+package sdk.ideas.mdm.app;
 
 import android.app.Activity;
 import android.content.Context;
