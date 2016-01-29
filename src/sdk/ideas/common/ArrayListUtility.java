@@ -7,7 +7,7 @@ import sdk.ideas.mdm.applist.ApplicationList.AppInfo;
 
 public class ArrayListUtility
 {
-	public static boolean findContain(ArrayList<String> data,String keyword)
+	public static boolean findContainAndRemove(ArrayList<String> data,String keyword)
 	{
 		Iterator<String> iter = data.iterator();
         while(iter.hasNext())

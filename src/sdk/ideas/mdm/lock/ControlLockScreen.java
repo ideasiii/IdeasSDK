@@ -7,7 +7,7 @@ import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
 
 public class ControlLockScreen
 {
-	public  DevicePolicyManager devicePolicyManager = null;
+	private  DevicePolicyManager devicePolicyManager = null;
 	private ComponentName lockAdmin = null;
 
 	
@@ -45,6 +45,7 @@ public class ControlLockScreen
 	{
 		if (null != devicePolicyManager && null != lockAdmin)
 		{
+			
 			return devicePolicyManager.isAdminActive(lockAdmin);
 		}
 		return false;

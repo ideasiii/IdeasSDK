@@ -1,17 +1,20 @@
 package sdk.ideas.mdm.restore;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.ArrayList;
 import android.content.Context;
-
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ArrayListUtility.ReturnColectionData;
 import sdk.ideas.mdm.MDMType;
 import sdk.ideas.mdm.app.ApplicationHandler;
-import sdk.ideas.mdm.app.PackageReceiver.ReturnAppAction;
+import sdk.ideas.mdm.app.ApplicationHandler.ReturnApplicationAction;
 import sdk.ideas.mdm.applist.ApplicationList;
-import sdk.ideas.mdm.record.RecordFileData;
+import sdk.ideas.mdm.record.RecordHandler;
 
 public class Restore implements Runnable
 {
@@ -21,34 +24,51 @@ public class Restore implements Runnable
 	private ApplicationHandler appHandler  = null;
 	ArrayList<String> arrayNeedUninstall = null;
 	ArrayList<String> arrayNeedInstall = null;
+	private RestoreHandler.ReturnRestoreAction listener = null;
 	
-	public Restore(Context context, boolean readLocalInit)
+	public Restore(Context context, boolean readLocalInit,RestoreHandler.ReturnRestoreAction listener )
 	{
 		this.mContext = context;
 		this.mReadLocalInit = readLocalInit;
+		this.listener = listener;
 		appHandler = new ApplicationHandler(mContext);
+		
 	}
+	
+	
+	
+	
 	@Override
 	public void run()
 	{
 		restoreFile();
 		listenAppAction();
 		restoreApp();
-		
+		sendRestoreResultMessage("total restore success");
 	}
 
+	
+	public void sendRestoreResultMessage(String message)
+	{
+		if (null != listener)
+			listener.returnRestoreActionResult(message);
+	}
+	
 	public void restoreFile()
 	{
 
 		ArrayList<String> fileList = null;
 		ReturnColectionData data = null;
 
-		Thread fileListThread = new Thread(new RecordFileData(mContext, false));
-		fileListThread.start();
-
+		
+		
+		RecordHandler recordData = new RecordHandler(mContext, false);
+		
+		
+		sendRestoreResultMessage("start download data profile from cloud server");
 		try
 		{
-			fileListThread.join();
+			recordData.recordInitFileListPathInSDCard(false, true);
 			fileList = IOFileHandler.readFromExteralFile(MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, "fileList.txt");
 	
 		}
@@ -61,8 +81,19 @@ public class Restore implements Runnable
 		{
 			if (null != fileList)
 			{
-				data = ArrayListUtility.ArrayListDifference(
-						IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_SDCARD_PATH), fileList);
+				try
+				{
+					data = ArrayListUtility.ArrayListDifference(
+							IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_SDCARD_PATH), fileList);
+				}
+				catch (FileNotFoundException e)
+				{
+					sendRestoreResultMessage(e.toString());
+				}
+				catch (IOException e)
+				{
+					sendRestoreResultMessage(e.toString());
+				}
 			}
 			else
 			{
@@ -71,8 +102,23 @@ public class Restore implements Runnable
 		}
 		else
 		{
-			IOFileHandler.urlDownloader(MDMType.URL_MDM_PROFILE + MDMType.INIT_SERVER_MDM_SDCARD_PATH,
-					MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, MDMType.INIT_SERVER_MDM_SDCARD_PATH);
+			try
+			{
+				IOFileHandler.urlDownloader(MDMType.URL_MDM_PROFILE + MDMType.INIT_SERVER_MDM_SDCARD_PATH,
+						MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, MDMType.INIT_SERVER_MDM_SDCARD_PATH);
+			}
+			catch (MalformedURLException e)
+			{
+				sendRestoreResultMessage(e.toString());
+			}
+			catch (ProtocolException e)
+			{
+				sendRestoreResultMessage(e.toString());
+			}
+			catch (IOException e)
+			{
+				sendRestoreResultMessage(e.toString());
+			}
 			ArrayList<String> initSDCardFile = null;
 
 			try
@@ -87,6 +133,7 @@ public class Restore implements Runnable
 				Logs.showTrace(e.toString());
 			}
 		}
+		sendRestoreResultMessage("download success");
 
 		ArrayList<String> needToDeleteFileList = new ArrayList<String>(data.new_b);
 		
@@ -99,11 +146,13 @@ public class Restore implements Runnable
 			needToDeleteFileList.add(IOFileHandler.getExternalStorageDirectory() + "/"
 					+ MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH + MDMType.INIT_SERVER_MDM_SDCARD_PATH);
 		}
-
+		sendRestoreResultMessage("need to delete append data number: "+String.valueOf(needToDeleteFileList.size()));
+		sendRestoreResultMessage("start to delete");
 		if (true == IOFileHandler.deleteFileList(needToDeleteFileList))
 		{
-			Logs.showTrace("delete successful");
+			Logs.showTrace("delete append file successful");
 		}
+		sendRestoreResultMessage("file restore success");
 	}
 
 	public void restoreApp()
@@ -112,10 +161,22 @@ public class Restore implements Runnable
 		if (mReadLocalInit == true)
 		{
 
-			ReturnColectionData data = ArrayListUtility.ArrayListDifference(
-					IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH),
-					ArrayListUtility.AppInfoConvertToArrayListString(
-							ApplicationList.getInstalledApps(mContext, recordSystemApplication)));
+			ReturnColectionData data = null;
+			try
+			{
+				data = ArrayListUtility.ArrayListDifference(
+						IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH),
+						ArrayListUtility.AppInfoConvertToArrayListString(
+								ApplicationList.getInstalledApps(mContext, recordSystemApplication)));
+			}
+			catch (FileNotFoundException e)
+			{
+				sendRestoreResultMessage(e.toString());
+			}
+			catch (IOException e)
+			{
+				sendRestoreResultMessage(e.toString());
+			}
 
 			arrayNeedUninstall = new ArrayList<String>(data.new_b);
 			arrayNeedInstall = new ArrayList<String>(data.new_a);
@@ -124,6 +185,7 @@ public class Restore implements Runnable
 		{
 			try
 			{
+				sendRestoreResultMessage("start download app profile from cloud server");
 				IOFileHandler.urlDownloader(MDMType.URL_MDM_PROFILE + MDMType.INIT_SERVER_MDM_APP_PATH,
 						MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, MDMType.INIT_SERVER_MDM_APP_PATH);
 
@@ -145,30 +207,38 @@ public class Restore implements Runnable
 				Logs.showTrace(e.toString());
 			}
 		}
-
+		sendRestoreResultMessage("download success");
 		if (null != arrayNeedUninstall && null != arrayNeedInstall)
 		{
+			sendRestoreResultMessage("need to uninstall list");
 			Logs.showTrace("need to uninstall list");
 			for (int i = 0; i < arrayNeedUninstall.size(); i++)
 			{
+				sendRestoreResultMessage(arrayNeedUninstall.get(i));
 				Logs.showTrace(arrayNeedUninstall.get(i));
 			}
+			sendRestoreResultMessage("start to delete app");
 			for (int i = 0; i < arrayNeedUninstall.size(); i++)
 			{
 				appHandler.unInstallApplication(arrayNeedUninstall.get(i));
 			}
-
+			
+			sendRestoreResultMessage("need to install list");
 			Logs.showTrace("need to install list");
+			
 			for (int i = 0; i < arrayNeedInstall.size(); i++)
 			{
+				sendRestoreResultMessage(arrayNeedInstall.get(i));
 				Logs.showTrace(arrayNeedInstall.get(i));
 			}
-
+			sendRestoreResultMessage("start to install app");
 			for (int i = 0; i < arrayNeedInstall.size(); i++)
 			{
+				sendRestoreResultMessage("now start to download "+arrayNeedInstall.get(i)+" and install");
 				appHandler.installApplication(MDMType.URL_MDM_APP_DOWNLOAD + arrayNeedInstall.get(i) + ".apk",
 						arrayNeedInstall.get(i) + ".apk");
 			}
+			sendRestoreResultMessage("app restore success");
 		}
 	}
 	
@@ -176,37 +246,62 @@ public class Restore implements Runnable
 	{
 		
 		
-		appHandler.listenAppActionInit();
 		Logs.showTrace("registerReceiver");
-		appHandler.getPackageReceiver().setOnPackageReceiverListener(new ReturnAppAction()
+		appHandler.setOnAppLicationListener(new ReturnApplicationAction()
 		{
-			
+
 			@Override
-			public void returnAppActionResult(String appAction, String packageName)
+			public void returnApplicationActionResult(String appAction, String packageName, boolean isYourAction)
 			{
+				
+				Logs.showTrace(appAction+"  "+packageName+"  " + String.valueOf(isYourAction));
+				
 				
 				if (appAction.equals("android.intent.action.PACKAGE_ADDED"))
 				{
 					Logs.showTrace(appAction);
 					if (null != arrayNeedInstall && arrayNeedInstall.size() != 0)
 					{
-						if (arrayNeedInstall.contains(packageName))
+						if (ArrayListUtility.findContainAndRemove(arrayNeedInstall,packageName))
 						{
 							IOFileHandler.deleteFile(IOFileHandler.getExternalStorageDirectory() + "/"
 									+ MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH + packageName + ".apk");
 							
-							ArrayListUtility.findContain(arrayNeedInstall,packageName);
 							Logs.showTrace(String.valueOf(arrayNeedInstall.size()));
-							if (arrayNeedInstall.size() == 0)
-							{
-								stopListenAppAction();
-							}
+							
 						}
 					}
 					
 				}
+				else if(appAction.equals("android.intent.action.PACKAGE_REMOVED"))
+				{
+					if (null != arrayNeedUninstall && arrayNeedUninstall.size() != 0)
+					{
+						if (ArrayListUtility.findContainAndRemove(arrayNeedInstall,packageName) )
+						{
+							Logs.showTrace(String.valueOf(arrayNeedUninstall.size()));
+						}
+					
+					}
+					
+				}
+				if(null!=arrayNeedInstall && null!= arrayNeedUninstall)
+				{
+					if (arrayNeedInstall.size() == 0 && arrayNeedUninstall.size() == 0)
+					{
+						stopListenAppAction();
+						sendRestoreResultMessage("0000XX");
+					}
+				}
+				
 			}
-	
+
+			@Override
+			public void returnApplicationDownloadResult(String message)
+			{
+				
+				
+			}	
 		});
 	}
 	public void stopListenAppAction()

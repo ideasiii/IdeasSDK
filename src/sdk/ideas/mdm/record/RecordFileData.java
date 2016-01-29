@@ -2,12 +2,15 @@ package sdk.ideas.mdm.record;
 
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import android.content.Context;
 import android.os.Environment;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.MDMType;
+import sdk.ideas.mdm.record.RecordHandler.ReturnRecordAction;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.ArrayListUtility.FileData;
 
@@ -18,6 +21,7 @@ public class RecordFileData implements Runnable
 	private boolean isInit = true;
 	private ArrayList<String> particularlyPath = null;
 	private Context mContext  =null;
+	private ReturnRecordAction listener = null;
 	@Override
 	public void run()
 	{
@@ -27,15 +31,39 @@ public class RecordFileData implements Runnable
 			//create data list
 			recordAllFilePath();
 			
-			//add writes data
-			String SDCardPath = Environment.getExternalStorageDirectory().toString();
-			File f = new File(SDCardPath + "/MDM");
-			if (!f.exists())
-				f.mkdir();
+			try
+			{
+				IOFileHandler.writeToInternalFile(mContext ,MDMType.INIT_LOCAL_MDM_SDCARD_PATH, ArrayListUtility.FileDataConvertToArrayListString(datas));
+			}
+			catch (FileNotFoundException e)
+			{
+				if (null != listener)
+					listener.returnRecordActionResult(e.toString());
+			}
+			catch (IOException e)
+			{
+				if (null != listener)
+					listener.returnRecordActionResult(e.toString());
+			}
 			
-			IOFileHandler.writeToInternalFile(mContext ,MDMType.INIT_LOCAL_MDM_SDCARD_PATH, ArrayListUtility.FileDataConvertToArrayListString(datas));
+			/*
+			ArrayList<String > tmp = IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_SDCARD_PATH);
+			try
+			{
+				IOFileHandler.writeToExternalFile("Download/", "filelist.txt", tmp);
+			}
+			catch (FileNotFoundException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			catch (IOException e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
-			/*ArrayList<String > tmp = IOFileHandler.readFromInternalFile(mContext, "MDM_INIT.data");
+			
 			for (int i = 0; i < tmp.size(); i++)
 			{
 				if(tmp.get(i).contains("Download"))
@@ -59,7 +87,7 @@ public class RecordFileData implements Runnable
 		
 	}
 	
-	public RecordFileData(Context context,boolean isInit)
+	public RecordFileData(Context context,boolean isInit ,ReturnRecordAction listener)
 	{
 		mContext = context;
 		datas = new ArrayList<FileData>();
@@ -105,5 +133,7 @@ public class RecordFileData implements Runnable
 		}
 
 	}
+	
+	
 	
 }

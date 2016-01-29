@@ -8,18 +8,23 @@ public class MDMLockHandler
 {
 	private ControlLockScreen locker = null;
 	private ControlLockScreenPassword passwordLocker = null;
+
 	private boolean mLockByPassword = false;
-	
+	private ControlLockStatusBar mControlLockStatusBar = null;
+
 	private int mPasswordQuality;
 	private int mPasswordLength;
 	private int mPasswordMinUpperCase;
 	private boolean useDefaultQuality = true;
 	private Context mContext = null;
-	
-	public MDMLockHandler( PolicyData data, boolean lockByPassword)
+
+	public MDMLockHandler(PolicyData data, boolean lockByPassword)
 	{
+		
 		mLockByPassword = lockByPassword;
 		mContext = data.getContext();
+		
+		mControlLockStatusBar = new ControlLockStatusBar(mContext);
 		if (mLockByPassword == false)
 		{
 			locker = new ControlLockScreen(data);
@@ -29,20 +34,32 @@ public class MDMLockHandler
 			passwordLocker = new ControlLockScreenPassword(data);
 		}
 	}
+
 	public void lockStatusBar()
 	{
-		if(null!=mContext)
-			ControlLockStatusBar.preventStatusBarExpansion(mContext);
+		if (null != mContext)
+		{
+			if (null != mControlLockStatusBar)
+				mControlLockStatusBar.preventStatusBarExpansion();
+
+		}
 	}
+
+	public void unLockStatusBar()
+	{
+		if (null != mControlLockStatusBar)
+			mControlLockStatusBar.openStatusBarExpansion();
+	}
+
 	public void lockFullSceen()
 	{
-		if(null!=mContext)
+		if (null != mContext)
 			ControlLockStatusBar.fullSceen(mContext);
 	}
-	
-	
+
 	public boolean lockSceenNow()
 	{
+		locker.lockNow();
 		if (mLockByPassword == false)
 		{
 			if (null != locker)
@@ -61,28 +78,32 @@ public class MDMLockHandler
 			return false;
 		}
 	}
+
 	public void lockSceenNow(String password)
 	{
 		if (null != passwordLocker)
 		{
-			if(useDefaultQuality == true)
+			if (useDefaultQuality == true)
 			{
-				//passwordLocker.setLockPasswordPolicyConfigure(PasswordQualityValues.PASSWORD_QUALITY_NUMERIC, 5, 0);
+				// passwordLocker.setLockPasswordPolicyConfigure(PasswordQualityValues.PASSWORD_QUALITY_NUMERIC,
+				// 5, 0);
 			}
-			passwordLocker.resetPassword(password);
+			if(null == password)
+				passwordLocker.resetPassword("");
+			else
+				passwordLocker.resetPassword(password);
 			passwordLocker.lockNow();
 		}
 	}
+
 	public void setLockPasswordPolicyConfigure(int passwordQuality, int passwordLength, int passwordMinUpperCase)
 	{
-		if (mLockByPassword == true )
+		if (mLockByPassword == true)
 		{
 			useDefaultQuality = false;
 			passwordLocker.setLockPasswordPolicyConfigure(passwordQuality, passwordLength, passwordMinUpperCase);
 
 		}
 	}
-	
-	
-	
+
 }

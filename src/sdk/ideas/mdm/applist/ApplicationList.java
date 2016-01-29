@@ -43,6 +43,27 @@ public class ApplicationList
 		}
 		return res;
 	}
+	
+	public static boolean checkPackageExist(Context mContext,String packageName)
+	{
+		boolean getSysPackages = false;
+		List<PackageInfo> packs = mContext.getPackageManager().getInstalledPackages(0);
+		for (int i = 0; i < packs.size(); i++)
+		{
+			PackageInfo p = packs.get(i);
+			if ((!getSysPackages) && (p.versionName == null))
+			{
+				continue;
+			}
+
+			if (packageName.equals(p.packageName))
+			{
+				return true;
+			}
+		}
+		return false;
+		
+	}
 
 	public static String getAppNameFromPackage(Context mContext,String packageName)
 	{

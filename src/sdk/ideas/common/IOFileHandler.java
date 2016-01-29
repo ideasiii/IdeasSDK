@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import android.content.Context;
@@ -20,12 +22,13 @@ public class IOFileHandler
 
 	/**
 	 * save in /data/data/apk_name/files/filename.data
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
 
-	public static void writeToInternalFile(Context mContext, String fileName, ArrayList<String> datas)
+	public static void writeToInternalFile(Context mContext, String fileName, ArrayList<String> datas) throws IOException,FileNotFoundException
 	{
-		try
-		{
+		
 			OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
 					mContext.openFileOutput(fileName, Context.MODE_PRIVATE));
 
@@ -38,26 +41,19 @@ public class IOFileHandler
 			}
 
 			outputStreamWriter.close();
-		}
-		catch (IOException e)
-		{
-			Logs.showTrace("File write failed: " + e.toString());
-		}
-		catch (Exception e)
-		{
-			Logs.showTrace(e.toString());
-		}
+		
 
 	}
 
 	/**
 	 * load from /data/data/apk_name/files/filename.data
+	 * @throws FileNotFoundException 
+	 * @throws IOException 
 	 */
-	public static ArrayList<String> readFromInternalFile(Context mContext, String fileName)
+	public static ArrayList<String> readFromInternalFile(Context mContext, String fileName) throws FileNotFoundException,IOException
 	{
 		ArrayList<String> data = new ArrayList<String>();
-		try
-		{
+		
 			InputStream inputStream = mContext.openFileInput(fileName);
 
 			if (inputStream != null)
@@ -73,19 +69,7 @@ public class IOFileHandler
 
 				inputStream.close();
 			}
-		}
-		catch (FileNotFoundException e)
-		{
-			Logs.showTrace("File not found: " + e.toString());
-		}
-		catch (IOException e)
-		{
-			Logs.showTrace("Can not read file: " + e.toString());
-		}
-		catch (Exception e)
-		{
-			Logs.showTrace(e.toString());
-		}
+		
 		return data;
 
 	}
@@ -204,11 +188,15 @@ public class IOFileHandler
 	 * thread exception; write in external space savePath: you do not need to
 	 * add External Storage Directory Absolute Path, just simple, ex. save to SD
 	 * Card download ==> savePath = "Download/"
+	 * @throws MalformedURLException  
+	 * @throws ProtocolException 
+	 * @throws IOException 
+	 * 
+	 * 
 	 */
-	public static void urlDownloader(String uRLPath, String savePath, String fileName)
+	public static boolean urlDownloader(String uRLPath, String savePath, String fileName) throws MalformedURLException, ProtocolException,IOException
 	{
-		try
-		{
+		
 			URL url = new URL(uRLPath);
 			HttpURLConnection c = (HttpURLConnection) url.openConnection();
 			c.setRequestMethod("GET");
@@ -241,11 +229,8 @@ public class IOFileHandler
 			fos.close();
 			is.close();
 			Logs.showTrace("download finish");
-		}
-		catch (Exception e)
-		{
-			Logs.showTrace(e.getMessage());
-		}
+		
+		return true;
 
 	}
 

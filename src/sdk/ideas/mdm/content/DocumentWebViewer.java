@@ -23,8 +23,26 @@ public class DocumentWebViewer extends Activity
 		mWebView.getSettings().setJavaScriptEnabled(true);
 		mWebView.getSettings().setBuiltInZoomControls(zoomControls);
 
-		mWebView.loadUrl(MDMType.URL_DocumentWebViewer + linkURL);
+		if (isDocument(linkURL))
+		{
+			mWebView.loadUrl(MDMType.URL_DocumentWebViewer + linkURL);
+		}
+		else
+		{
+			mWebView.loadUrl(linkURL);
+		}
 		setContentView(mWebView);
+	}
+
+	public boolean isDocument(String linkURL)
+	{
+		if (linkURL.contains(".pdf") || linkURL.contains(".doc") || linkURL.contains(".docx")
+				|| linkURL.contains(".pptx") || linkURL.contains(".ppt") || linkURL.contains(".xlsx")
+				|| linkURL.contains(".xls"))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	@Override

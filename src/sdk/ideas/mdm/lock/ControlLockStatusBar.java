@@ -12,7 +12,18 @@ import sdk.ideas.common.Logs;
 
 public class ControlLockStatusBar
 {
-
+	private WindowManager manager = null;
+	private CustomViewGroup view = null;
+	private Context mContext;
+	
+	public ControlLockStatusBar(Context context)
+	{
+		mContext = context;
+		manager = ((WindowManager) context.getApplicationContext()
+				.getSystemService(Context.WINDOW_SERVICE));
+		view = new CustomViewGroup(context);
+	}
+	
 	public static void fullSceen(Context context)
 	{
 		((Activity) context).requestWindowFeature(Window.FEATURE_NO_TITLE); // Remove
@@ -24,9 +35,9 @@ public class ControlLockStatusBar
 															// bar*/
 	}
 
-	public static void preventStatusBarExpansion(Context context)
+	public void preventStatusBarExpansion()
 	{
-		WindowManager manager = ((WindowManager) context.getApplicationContext()
+		manager = ((WindowManager) mContext.getApplicationContext()
 				.getSystemService(Context.WINDOW_SERVICE));
 
 		WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();
@@ -41,13 +52,28 @@ public class ControlLockStatusBar
 				WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 
 		localLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-		localLayoutParams.height = (int) (50 * context.getResources().getDisplayMetrics().scaledDensity);
+		localLayoutParams.height = (int) (50 * mContext.getResources().getDisplayMetrics().scaledDensity);
 		localLayoutParams.format = PixelFormat.TRANSPARENT;
-
-		CustomViewGroup view = new CustomViewGroup(context);
+		
+		
 
 		manager.addView(view, localLayoutParams);
+		
+	}
 
+	public void openStatusBarExpansion()
+	{
+		if (null != manager && null != view)
+		{
+			try
+			{
+				manager.removeView(view);
+			}
+			catch (Exception e)
+			{
+				Logs.showTrace(e.toString());
+			}
+		}
 	}
 
 	public static class CustomViewGroup extends ViewGroup

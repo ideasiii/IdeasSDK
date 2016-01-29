@@ -1,5 +1,7 @@
 package sdk.ideas.mdm.record;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import android.content.Context;
 import sdk.ideas.common.ArrayListUtility;
@@ -14,6 +16,7 @@ public class RecordHandler
 	private Context mContext = null;
 	private boolean recordSystemApplication = false;
 	private boolean readLocalInit = true;
+	private ReturnRecordAction listener = null;
 	
 	public RecordHandler(Context context, boolean readProfileFromServer)
 	{
@@ -26,7 +29,15 @@ public class RecordHandler
 	public void localRecord( boolean isInit)
 	{
 		recordApplication();
-		recordInitFileListPathInSDCard(isInit);
+		try
+		{
+			recordInitFileListPathInSDCard(isInit,false);
+		}
+		catch (InterruptedException e)
+		{
+			if (null != listener)
+				listener.returnRecordActionResult(e.toString());
+		}
 		Logs.showTrace("done");
 	}
 	
@@ -48,8 +59,21 @@ public class RecordHandler
 			ArrayList<AppInfo> applist = ApplicationList.getInstalledApps(mContext, recordSystemApplication);
 			for (int i = 0; i < applist.size(); i++)
 				applist.get(i).print();
-			IOFileHandler.writeToInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH,
-					ArrayListUtility.AppInfoConvertToArrayListString(applist));
+			try
+			{
+				IOFileHandler.writeToInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH,
+						ArrayListUtility.AppInfoConvertToArrayListString(applist));
+			}
+			catch (FileNotFoundException e)
+			{
+				if (null != listener)
+					listener.returnRecordActionResult(e.toString());
+			}
+			catch (IOException e)
+			{
+				if (null != listener)
+					listener.returnRecordActionResult(e.toString());
+			}
 		}
 	
 	}
@@ -57,13 +81,29 @@ public class RecordHandler
 	
 	/**
 	 * call it while the first time run
+	 * @throws InterruptedException 
 	 * 
 	 * */
-	private void recordInitFileListPathInSDCard(boolean isInit)
+	public void recordInitFileListPathInSDCard(boolean isInit, boolean waitForResult) throws InterruptedException
 	{
-		Thread recordManager = new Thread(new RecordFileData(this.mContext, isInit));
+		Thread recordManager = new Thread(new RecordFileData(this.mContext, isInit, listener));
 		recordManager.start();
+		if (waitForResult == true)
+		{
+			recordManager.join();
+		}
 	}
+	public void setOnRecordAction(ReturnRecordAction listener)
+	{
+		this.listener = listener;
+	}
+	
+	interface ReturnRecordAction
+	{
+		void returnRecordActionResult(String result);
+	}
+	
+	
 	
 	
 	
