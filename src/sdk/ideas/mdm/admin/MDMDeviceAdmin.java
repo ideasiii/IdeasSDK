@@ -11,11 +11,11 @@ import sdk.ideas.mdm.MDMType;
 
 public class MDMDeviceAdmin
 {
-	private DevicePolicyManager mDevicePolicyManager = null;
-	private ComponentName mComponentAdmin = null;
+	private static DevicePolicyManager mDevicePolicyManager = null;
+	private static ComponentName mComponentAdmin = null;
 	private Context mContext = null;
 	private Intent intent = null;
-	private PolicyData data = null;
+	private static PolicyData data = null;
 
 	public MDMDeviceAdmin(Context context)
 	{
@@ -59,6 +59,12 @@ public class MDMDeviceAdmin
 			return mDevicePolicyManager.isAdminActive(mComponentAdmin);
 		}
 		return false;
+	}
+	
+	public void removePolicy()
+	{
+		
+		mDevicePolicyManager.removeActiveAdmin(mComponentAdmin);
 	}
 
 	public class PolicyData

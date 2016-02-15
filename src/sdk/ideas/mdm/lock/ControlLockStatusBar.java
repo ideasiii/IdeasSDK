@@ -12,6 +12,19 @@ import sdk.ideas.common.Logs;
 
 public class ControlLockStatusBar
 {
+	private static WindowManager manager = null;
+	private static CustomViewGroup view = null;
+	private static Context mContext = null;
+	private static WindowManager.LayoutParams localLayoutParams = null;
+	private static boolean isLockStatusBar = false;
+
+	public static void controlLockStatusBarInit(final Context context)
+	{
+		mContext = context;
+		manager = ((WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE));
+		view = new CustomViewGroup(context);
+		localLayoutParams = new WindowManager.LayoutParams();
+	}
 
 	public static void fullSceen(Context context)
 	{
@@ -24,30 +37,43 @@ public class ControlLockStatusBar
 															// bar*/
 	}
 
-	public static void preventStatusBarExpansion(Context context)
+	public static void preventStatusBarExpansion()
 	{
-		WindowManager manager = ((WindowManager) context.getApplicationContext()
-				.getSystemService(Context.WINDOW_SERVICE));
 
-		WindowManager.LayoutParams localLayoutParams = new WindowManager.LayoutParams();
 		localLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
 		localLayoutParams.gravity = Gravity.TOP;
 		localLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-
-		// this is to enable the notification to recieve touch events
+				// this is to enable the notification to recieve touch events
 				WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
-
-		// Draws over status bar
+				// Draws over status bar
 				WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
 
 		localLayoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
-		localLayoutParams.height = (int) (50 * context.getResources().getDisplayMetrics().scaledDensity);
+		localLayoutParams.height = (int) (50 * mContext.getResources().getDisplayMetrics().scaledDensity);
 		localLayoutParams.format = PixelFormat.TRANSPARENT;
 
-		CustomViewGroup view = new CustomViewGroup(context);
-
 		manager.addView(view, localLayoutParams);
+		
+		isLockStatusBar = true;
+	}
 
+	public static void unLockStatusBarExpansion()
+	{
+		if (isLockStatusBar == true)
+		{
+			if (null != manager && null != view)
+			{
+				try
+				{
+					manager.removeView(view);
+					isLockStatusBar = false;
+				}
+				catch (Exception e)
+				{
+					Logs.showTrace(e.toString());
+				}
+			}
+		}
 	}
 
 	public static class CustomViewGroup extends ViewGroup

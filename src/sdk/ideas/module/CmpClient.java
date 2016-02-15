@@ -476,7 +476,7 @@ public class CmpClient
 
 	private static int checkResponse(ByteBuffer buf, int nSequence)
 	{
-		int nResult = ResponseCode.ERR_UNKNOW;
+		int nResult = ResponseCode.ERR_UNKNOWN;
 
 		Protocol.CMP_HEADER cmpResp = new Protocol.CMP_HEADER();
 		buf.order(ByteOrder.BIG_ENDIAN);
