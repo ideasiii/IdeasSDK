@@ -1,44 +1,50 @@
 package sdk.ideas.mdm.mute;
 
+import java.util.HashMap;
 import android.content.Context;
 import android.content.IntentFilter;
+import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
-import sdk.ideas.mdm.mute.VolumeKeyReceiver.ReturnVolumeAction;
+import sdk.ideas.common.ResponseCode;
+import sdk.ideas.common.ReturnIntentAction;
+import sdk.ideas.mdm.MDMType;
 
-public class MuteVolumeHandler
+public class MuteVolumeHandler extends BaseHandler
 {
 	private static Context mContext = null;
-	private static VolumeKeyReceiver keyReceiver = null;
+	private static VolumeKeyReceiver mVolumeKeyReceiver = null;
 	private IntentFilter intentFilter = null;
 	private static boolean isMute = true;
 	private static boolean isActive = false;
-	private ControlMuteVolume mControlMuteVolume = null;
 
 	public MuteVolumeHandler(Context context)
 	{
+		super(context);
 		mContext = context;
-		mControlMuteVolume = new ControlMuteVolume(mContext);
-		ControlMuteVolume.initAudio();
+		ControlMuteVolume.initAudioManager(mContext);
 		init();
 	}
 
 	public void init()
 	{
-		keyReceiver = new VolumeKeyReceiver();
+		mVolumeKeyReceiver = new VolumeKeyReceiver();
 		intentFilter = new IntentFilter();
 		intentFilter.addAction("android.media.VOLUME_CHANGED_ACTION");
-		
-		keyReceiver.setOnVolumeKeyReceiverListener(new ReturnVolumeAction()
-		{
 
+		mVolumeKeyReceiver.setOnReceiverListener(new ReturnIntentAction()
+		{
 			@Override
-			public void onVolumeChange(String action)
+			public void returnIntentAction(HashMap<String, String> action)
 			{
-				Logs.showTrace("@@@@@isMute: " + String.valueOf(isMute) + " isActive: " + String.valueOf(isActive));
-				if (mControlMuteVolume.getDeviceRigerMode() != 0)
+				/* 以下為未知狀況，等service 好了後再test */
+				// if (isMute == true)
 				{
-					ControlMuteVolume.muteDevice(isMute, isActive);
+					// if (ControlMuteVolume.getDeviceRigerMode() != 0)
+					{
+						// ControlMuteVolume.muteDevice(isMute, isActive);
+					}
 				}
+
 			}
 
 		});
@@ -48,37 +54,45 @@ public class MuteVolumeHandler
 	{
 		if (isActive == false)
 		{
-			mContext.registerReceiver(keyReceiver, intentFilter);
+			mContext.registerReceiver(mVolumeKeyReceiver, intentFilter);
 		}
 
+		if (isActive && isMute)
+		{
+			return;
+		}
 		isActive = true;
 		isMute = true;
-		ControlMuteVolume.muteDevice(isMute, isActive);
-		
+		ControlMuteVolume.muteDevice(isMute, isActive, mResponseMessage);
+
+		returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_VOLUME_HANDLER,
+				ResponseCode.METHOLD_VOLUME_MUTE_ENABLE);
 	}
 
 	public void stopMute()
 	{
-		isMute = false;
-
-		Logs.showTrace("######isMute: " + String.valueOf(isMute) + " isActive: " + String.valueOf(isActive));
-		if(null!=mControlMuteVolume)
-			ControlMuteVolume.muteDevice(isMute, isActive);
+		if (isActive)
+		{
+			isMute = false;
+			ControlMuteVolume.muteDevice(isMute, isActive, mResponseMessage);
+			returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_VOLUME_HANDLER,
+					ResponseCode.METHOLD_VOLUME_MUTE_DISABLE);
+		}
 
 	}
 
 	public void stopReceiver()
 	{
 		if (isActive == false)
+		{
 			return;
-		
-		
+		}
 		try
 		{
-			if (null != mContext && null != keyReceiver)
+			if (null != mContext && null != mVolumeKeyReceiver)
 			{
 				Logs.showTrace("unregisterReceiver");
-				mContext.unregisterReceiver(keyReceiver);
+				mContext.unregisterReceiver(mVolumeKeyReceiver);
 				isActive = false;
 			}
 		}

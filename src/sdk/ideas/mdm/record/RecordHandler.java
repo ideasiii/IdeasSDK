@@ -5,33 +5,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import android.content.Context;
 import sdk.ideas.common.ArrayListUtility;
+import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.MDMType;
 import sdk.ideas.mdm.applist.ApplicationList;
 import sdk.ideas.mdm.applist.ApplicationList.AppInfo;
 
-public class RecordHandler
+public class RecordHandler extends BaseHandler
 {
 	private Context mContext = null;
 	private boolean recordSystemApplication = false;
 	private boolean readLocalInit = true;
 	private ReturnRecordAction listener = null;
-	
+
 	public RecordHandler(Context context, boolean readProfileFromServer)
 	{
+		super(context);
 		this.mContext = context;
 		readLocalInit = (!readProfileFromServer);
 	}
-	
-	
-	
-	public void localRecord( boolean isInit)
+
+	public void localRecord(boolean isInit)
 	{
 		recordApplication();
 		try
 		{
-			recordInitFileListPathInSDCard(isInit,false);
+			recordInitFileListPathInSDCard(isInit, false);
 		}
 		catch (InterruptedException e)
 		{
@@ -40,14 +40,11 @@ public class RecordHandler
 		}
 		Logs.showTrace("done");
 	}
-	
-	 
-	
-	public void recordSystemApplication(boolean recordSysApp)
+
+	public void setRecordSystemApplication(boolean recordSysApp)
 	{
 		recordSystemApplication = recordSysApp;
 	}
-	
 
 	/**
 	 * record for installed App information
@@ -75,15 +72,15 @@ public class RecordHandler
 					listener.returnRecordActionResult(e.toString());
 			}
 		}
-	
+
 	}
-	
-	
+
 	/**
 	 * call it while the first time run
-	 * @throws InterruptedException 
 	 * 
-	 * */
+	 * @throws InterruptedException
+	 * 
+	 */
 	public void recordInitFileListPathInSDCard(boolean isInit, boolean waitForResult) throws InterruptedException
 	{
 		Thread recordManager = new Thread(new RecordFileData(this.mContext, isInit, listener));
@@ -93,18 +90,15 @@ public class RecordHandler
 			recordManager.join();
 		}
 	}
+
 	public void setOnRecordAction(ReturnRecordAction listener)
 	{
 		this.listener = listener;
 	}
-	
+
 	interface ReturnRecordAction
 	{
 		void returnRecordActionResult(String result);
 	}
-	
-	
-	
-	
-	
+
 }

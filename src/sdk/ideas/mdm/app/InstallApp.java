@@ -14,7 +14,6 @@ import android.net.Uri;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.MDMType;
-import sdk.ideas.mdm.app.ApplicationHandler.ReturnApplicationAction;
 
 public class InstallApp
 {
@@ -52,65 +51,6 @@ public class InstallApp
 		return info.packageName;
 	}
 
-	public static class InstallAppRunnable implements Runnable
-	{
-		private String uRLPath = null;
-		private String savePath = null;
-		private String fileName = null;
-		private Context mContext = null;
-		private ArrayList<String> installPackage = null;
-		private ReturnApplicationAction listener = null;
-
-		@Override
-		public void run()
-		{
-			try
-			{
-				IOFileHandler.urlDownloader(uRLPath, savePath, fileName);
-
-				installPackage.add(InstallApp.getPackageName(mContext, savePath, fileName));
-
-				Intent intent = new Intent(Intent.ACTION_VIEW);
-				intent.setDataAndType(
-						Uri.fromFile(new File(IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName)),
-						"application/vnd.android.package-archive");
-				intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // without this
-																// flag
-																// android
-																// returned
-																// a intent
-																// error!
-				((Activity) mContext).startActivityForResult(intent, MDMType.REQUEST_CODE_INSTALL_APP);
-			}
-			catch (MalformedURLException e)
-			{
-				if (null != listener)
-					listener.returnApplicationDownloadResult(e.toString());
-			}
-			catch (ProtocolException e)
-			{
-				if (null != listener)
-					listener.returnApplicationDownloadResult(e.toString());
-			}
-			catch (IOException e)
-			{
-				if (null != listener)
-					listener.returnApplicationDownloadResult(e.toString());
-			}
-
-		}
-
-		public InstallAppRunnable(Context mContext, String uRLPath, String savePath, String fileName,
-				ReturnApplicationAction listener, ArrayList<String> installPackage)
-		{
-			this.fileName = fileName;
-			this.mContext = mContext;
-			this.savePath = savePath;
-			this.uRLPath = uRLPath;
-			this.installPackage = installPackage;
-			this.listener = listener;
-		}
-
-	}
+	
 
 }

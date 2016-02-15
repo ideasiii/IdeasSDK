@@ -12,12 +12,18 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ArrayListUtility.ReturnColectionData;
 import sdk.ideas.mdm.MDMType;
 import sdk.ideas.mdm.app.ApplicationHandler;
-import sdk.ideas.mdm.app.ApplicationHandler.ReturnApplicationAction;
 import sdk.ideas.mdm.applist.ApplicationList;
 import sdk.ideas.mdm.record.RecordHandler;
 
-public class Restore implements Runnable
+public class RestoreBackUp implements Runnable
 {
+
+	@Override
+	public void run()
+	{
+		// TODO Auto-generated method stub
+		
+	}/*
 	private Context mContext = null;
 	private boolean mReadLocalInit = false;
 	private boolean recordSystemApplication = false;
@@ -26,7 +32,7 @@ public class Restore implements Runnable
 	ArrayList<String> arrayNeedInstall = null;
 	private RestoreHandler.ReturnRestoreAction listener = null;
 	
-	public Restore(Context context, boolean readLocalInit,RestoreHandler.ReturnRestoreAction listener )
+	public RestoreBackUp(Context context, boolean readLocalInit,RestoreHandler.ReturnRestoreAction listener )
 	{
 		this.mContext = context;
 		this.mReadLocalInit = readLocalInit;
@@ -247,6 +253,7 @@ public class Restore implements Runnable
 		
 		
 		Logs.showTrace("registerReceiver");
+		
 		appHandler.setOnAppLicationListener(new ReturnApplicationAction()
 		{
 
@@ -296,18 +303,13 @@ public class Restore implements Runnable
 				
 			}
 
-			@Override
-			public void returnApplicationDownloadResult(String message)
-			{
-				
-				
-			}	
+		
 		});
 	}
 	public void stopListenAppAction()
 	{
 		appHandler.stopListenAppAction();
 	}
-	
+	*/
 	
 }

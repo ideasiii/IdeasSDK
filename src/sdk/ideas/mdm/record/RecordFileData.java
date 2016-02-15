@@ -47,23 +47,20 @@ public class RecordFileData implements Runnable
 			}
 			
 			/*
-			ArrayList<String > tmp = IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_SDCARD_PATH);
+			ArrayList<String > tmp = null;
 			try
 			{
+				tmp = IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_SDCARD_PATH);
 				IOFileHandler.writeToExternalFile("Download/", "filelist.txt", tmp);
 			}
 			catch (FileNotFoundException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			catch (IOException e)
 			{
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
 			for (int i = 0; i < tmp.size(); i++)
 			{
 				if(tmp.get(i).contains("Download"))
@@ -133,7 +130,5 @@ public class RecordFileData implements Runnable
 		}
 
 	}
-	
-	
 	
 }

@@ -1,37 +1,28 @@
 package sdk.ideas.mdm.mute;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import sdk.ideas.common.Logs;
+import sdk.ideas.common.BaseReceiver;
 
-public class VolumeKeyReceiver extends BroadcastReceiver
+public class VolumeKeyReceiver extends BaseReceiver
 {
-	private VolumeKeyReceiver.ReturnVolumeAction listener = null;
 
 	public VolumeKeyReceiver()
 	{
-
+		super();
 	}
 
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
-		Logs.showTrace(intent.getAction());
-		if (intent.getAction().equals("android.media.VOLUME_CHANGED_ACTION") && null != listener)
+		//Logs.showTrace(intent.getAction());
+		if (null != listener)
 		{
-			listener.onVolumeChange(intent.getAction());
+			actionData.put("Action", intent.getAction());
+			listener.returnIntentAction(actionData);
 		}
 	}
 
-	public void setOnVolumeKeyReceiverListener(VolumeKeyReceiver.ReturnVolumeAction listener)
-	{
-		this.listener = listener;
-	}
+	
 
-	interface ReturnVolumeAction
-	{
-		void onVolumeChange(String action);
-
-	}
 }

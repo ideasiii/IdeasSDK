@@ -1,20 +1,18 @@
 package sdk.ideas.mdm.app;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import sdk.ideas.common.BaseReceiver;
 import sdk.ideas.common.Logs;
 
 
-public class PackageReceiver extends BroadcastReceiver 
+public class PackageReceiver extends BaseReceiver 
 {
-	private ReturnPackageAction	listener = null;
 	public PackageReceiver()
 	{
-		
+		super();
 	}
 	
-
 	@Override
 	public void onReceive(Context context, Intent intent)
 	{
@@ -25,20 +23,11 @@ public class PackageReceiver extends BroadcastReceiver
 		
 		if (null != listener)
 		{
-			listener.returnPackageActionResult(intent.getAction(), installedPackageName);
+			actionData.put("Action",intent.getAction());
+			actionData.put("PackageName",installedPackageName);
+			listener.returnIntentAction(actionData);
 		}
 	}
-	public void setOnPackageReceiverListener(PackageReceiver.ReturnPackageAction listener)
-	{
-		this.listener = listener;
-	}
-	
-	
-	
-	interface ReturnPackageAction
-	{
-		void returnPackageActionResult(String appAction,String packageName);
-		
-	}	
+
 	
 }

@@ -6,24 +6,28 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import sdk.ideas.common.ArrayListUtility;
+import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.IOFileHandler;
+import sdk.ideas.common.ResponseCode;
+import sdk.ideas.common.ReturnIntentAction;
 import sdk.ideas.mdm.MDMType;
-import sdk.ideas.mdm.app.InstallApp.InstallAppRunnable;
-import sdk.ideas.mdm.app.PackageReceiver.ReturnPackageAction;
 
-public class ApplicationHandler
+public class ApplicationHandler extends BaseHandler
 {
 	private Context mContext = null;
 	private PackageReceiver receiver = null;
 	private ArrayList<String> installingPackage = null;
 	private ArrayList<String> uninstallingPackage = null;
-	private ReturnApplicationAction listener = null;
+
 	public ApplicationHandler(Context context)
 	{
+		super(context);
 		mContext = context;
 		installingPackage = new ArrayList<String>();
 		uninstallingPackage = new ArrayList<String>();
@@ -32,45 +36,75 @@ public class ApplicationHandler
 
 	/**
 	 * use thread to intstall
-	 * */
+	 */
 	public void installApplicationThread(String url, String apkName)
 	{
-		Thread install = new Thread(new InstallAppRunnable(mContext, url, MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, apkName,listener,installingPackage));
+
+		Thread install = new Thread(new InstallAppRunnable(url, apkName));
 		install.start();
+
+	}
+
+	/**
+	 * Installs an application to the device this method need use Thread run or
+	 * will cause block main thread error
+	 * 
+	 * @param url
+	 *            download
+	 * @param apkName
+	 *            fileName
+	 */
+	public void installApplication(String url, String apkName)
+	{
+		boolean anyError = true;
+		try
+		{
+			InstallApp.installApplication(mContext, url, MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, apkName,
+					installingPackage);
+			anyError = false;
+		}
+		catch (MalformedURLException e)
+		{
+			setResponseMessage(ResponseCode.ERR_MALFORMED_URL_EXCEPTION, e.toString());
+		}
+		catch (ProtocolException e)
+		{
+			setResponseMessage(ResponseCode.ERR_PROTOCOL_EXCEPTION, e.toString());
+		}
+		catch (IOException e)
+		{
+			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, e.toString());
+		}
+		catch (Exception e)
+		{
+			setResponseMessage(ResponseCode.ERR_UNKNOWN, e.toString());
+		}
+		finally
+		{
+			if (anyError == true)
+			{
+				returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
+			}
+		}
 
 	}
 	
 	
-	/**
-	 * Installs an application to the device
-	 * this method need use Thread run or will cause block main thread error 
-	 * 
-	 * @param url download  
-	 * @param apkName fileName 
-	 */
-	public void installApplication(String url, String apkName)
+	private boolean isAppInstalled(String packageName)
 	{
-
+		PackageManager pm = mContext.getPackageManager();
+		boolean installed = false;
 		try
 		{
-			InstallApp.installApplication(mContext, url, MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, apkName, installingPackage);
+			pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+			installed = true;
 		}
-		catch (MalformedURLException e)
+		catch (PackageManager.NameNotFoundException e)
 		{
-			if(null!= listener)
-				listener.returnApplicationDownloadResult(e.toString());
+			installed = false;
 		}
-		catch (ProtocolException e)
-		{
-			if(null!= listener)
-				listener.returnApplicationDownloadResult(e.toString());
-		}
-		catch (IOException e)
-		{
-			if(null!= listener)
-				listener.returnApplicationDownloadResult(e.toString());
-		}
-
+		return installed;
 	}
 
 	/**
@@ -82,14 +116,18 @@ public class ApplicationHandler
 	public void unInstallApplication(String packageName)// Specific package Name
 	{
 		uninstallingPackage.add(packageName);
-		if(UninstallApp.unInstallApplication(mContext, packageName)==false)
+
+		if (UninstallApp.unInstallApplication(mContext, packageName) == false)
 		{
 			ArrayListUtility.findContainAndRemove(uninstallingPackage, packageName);
-			if(null!= listener)
-				listener.returnApplicationActionResult("NOT FIND PACKAGE", packageName, true);
+
+			setResponseMessage(ResponseCode.ERR_PACKAGE_NOT_FIND, "not find the package which need to uninstall");
+
+			returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+					ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
 		}
 	}
-	
+
 	public void listenPackageAction()
 	{
 		IntentFilter filter = new IntentFilter();
@@ -100,33 +138,44 @@ public class ApplicationHandler
 		filter.addDataScheme("package");
 		receiver = new PackageReceiver();
 		mContext.registerReceiver(receiver, filter);
-		receiver.setOnPackageReceiverListener(new ReturnPackageAction()
+		receiver.setOnReceiverListener(new ReturnIntentAction()
 		{
 			@Override
-			public void returnPackageActionResult(String appAction, String packageName)
+			public void returnIntentAction(HashMap<String, String> action)
 			{
+				String appAction = action.get("Action");
+				String packageName = action.get("PackageName");
 				if (null != listener)
 				{
 					if (appAction.equals("android.intent.action.PACKAGE_ADDED"))
 					{
 						if (ArrayListUtility.findContainAndRemove(installingPackage, packageName))
 						{
-							listener.returnApplicationActionResult(appAction, packageName, true);
+
+							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
+							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
 						}
 						else
 						{
-							listener.returnApplicationActionResult(appAction, packageName, false);
+							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
+							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_INSTALL_USER);
 						}
 					}
 					else if (appAction.equals("android.intent.action.PACKAGE_REMOVED"))
 					{
 						if (ArrayListUtility.findContainAndRemove(uninstallingPackage, packageName))
 						{
-							listener.returnApplicationActionResult(appAction, packageName, true);
+							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
+							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
 						}
 						else
 						{
-							listener.returnApplicationActionResult(appAction, packageName, false);
+							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
+							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_UNINSTALL_USER);
 						}
 					}
 				}
@@ -134,35 +183,38 @@ public class ApplicationHandler
 		});
 
 	}
-	
-	public void setOnAppLicationListener(ApplicationHandler.ReturnApplicationAction listener)
-	{
-		this.listener  =listener;
-	}
-	
-	
-	
 
 	public void stopListenAppAction()
 	{
 		if (null != receiver)
 			mContext.unregisterReceiver(receiver);
 	}
-	
-	public static interface ReturnApplicationAction
-	{
-		void returnApplicationActionResult(String appAction, String packageName, boolean isYourAction);
-		void returnApplicationDownloadResult(String message);
-	}
-	
 
-	
-	
-	
-	/** important test
-	 * @throws IOException 
-	 * @throws FileNotFoundException 
-	 * */
+	private class InstallAppRunnable implements Runnable
+	{
+		private String uRLPath = null;
+		private String fileName = null;
+
+		@Override
+		public void run()
+		{
+			installApplication(uRLPath, fileName);
+		}
+
+		public InstallAppRunnable(String uRLPath, String fileName)
+		{
+			this.fileName = fileName;
+			this.uRLPath = uRLPath;
+		}
+
+	}
+
+	/**
+	 * important test
+	 * 
+	 * @throws IOException
+	 * @throws FileNotFoundException
+	 */
 	private void test() throws FileNotFoundException, IOException
 	{
 		ArrayList<String> tmp = IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH);
@@ -187,9 +239,5 @@ public class ApplicationHandler
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
-	
+
 }
