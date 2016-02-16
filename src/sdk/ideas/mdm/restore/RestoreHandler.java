@@ -210,7 +210,8 @@ public class RestoreHandler
 			// sendRestoreResultMessage("start to delete app");
 			for (int i = 0; i < arrayNeedUninstall.size(); i++)
 			{
-				appHandler.unInstallApplication(arrayNeedUninstall.get(i));
+				//need to modify
+				appHandler.unInstallApplication(arrayNeedUninstall.get(i),0);
 			}
 
 			// sendRestoreResultMessage("need to install list");
@@ -226,8 +227,10 @@ public class RestoreHandler
 			{
 				// sendRestoreResultMessage("now start to download " +
 				// arrayNeedInstall.get(i) + " and install");
+				
+				//need to modify
 				appHandler.installApplication(MDMType.URL_MDM_APP_DOWNLOAD + arrayNeedInstall.get(i) + ".apk",
-						arrayNeedInstall.get(i) + ".apk");
+						arrayNeedInstall.get(i) + ".apk",0);
 			}
 			// sendRestoreResultMessage("app restore success");
 		}

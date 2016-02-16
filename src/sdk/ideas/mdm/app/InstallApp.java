@@ -5,41 +5,55 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.ArrayList;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import sdk.ideas.common.IOFileHandler;
-import sdk.ideas.common.Logs;
-import sdk.ideas.mdm.MDMType;
+import sdk.ideas.mdm.app.ApplicationHandler.AppData;
 
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class InstallApp
 {
 
-	public static void installApplication(Context mContext, String uRLPath, String savePath, String fileName,
-			ArrayList<String> installpackage) throws MalformedURLException, ProtocolException, IOException
+	public static void installApplication(Context mContext, String dataSavePath, int appID)
+	{
+		Intent installIntent = new Intent(Intent.ACTION_VIEW);
+
+		installIntent.setDataAndType(Uri.fromFile(new File(dataSavePath)), "application/vnd.android.package-archive");
+
+		installIntent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
+		installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+		installIntent.putExtra("packageName", dataSavePath);
+		installIntent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME,
+				((Activity) mContext).getApplicationInfo().packageName);
+		((Activity) mContext).startActivityForResult(installIntent, appID);
+
+	}
+
+	public static void installApplicationWithDownload(Context mContext, String uRLPath, String savePath,
+			String fileName, ArrayList<AppData> installpackage, int appID)
+					throws MalformedURLException, ProtocolException, IOException
 	{
 
 		IOFileHandler.urlDownloader(uRLPath, savePath, fileName);
 
-		installpackage.add(InstallApp.getPackageName(mContext, savePath, fileName));
-		
-		//for test
-		for(int i=0;i<installpackage.size();i++)
-			Logs.showTrace(installpackage.get(i));
-		
-		
-		
-		Intent intent = new Intent(Intent.ACTION_VIEW);
-		intent.setDataAndType(
-				Uri.fromFile(new File(IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName)),
-				"application/vnd.android.package-archive");
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // without this flag
-														// android returned
-														// a intent error!
-		((Activity) mContext).startActivityForResult(intent, MDMType.REQUEST_CODE_INSTALL_APP);
+		// to get install package name, file name is not really package name
+		String installPackageName = InstallApp.getPackageName(mContext, savePath, fileName);
+		installpackage.add(new AppData(installPackageName,
+				IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName, appID));
+
+		// for test
+		// for (int i = 0; i < installpackage.size(); i++)
+		// Logs.showTrace(installpackage.get(i));
+
+		InstallApp.installApplication(mContext, IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName,
+				appID);
+
 	}
 
 	public static String getPackageName(Context mContext, String savePath, String fileName)
@@ -50,7 +64,5 @@ public class InstallApp
 		PackageInfo info = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
 		return info.packageName;
 	}
-
-	
 
 }

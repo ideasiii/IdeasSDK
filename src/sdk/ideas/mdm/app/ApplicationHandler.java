@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +15,7 @@ import android.content.pm.PackageManager;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.IOFileHandler;
+import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.ReturnIntentAction;
 import sdk.ideas.mdm.MDMType;
@@ -22,27 +24,48 @@ public class ApplicationHandler extends BaseHandler
 {
 	private Context mContext = null;
 	private PackageReceiver receiver = null;
-	private ArrayList<String> installingPackage = null;
-	private ArrayList<String> uninstallingPackage = null;
+	private ArrayList<AppData> installingPackage = null;
+	private ArrayList<AppData> uninstallingPackage = null;
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		Logs.showTrace("requestCode: "+String.valueOf(requestCode));
+		if (resultCode != Activity.RESULT_OK)
+		{
+			AppData installAppData = ArrayListUtility.findEqualForAppDataClass(installingPackage, requestCode);
+			AppData uninstallAppData = ArrayListUtility.findEqualForAppDataClass(uninstallingPackage, requestCode);
+			
+			// for install
+			if (null == uninstallAppData)
+			{
+				InstallApp.installApplication(mContext, installAppData.downloadPath, installAppData.appID);
+			}
+			// for uninstall
+			else if(null == installAppData)
+			{
+				UninstallApp.unInstallApplication(mContext, uninstallAppData.packageName, uninstallAppData.appID);
+			}
+		}
+
+	}
 
 	public ApplicationHandler(Context context)
 	{
 		super(context);
 		mContext = context;
-		installingPackage = new ArrayList<String>();
-		uninstallingPackage = new ArrayList<String>();
+		installingPackage = new ArrayList<AppData>();
+		uninstallingPackage = new ArrayList<AppData>();
 		listenPackageAction();
 	}
 
 	/**
-	 * use thread to intstall
+	 * use thread to install
 	 */
-	public void installApplicationThread(String url, String apkName)
+	public void installApplicationThread(String url, String apkName, int appID)
 	{
 
-		Thread install = new Thread(new InstallAppRunnable(url, apkName));
+		Thread install = new Thread(new InstallAppRunnable(url, apkName, appID));
 		install.start();
-
 	}
 
 	/**
@@ -54,13 +77,13 @@ public class ApplicationHandler extends BaseHandler
 	 * @param apkName
 	 *            fileName
 	 */
-	public void installApplication(String url, String apkName)
+	public void installApplication(String url, String apkName, int appID)
 	{
 		boolean anyError = true;
 		try
 		{
-			InstallApp.installApplication(mContext, url, MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH, apkName,
-					installingPackage);
+			InstallApp.installApplicationWithDownload(mContext, url, MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH,
+					apkName, installingPackage, appID);
 			anyError = false;
 		}
 		catch (MalformedURLException e)
@@ -86,45 +109,37 @@ public class ApplicationHandler extends BaseHandler
 				returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
 						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
 			}
+			else
+			{
+
+			}
 		}
 
-	}
-	
-	
-	private boolean isAppInstalled(String packageName)
-	{
-		PackageManager pm = mContext.getPackageManager();
-		boolean installed = false;
-		try
-		{
-			pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-			installed = true;
-		}
-		catch (PackageManager.NameNotFoundException e)
-		{
-			installed = false;
-		}
-		return installed;
 	}
 
 	/**
-	 * Uninstalls an application from the device
+	 * Uninstall an application from the device
 	 * 
 	 * @param url
 	 *            - Application package name should be passed in as a String
 	 */
-	public void unInstallApplication(String packageName)// Specific package Name
+	public void unInstallApplication(String packageName, int appID)// Specific
+																	// package
+																	// Name
 	{
-		uninstallingPackage.add(packageName);
+		uninstallingPackage.add(new AppData(packageName, "",  appID));
 
-		if (UninstallApp.unInstallApplication(mContext, packageName) == false)
+		if (UninstallApp.unInstallApplication(mContext, packageName,  appID) == false)
 		{
-			ArrayListUtility.findContainAndRemove(uninstallingPackage, packageName);
+			ArrayListUtility.findEqualAndRemoveForAppDataClass(uninstallingPackage, packageName);
 
 			setResponseMessage(ResponseCode.ERR_PACKAGE_NOT_FIND, "not find the package which need to uninstall");
 
 			returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
 					ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
+		}
+		else
+		{
 		}
 	}
 
@@ -149,12 +164,13 @@ public class ApplicationHandler extends BaseHandler
 				{
 					if (appAction.equals("android.intent.action.PACKAGE_ADDED"))
 					{
-						if (ArrayListUtility.findContainAndRemove(installingPackage, packageName))
+						if (ArrayListUtility.findEqualAndRemoveForAppDataClass(installingPackage, packageName))
 						{
-
 							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
 							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
 									ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
+							// 需寫刪除 安裝成功的 apk 檔案
+
 						}
 						else
 						{
@@ -165,7 +181,7 @@ public class ApplicationHandler extends BaseHandler
 					}
 					else if (appAction.equals("android.intent.action.PACKAGE_REMOVED"))
 					{
-						if (ArrayListUtility.findContainAndRemove(uninstallingPackage, packageName))
+						if (ArrayListUtility.findEqualAndRemoveForAppDataClass(uninstallingPackage, packageName))
 						{
 							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
 							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
@@ -194,19 +210,37 @@ public class ApplicationHandler extends BaseHandler
 	{
 		private String uRLPath = null;
 		private String fileName = null;
+		private int appID;
 
 		@Override
 		public void run()
 		{
-			installApplication(uRLPath, fileName);
+			installApplication(uRLPath, fileName, appID);
 		}
 
-		public InstallAppRunnable(String uRLPath, String fileName)
+		public InstallAppRunnable(String uRLPath, String fileName, int appID)
 		{
 			this.fileName = fileName;
 			this.uRLPath = uRLPath;
+			this.appID = appID;
 		}
 
+	}
+
+	private static boolean isAppInstalled(Context mContext, String packageName)
+	{
+		PackageManager pm = mContext.getPackageManager();
+		boolean installed = false;
+		try
+		{
+			pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+			installed = true;
+		}
+		catch (PackageManager.NameNotFoundException e)
+		{
+			installed = false;
+		}
+		return installed;
 	}
 
 	/**
@@ -237,6 +271,20 @@ public class ApplicationHandler extends BaseHandler
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	public static class AppData
+	{
+		public String downloadPath = "";
+		public String packageName = "";
+		public int appID;
+
+		public AppData(String packageName, String downloadPath, int appID)
+		{
+			this.downloadPath = downloadPath;
+			this.packageName = packageName;
+			this.appID = appID;
 		}
 	}
 

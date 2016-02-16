@@ -3,6 +3,7 @@ package sdk.ideas.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import sdk.ideas.mdm.app.ApplicationHandler.AppData;
 import sdk.ideas.mdm.applist.ApplicationList.AppInfo;
 
 public class ArrayListUtility
@@ -19,6 +20,75 @@ public class ArrayListUtility
             }
         }
 		return false;
+		
+	}
+	public static boolean findContainAndRemoveForAppDataClass(ArrayList<AppData> data,String keyword)
+	{
+		Iterator<AppData> iter = data.iterator();
+        while(iter.hasNext())
+        {
+            if(iter.next().packageName.contains(keyword))
+            {
+            	iter.remove();
+            	return true;
+            }
+        }
+		return false;
+		
+	}
+	public static boolean findContainForAppDataClass(ArrayList<AppData> data,String keyword)
+	{
+		Iterator<AppData> iter = data.iterator();
+        while(iter.hasNext())
+        {
+            if(iter.next().packageName.contains(keyword))
+            {
+            	return true;
+            }
+        }
+		return false;
+		
+	}
+	
+	public static boolean findEqualAndRemoveForAppDataClass(ArrayList<AppData> data,String keyword)
+	{
+		Iterator<AppData> iter = data.iterator();
+        while(iter.hasNext())
+        {
+            if(iter.next().packageName.equals(keyword))
+            {
+            	iter.remove();
+            	return true;
+            }
+        }
+		return false;
+		
+	}
+	public static boolean findEqualForAppDataClass(ArrayList<AppData> data,String keyword)
+	{
+		Iterator<AppData> iter = data.iterator();
+        while(iter.hasNext())
+        {
+            if(iter.next().packageName.equals(keyword))
+            {
+            	return true;
+            }
+        }
+		return false;
+		
+	}
+	public static AppData findEqualForAppDataClass(ArrayList<AppData> data,int appID)
+	{
+		Iterator<AppData> iter = data.iterator();
+        while(iter.hasNext())
+        {
+        	AppData tmp = iter.next();
+            if(tmp.appID == appID)
+            {
+            	return tmp;
+            }
+        }
+		return null;
 		
 	}
 	
