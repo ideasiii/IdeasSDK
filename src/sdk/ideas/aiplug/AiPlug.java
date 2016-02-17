@@ -15,8 +15,8 @@ import sdk.ideas.module.HttpClient;
  */
 public class AiPlug
 {
-	private final int	ID_LIST		= 0;
-	private final int	ID_CONFIG	= 1;
+	public static final int	ID_LIST		= 0;
+	public static final int	ID_CONFIG	= 1;
 
 	private final String TARGET_URL = "http://54.92.30.60:80/api/smarthome/list";
 
