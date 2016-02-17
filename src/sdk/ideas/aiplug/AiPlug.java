@@ -27,11 +27,33 @@ public class AiPlug
 	{
 		httpClient = new HttpClient();
 		httpClient.setOnHttpResponseListener(httpListener);
+		listListener = new ArrayList<AiPlugResponseListener>();
 	}
 
 	public static interface AiPlugResponseListener
 	{
-		public void onResponse(final int nCode, final String strContent);
+		public void onResponse(final int nApiId, final int nCode, final String strContent);
+	}
+
+	/**
+	 * Set callback
+	 * 
+	 * @param listener
+	 */
+	public void setAiPlugResponseListener(AiPlugResponseListener listener)
+	{
+		if (null != listener)
+		{
+			listListener.add(listener);
+		}
+	}
+
+	private void callback(final int nApiId, final int nCode, final String strContent)
+	{
+		for (int i = 0; i < listListener.size(); ++i)
+		{
+			listListener.get(i).onResponse(nApiId, nCode, strContent);
+		}
 	}
 
 	/**
@@ -60,8 +82,10 @@ public class AiPlug
 			{
 			case ID_LIST:
 				Logs.showTrace("HTTP RESPONSE - Code:" + String.valueOf(nCode) + " Content:" + strContent);
+				callback(ID_LIST, nCode, strContent);
 				break;
 			case ID_CONFIG:
+				callback(ID_CONFIG, nCode, strContent);
 				break;
 			default:
 				break;
