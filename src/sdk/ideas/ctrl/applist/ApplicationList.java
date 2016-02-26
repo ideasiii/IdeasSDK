@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.applist;
+package sdk.ideas.ctrl.applist;
 
 import java.util.ArrayList;
 import java.util.List;

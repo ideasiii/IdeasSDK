@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.content;
+package sdk.ideas.ctrl.content;
 
 
 import android.content.Context;

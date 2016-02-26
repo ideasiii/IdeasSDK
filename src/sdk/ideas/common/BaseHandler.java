@@ -1,12 +1,14 @@
 package sdk.ideas.common;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import android.content.Context;
 import android.os.Handler;
 import sdk.ideas.common.ResponseCode.ResponseMessage;
 
 public abstract class BaseHandler
 {
-	protected OnCallbackResult listener = null;
+	protected ArrayList<OnCallbackResult> listener = null;
 	protected Context mContext = null;
 	protected Handler theHandler = null;
 
@@ -15,16 +17,17 @@ public abstract class BaseHandler
 
 	protected ResponseMessage mResponseMessage = null;
 
-	public BaseHandler(Context context)
+	protected BaseHandler(Context context)
 	{
 		if (null != context)
 		{
 			mContext = context;
 			mResponseMessage = new ResponseMessage();
+			listener = new ArrayList<OnCallbackResult> ();
 		}
 	}
 
-	public BaseHandler()
+	protected BaseHandler()
 	{
 
 	}
@@ -38,26 +41,41 @@ public abstract class BaseHandler
 		}
 	}
 	
-	public void setOnCallbackResultListener(OnCallbackResult listener)
+	
+	
+	
+	/**
+	 * 
+	 * this setOnCallbackResultListener is multi listener
+	 * and will return callbackID
+	 * 
+	 * */
+	public int setOnCallbackResultListener(OnCallbackResult listener)
 	{
 		if (null != listener)
 		{
-			this.listener = listener;
+			this.listener.add( listener);
 			isListenerEnable = true;
+			return this.listener.size() - 1;
 		}
+		return -1;
 	}
 
 	/**
-	 *  mWhat                        : which MDM module error or not
-	 * 	mFrom                        : which MDM module method error or not
+	 *  Waring! call this method "setResponseMessage" first to set mResponseMessage
+	 *  
+	 *  mWhat                        : which Ctrl module message
+	 * 	mFrom                        : which Ctrl module method message
 	 *  mResponseMessage.mnCode      : error code
-	 *  mResponseMessage.mStrContent : detail error message or other functional message 
-	 * */
-	public void returnRespose(ResponseMessage mResponseMessage, int mWhat, int mFrom)
+	 *  mResponseMessage.mStrContent : HashMap<String,String> detail error message or other functional message 
+	 */                                                                              
+	
+	protected void returnRespose(int mWhat, int mFrom)
 	{
 		if (isListenerEnable)
 		{
-			listener.onCallbackResult(mResponseMessage.mnCode, mWhat, mFrom,mResponseMessage.mStrContent);
+			for (int i = 0; i < listener.size(); i++)
+				listener.get(i).onCallbackResult(mResponseMessage.mnCode, mWhat, mFrom, mResponseMessage.mStrContent);
 		}
 		if (isHandlerEnable)
 		{
@@ -65,11 +83,33 @@ public abstract class BaseHandler
 		}
 	}
 	
-	public void setResponseMessage(int mnCode,String errorMessage)
+	/**
+	 *  Waring! call this method "setResponseMessage" first to set mResponseMessage
+	 *  
+	 *  mWhat                        : which Ctrl module message
+	 * 	mFrom                        : which Ctrl module method message
+	 *  mResponseMessage.mnCode      : error code
+	 *  mResponseMessage.mStrContent : HashMap<String,String> detail error message or other functional message 
+	 *  callbackID                   : if you use interface to listen callback method should have this id
+	 * */
+	protected void returnResponse(int mWhat , int mFrom, int callbackID)
+	{
+		if (isListenerEnable)
+		{
+			listener.get(callbackID).onCallbackResult(mResponseMessage.mnCode, mWhat, mFrom,mResponseMessage.mStrContent);
+		}
+		if (isHandlerEnable)
+		{
+			Common.postMessage(theHandler, mWhat, mResponseMessage.mnCode, mFrom, mResponseMessage.mStrContent);
+		}
+	}
+	
+	
+	
+	protected void setResponseMessage(int mnCode, HashMap<String,String> message)
 	{
 		mResponseMessage.mnCode = mnCode;
-		mResponseMessage.mStrContent = errorMessage;
-		
+		mResponseMessage.mStrContent = new HashMap<String,String>(message);
 	}
 
 	

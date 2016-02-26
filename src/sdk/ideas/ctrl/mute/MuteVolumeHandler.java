@@ -1,13 +1,13 @@
-package sdk.ideas.mdm.mute;
+package sdk.ideas.ctrl.mute;
 
 import java.util.HashMap;
 import android.content.Context;
 import android.content.IntentFilter;
 import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.ReturnIntentAction;
-import sdk.ideas.mdm.MDMType;
 
 public class MuteVolumeHandler extends BaseHandler
 {
@@ -65,17 +65,17 @@ public class MuteVolumeHandler extends BaseHandler
 		isMute = true;
 		ControlMuteVolume.muteDevice(isMute, isActive, mResponseMessage);
 
-		returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_VOLUME_HANDLER,
+		returnRespose(CtrlType.MSG_RESPONSE_VOLUME_HANDLER,
 				ResponseCode.METHOLD_VOLUME_MUTE_ENABLE);
 	}
 
 	public void stopMute()
 	{
-		if (isActive)
+		if (isActive == true)
 		{
 			isMute = false;
 			ControlMuteVolume.muteDevice(isMute, isActive, mResponseMessage);
-			returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_VOLUME_HANDLER,
+			returnRespose(CtrlType.MSG_RESPONSE_VOLUME_HANDLER,
 					ResponseCode.METHOLD_VOLUME_MUTE_DISABLE);
 		}
 

@@ -1,12 +1,8 @@
 package sdk.ideas.mdm.lock;
 
-import com.google.android.gms.fitness.data.DataSet;
 import android.annotation.SuppressLint;
-import android.app.KeyguardManager;
-import android.app.KeyguardManager.KeyguardLock;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
-import android.content.Context;
 import android.os.Build;
 import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
@@ -24,13 +20,6 @@ public class ControlLockScreenPassword
 		{
 			devicePolicyManager = data.getManager();
 			lockAdmin = data.getComponentName();
-
-			// to enable
-			// _keyguardLock.reenableKeyguard();
-		}
-		else
-		{
-			Logs.showTrace("fail to create password lock");
 		}
 	}
 
@@ -47,7 +36,7 @@ public class ControlLockScreenPassword
 		}
 		else
 		{
-
+			
 		}
 
 	}
@@ -55,7 +44,6 @@ public class ControlLockScreenPassword
 	/**
 	 * Indicates whether the device administrator is currently active.
 	 *
-	 * @return
 	 */
 	private static boolean isAdminActive()
 	{

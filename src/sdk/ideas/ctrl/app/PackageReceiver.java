@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.app;
+package sdk.ideas.ctrl.app;
 
 import android.content.Context;
 import android.content.Intent;

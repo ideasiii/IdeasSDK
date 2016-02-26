@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.mute;
+package sdk.ideas.ctrl.mute;
 
 import android.content.Context;
 import android.content.Intent;

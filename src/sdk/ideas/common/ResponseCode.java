@@ -1,5 +1,7 @@
 package sdk.ideas.common;
 
+import java.util.HashMap;
+
 public abstract class ResponseCode
 {
 	public static final int ERR_SUCCESS = 1;
@@ -18,7 +20,11 @@ public abstract class ResponseCode
 	public static final int ERR_PROTOCOL_EXCEPTION =-10;
 	
 	public static final int ERR_PACKAGE_NOT_FIND = -11;
+	public static final int ERR_INTERRUPTED_EXCEPTION = -12;
 	
+	public static final int ERR_FILE_NOT_FOUND_EXCEPTION = -13;
+	
+	public static final int ERR_UNREADABLE_EXTERNAL_STORAGE = -14;
 	
 	public static final int ERR_MAX = -100;
 
@@ -28,33 +34,56 @@ public abstract class ResponseCode
 	public static final int METHOLD_TRACKER = 1;
 	public static final int METHOLD_STOP_TRACKER = 2;
 
-	// mdm camera
+	// ctrl camera
 	public static final int METHOLD_CAMERA_DISABLE       = 0;
 	public static final int METHOLD_CAMERA_ENABLE        = 1;
 
-	// mdm volume
+	// ctrl volume
 	public static final int METHOLD_VOLUME_MUTE_DISABLE  = 1;
 	public static final int METHOLD_VOLUME_MUTE_ENABLE   = 0;
 
-	// mdm application
+	// ctrl application
 	public static final int METHOD_APPLICATION_INSTALL_SYSTEM  = 1;
 	public static final int METHOD_APPLICATION_UNINSTALL_SYSTEM = 0;
 	public static final int METHOD_APPLICATION_INSTALL_USER = 2;
 	public static final int METHOD_APPLICATION_UNINSTALL_USER = 3;
 	
-	// mdm record
+	// ctrl record
 	public static final int METHOD_RECORD_APPLICATION = 0;
 	public static final int METHOD_RECORD_SDCARD_FILE = 1;
 	
-	//mdm lock
+	// ctrl restore
+	public static final int METHOD_RESTORE_APPLICATION = 0;
+	public static final int METHOD_RESTORE_SDCARD_FILE = 1;
+	
+	//ctrl lock
 	public static final int METHOD_LOCK_STATUS_BAR      = 0;
 	public static final int METHOD_LOCK_SCREEN_PASSWORD = 1;
 	
+	//ctrl battery
+	public static final int METHOD_BATTERY = 0;
+	
+	//ctrl storage space
+	public static final int METHOD_EXTERNAL_MEMORY = 0;
+	public static final int METHOD_REMOVABLE_EXTERNAL_MEMORY = 1;
+	
+	//ctrl location 
+	public static final int METHOD_UPDATE_LOCATION = 0;
 
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;
-		public String mStrContent = "";
+		public HashMap<String,String> mStrContent;
+		
+		public ResponseMessage(){};
+		
+		public ResponseMessage(ResponseMessage tmp)
+		{
+			mnCode = tmp.mnCode;
+			mStrContent = new HashMap<String,String>(tmp.mStrContent);
+		};
+		
+		
 	}
 
 }

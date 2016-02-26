@@ -3,8 +3,8 @@ package sdk.ideas.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import sdk.ideas.mdm.app.ApplicationHandler.AppData;
-import sdk.ideas.mdm.applist.ApplicationList.AppInfo;
+import sdk.ideas.ctrl.app.ApplicationHandler.AppData;
+import sdk.ideas.ctrl.applist.ApplicationList.AppInfo;
 
 public class ArrayListUtility
 {
@@ -64,17 +64,19 @@ public class ArrayListUtility
 		return false;
 		
 	}
-	public static boolean findEqualForAppDataClass(ArrayList<AppData> data,String keyword)
+	public static AppData findEqualForAppDataClass(ArrayList<AppData> data,String keyword)
 	{
 		Iterator<AppData> iter = data.iterator();
         while(iter.hasNext())
         {
-            if(iter.next().packageName.equals(keyword))
+        	
+        	AppData tmp = iter.next();
+            if(tmp.packageName.equals(keyword))
             {
-            	return true;
+            	return tmp;
             }
         }
-		return false;
+		return null;
 		
 	}
 	public static AppData findEqualForAppDataClass(ArrayList<AppData> data,int appID)

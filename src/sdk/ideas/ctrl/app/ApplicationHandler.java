@@ -1,7 +1,6 @@
 
-package sdk.ideas.mdm.app;
+package sdk.ideas.ctrl.app;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -14,40 +13,22 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.IOFileHandler;
+import sdk.ideas.common.ListenReceiverAction;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.ReturnIntentAction;
-import sdk.ideas.mdm.MDMType;
 
-public class ApplicationHandler extends BaseHandler
+public class ApplicationHandler extends BaseHandler implements ListenReceiverAction
 {
 	private Context mContext = null;
 	private PackageReceiver receiver = null;
 	private ArrayList<AppData> installingPackage = null;
 	private ArrayList<AppData> uninstallingPackage = null;
-
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		Logs.showTrace("requestCode: "+String.valueOf(requestCode));
-		if (resultCode != Activity.RESULT_OK)
-		{
-			AppData installAppData = ArrayListUtility.findEqualForAppDataClass(installingPackage, requestCode);
-			AppData uninstallAppData = ArrayListUtility.findEqualForAppDataClass(uninstallingPackage, requestCode);
-			
-			// for install
-			if (null == uninstallAppData)
-			{
-				InstallApp.installApplication(mContext, installAppData.downloadPath, installAppData.appID);
-			}
-			// for uninstall
-			else if(null == installAppData)
-			{
-				UninstallApp.unInstallApplication(mContext, uninstallAppData.packageName, uninstallAppData.appID);
-			}
-		}
-
-	}
+	private IntentFilter filter = null;
+	private String defaultDownloadApkSavePath = "Download/";
+	
 
 	public ApplicationHandler(Context context)
 	{
@@ -55,7 +36,37 @@ public class ApplicationHandler extends BaseHandler
 		mContext = context;
 		installingPackage = new ArrayList<AppData>();
 		uninstallingPackage = new ArrayList<AppData>();
-		listenPackageAction();
+		
+		receiver = new PackageReceiver();
+		
+		filter = new IntentFilter();
+		filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+		filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+		filter.addDataScheme("package");
+		
+	}
+	
+	
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		Logs.showTrace("requestCode: " + String.valueOf(requestCode));
+		if (resultCode != Activity.RESULT_OK)
+		{
+			AppData installAppData = ArrayListUtility.findEqualForAppDataClass(installingPackage, requestCode);
+			AppData uninstallAppData = ArrayListUtility.findEqualForAppDataClass(uninstallingPackage, requestCode);
+
+			// for install
+			if (null == uninstallAppData)
+			{
+				InstallApp.installApplication(mContext, installAppData.downloadPath, installAppData.appID);
+			}
+			// for uninstall
+			else if (null == installAppData)
+			{
+				UninstallApp.unInstallApplication(mContext, uninstallAppData.packageName, uninstallAppData.appID);
+			}
+		}
+
 	}
 
 	/**
@@ -77,36 +88,45 @@ public class ApplicationHandler extends BaseHandler
 	 * @param apkName
 	 *            fileName
 	 */
-	public void installApplication(String url, String apkName, int appID)
+	public void installApplication(String url,String savePath, String apkName, int appID)
 	{
+		if(null ==savePath)
+			savePath = this.defaultDownloadApkSavePath;
+		else
+			this.defaultDownloadApkSavePath = savePath;
 		boolean anyError = true;
+		HashMap<String, String> message = new HashMap<String, String>();
 		try
 		{
-			InstallApp.installApplicationWithDownload(mContext, url, MDMType.MDM_PROFILE_DOWNLOAD_TEMPORARY_PATH,
+			InstallApp.installApplicationWithDownload(mContext, url, savePath,
 					apkName, installingPackage, appID);
 			anyError = false;
 		}
 		catch (MalformedURLException e)
 		{
-			setResponseMessage(ResponseCode.ERR_MALFORMED_URL_EXCEPTION, e.toString());
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_MALFORMED_URL_EXCEPTION, message);
 		}
 		catch (ProtocolException e)
 		{
-			setResponseMessage(ResponseCode.ERR_PROTOCOL_EXCEPTION, e.toString());
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_PROTOCOL_EXCEPTION, message);
 		}
 		catch (IOException e)
 		{
-			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, e.toString());
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
 		}
 		catch (Exception e)
 		{
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, e.toString());
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
 		}
 		finally
 		{
 			if (anyError == true)
 			{
-				returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+				returnRespose( CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
 			}
 			else
@@ -127,15 +147,17 @@ public class ApplicationHandler extends BaseHandler
 																	// package
 																	// Name
 	{
-		uninstallingPackage.add(new AppData(packageName, "",  appID));
+		HashMap<String, String> message = new HashMap<String, String>();
 
-		if (UninstallApp.unInstallApplication(mContext, packageName,  appID) == false)
+		uninstallingPackage.add(new AppData(packageName, "","", appID));
+
+		if (UninstallApp.unInstallApplication(mContext, packageName, appID) == false)
 		{
 			ArrayListUtility.findEqualAndRemoveForAppDataClass(uninstallingPackage, packageName);
 
-			setResponseMessage(ResponseCode.ERR_PACKAGE_NOT_FIND, "not find the package which need to uninstall");
-
-			returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+			message.put("message", "not find the package which need to uninstall");
+			setResponseMessage(ResponseCode.ERR_PACKAGE_NOT_FIND, message);
+			returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 					ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
 		}
 		else
@@ -143,39 +165,44 @@ public class ApplicationHandler extends BaseHandler
 		}
 	}
 
-	public void listenPackageAction()
+	@Override
+	public void startListenAction()
 	{
-		IntentFilter filter = new IntentFilter();
-
-		filter.addAction(Intent.ACTION_PACKAGE_ADDED);
-		filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
-
-		filter.addDataScheme("package");
-		receiver = new PackageReceiver();
+		
+		
 		mContext.registerReceiver(receiver, filter);
 		receiver.setOnReceiverListener(new ReturnIntentAction()
 		{
 			@Override
 			public void returnIntentAction(HashMap<String, String> action)
 			{
+				HashMap<String, String> message = new HashMap<String, String>();
+
 				String appAction = action.get("Action");
 				String packageName = action.get("PackageName");
+				message.put("packageName", packageName);
 				if (null != listener)
 				{
 					if (appAction.equals("android.intent.action.PACKAGE_ADDED"))
 					{
-						if (ArrayListUtility.findEqualAndRemoveForAppDataClass(installingPackage, packageName))
+						AppData installed = ArrayListUtility.findEqualForAppDataClass(installingPackage, packageName);
+						if (null != installed )
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
-							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+							
+							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 									ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
 							// 需寫刪除 安裝成功的 apk 檔案
+							IOFileHandler.deleteFile(IOFileHandler.getExternalStorageDirectory() + "/"
+									+ defaultDownloadApkSavePath + installed.fileName);
+							
+							ArrayListUtility.findEqualAndRemoveForAppDataClass(installingPackage, packageName);
 
 						}
 						else
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
-							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 									ResponseCode.METHOD_APPLICATION_INSTALL_USER);
 						}
 					}
@@ -183,27 +210,29 @@ public class ApplicationHandler extends BaseHandler
 					{
 						if (ArrayListUtility.findEqualAndRemoveForAppDataClass(uninstallingPackage, packageName))
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
-							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 									ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
 						}
 						else
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, packageName);
-							returnRespose(mResponseMessage, MDMType.MDM_MSG_RESPONSE_APPLICATION_HANDLER,
+							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 									ResponseCode.METHOD_APPLICATION_UNINSTALL_USER);
 						}
 					}
 				}
 			}
 		});
-
 	}
 
-	public void stopListenAppAction()
+	@Override
+	public void stopListenAction()
 	{
 		if (null != receiver)
+		{
 			mContext.unregisterReceiver(receiver);
+		}
 	}
 
 	private class InstallAppRunnable implements Runnable
@@ -215,7 +244,7 @@ public class ApplicationHandler extends BaseHandler
 		@Override
 		public void run()
 		{
-			installApplication(uRLPath, fileName, appID);
+			installApplication(uRLPath, null ,fileName, appID);
 		}
 
 		public InstallAppRunnable(String uRLPath, String fileName, int appID)
@@ -242,13 +271,13 @@ public class ApplicationHandler extends BaseHandler
 		}
 		return installed;
 	}
-
+/*
 	/**
 	 * important test
 	 * 
 	 * @throws IOException
 	 * @throws FileNotFoundException
-	 */
+	 *
 	private void test() throws FileNotFoundException, IOException
 	{
 		ArrayList<String> tmp = IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH);
@@ -258,7 +287,6 @@ public class ApplicationHandler extends BaseHandler
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -269,22 +297,23 @@ public class ApplicationHandler extends BaseHandler
 		}
 		catch (IOException e)
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	public static class AppData
 	{
 		public String downloadPath = "";
 		public String packageName = "";
 		public int appID;
+		public String fileName = "";
 
-		public AppData(String packageName, String downloadPath, int appID)
+		public AppData(String packageName, String downloadPath,String fileName, int appID)
 		{
 			this.downloadPath = downloadPath;
 			this.packageName = packageName;
 			this.appID = appID;
+			this.fileName = fileName;
 		}
 	}
 

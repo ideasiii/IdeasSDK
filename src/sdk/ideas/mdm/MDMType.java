@@ -25,11 +25,10 @@ public abstract class MDMType
 	
 	public final static int MDM_MSG_RESPONSE      = 1030;
 	
-	public final static int MDM_MSG_RESPONSE_CAMERA_HANDLER = 1031;
-	
-	public final static int MDM_MSG_RESPONSE_VOLUME_HANDLER = 1032;
-	
-	public final static int MDM_MSG_RESPONSE_APPLICATION_HANDLER = 1033;
 	
 	public final static int MDM_MSG_RESPONSE_RECORD_HANDLER = 1034;
+	
+
+	
+	
 }

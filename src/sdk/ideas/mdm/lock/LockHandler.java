@@ -1,26 +1,21 @@
 package sdk.ideas.mdm.lock;
 
-import android.content.Context;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Logs;
 import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
 
-public class MDMLockHandler extends BaseHandler
+public class LockHandler extends BaseHandler
 {
-
-
 	private int mPasswordQuality;
 	private int mPasswordLength;
 	private int mPasswordMinUpperCase;
 	private boolean useDefaultQuality = true;
-	private Context mContext = null;
 
-	public MDMLockHandler(PolicyData data)
+	public LockHandler(PolicyData data)
 	{
+		
 		super(data.getContext());
 		
-		mContext = data.getContext();
-
 		ControlLockStatusBar.controlLockStatusBarInit(mContext);
 
 		ControlLockScreenPassword.setControlLockScreenPassword(data);
@@ -45,7 +40,6 @@ public class MDMLockHandler extends BaseHandler
 		}
 	}
 
-	
 
 	public void lockSceenNow(String password)
 	{

@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.app;
+package sdk.ideas.ctrl.app;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import sdk.ideas.common.Logs;
-import sdk.ideas.mdm.applist.ApplicationList;
+import sdk.ideas.ctrl.applist.ApplicationList;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class UninstallApp

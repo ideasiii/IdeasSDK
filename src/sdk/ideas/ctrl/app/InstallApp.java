@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.app;
+package sdk.ideas.ctrl.app;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import sdk.ideas.common.IOFileHandler;
-import sdk.ideas.mdm.app.ApplicationHandler.AppData;
+import sdk.ideas.ctrl.app.ApplicationHandler.AppData;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class InstallApp
@@ -45,7 +45,7 @@ public class InstallApp
 		// to get install package name, file name is not really package name
 		String installPackageName = InstallApp.getPackageName(mContext, savePath, fileName);
 		installpackage.add(new AppData(installPackageName,
-				IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName, appID));
+				IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName, fileName, appID));
 
 		// for test
 		// for (int i = 0; i < installpackage.size(); i++)

@@ -1,5 +1,6 @@
-package sdk.ideas.mdm.camera;
+package sdk.ideas.ctrl.camera;
 
+import java.util.HashMap;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.os.Build;
@@ -23,26 +24,27 @@ public class ControlCamera
 	}
 	public void setCamera(boolean isDisable , ResponseMessage mResponseMessage)
 	{
+		HashMap<String,String> message = new HashMap<String,String>();
 		if (isAdminActive())
 		{
 			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 			{
 				devicePolicyManager.setCameraDisabled(cameraAdmin, isDisable);
 				mResponseMessage.mnCode = 1;
-				mResponseMessage.mStrContent = "Success";
+				message.put("message", "Success");
 			}
 			else
 			{
 				mResponseMessage.mnCode = ResponseCode.ERR_OS_BUILD_VERSION_SDK_INT;
-				mResponseMessage.mStrContent = "fail to set camera cause smart phone build version lower than ICE_CREAM_SANDWICH";
+				message.put("message", "fail to set camera cause smart phone build version lower than ICE_CREAM_SANDWICH");
 			}
 		}
 		else
 		{
 			mResponseMessage.mnCode = ResponseCode.ERR_ADMIN_POLICY_INACTIVE;
-			mResponseMessage.mStrContent = "fail to set camera cause admin inactive policy";
-			Logs.showTrace("fail to set camera");
+			message.put("message", "fail to set camera cause admin inactive policy");
 		}
+		mResponseMessage.mStrContent = new HashMap<String,String>(message);
 	
 	}
 	
