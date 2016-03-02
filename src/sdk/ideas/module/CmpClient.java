@@ -6,7 +6,6 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 
-import sdk.ideas.common.Logs;
 import sdk.ideas.common.Protocol;
 import sdk.ideas.common.ResponseCode;
 
@@ -137,7 +136,7 @@ public class CmpClient
 				buf.order(ByteOrder.BIG_ENDIAN);
 
 				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
-				Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				//Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
 				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
 
 				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
@@ -146,7 +145,7 @@ public class CmpClient
 				if (ResponseCode.ERR_SUCCESS == response.mnCode)
 				{
 					byte[] bytes = new byte[buf.getInt(0)];
-					Logs.showTrace(String.valueOf("remaining " + buf.remaining()));
+					//Logs.showTrace(String.valueOf("remaining " + buf.remaining()));
 					buf.get(bytes);
 					String strTemp = new String(bytes, Charset.forName("UTF-8"));
 					String strBody = strTemp.substring(16);
@@ -188,7 +187,7 @@ public class CmpClient
 		}
 		catch (Exception e)
 		{
-			Logs.showTrace(e.getMessage());
+			//Logs.showTrace(e.getMessage());
 			response.mnCode = -1;
 			response.mstrContent = "connected fail, IO exception";
 		}
@@ -229,7 +228,7 @@ public class CmpClient
 		try
 		{
 
-			Logs.showTrace("IP: " + strIP + " port: " + nPort);
+			//Logs.showTrace("IP: " + strIP + " port: " + nPort);
 			msocket = new Socket(strIP, nPort);
 
 			if (!validSocket(msocket))
@@ -304,10 +303,10 @@ public class CmpClient
 
 				// debug
 				// Logs.showTrace(respData.get("REQ_BODY_SIGN_UP_DATA"));
-				Logs.showTrace(respData.get("RESP_LENGTH"));
-				Logs.showTrace(respData.get("RESP_ID"));
-				Logs.showTrace(respData.get("RESP_STATUS"));
-				Logs.showTrace(respData.get("RESP_SEQUENCE"));
+				//Logs.showTrace(respData.get("RESP_LENGTH"));
+				//Logs.showTrace(respData.get("RESP_ID"));
+				//Logs.showTrace(respData.get("RESP_STATUS"));
+				///Logs.showTrace(respData.get("RESP_SEQUENCE"));
 
 			}
 			else
@@ -319,7 +318,7 @@ public class CmpClient
 			buf.clear();
 			buf = null;
 			msocket.close();
-			Logs.showTrace("final sign up");
+			//Logs.showTrace("final sign up");
 
 		}
 		catch (IOException e)
@@ -328,7 +327,7 @@ public class CmpClient
 			response.mstrContent = "connected fail, IO exception";
 		}
 
-		Logs.showTrace(String.valueOf(response.mnCode));
+		//Logs.showTrace(String.valueOf(response.mnCode));
 	}
 
 	public static void accessLogRequest(final String strIP, final int nPort, String accessLogType, String accessLogData,
@@ -363,9 +362,9 @@ public class CmpClient
 		// Logs.showTrace("377");
 		try
 		{
-			Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			msocket = new Socket(strIP, nPort);
-			Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -438,10 +437,10 @@ public class CmpClient
 				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
 				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
 
-				Logs.showTrace(respData.get("RESP_LENGTH"));
-				Logs.showTrace(respData.get("RESP_ID"));
-				Logs.showTrace(respData.get("RESP_STATUS"));
-				Logs.showTrace(respData.get("RESP_SEQUENCE"));
+				//Logs.showTrace(respData.get("RESP_LENGTH"));
+				//Logs.showTrace(respData.get("RESP_ID"));
+				//Logs.showTrace(respData.get("RESP_STATUS"));
+				//Logs.showTrace(respData.get("RESP_SEQUENCE"));
 
 			}
 			else

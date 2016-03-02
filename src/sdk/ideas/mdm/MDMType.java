@@ -5,7 +5,7 @@ public abstract class MDMType
 	public final static int DISABLE = -1;
 	public final static int ENABLE  =  0;
 
-	public final static int REQUEST_CODE_ENABLE_ADMIN  = 3333;
+	
 	public final static int REQUEST_CODE_INSTALL_APP   = 3334;
 	public final static int REQUEST_CODE_UNINSTALL_APP = 3335;
 	

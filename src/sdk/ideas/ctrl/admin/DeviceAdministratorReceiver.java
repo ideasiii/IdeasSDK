@@ -1,14 +1,13 @@
-package sdk.ideas.mdm.admin;
+package sdk.ideas.ctrl.admin;
 
 import android.app.admin.DeviceAdminReceiver;
 import android.content.Context;
 import android.content.Intent;
 import sdk.ideas.common.Logs;
 
-public class IdeasSDKDeviceAdminReceiver extends DeviceAdminReceiver
+public class DeviceAdministratorReceiver extends DeviceAdminReceiver
 {
 
-	@Override
 	public void onEnabled(Context context, Intent intent)
 	{
 		super.onEnabled(context, intent);

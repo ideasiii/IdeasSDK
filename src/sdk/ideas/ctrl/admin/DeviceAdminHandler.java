@@ -1,28 +1,31 @@
-package sdk.ideas.mdm.admin;
+package sdk.ideas.ctrl.admin;
 
+import java.util.HashMap;
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
-import sdk.ideas.mdm.MDMType;
+import sdk.ideas.common.ResponseCode;
 
-public class MDMDeviceAdmin
+public class DeviceAdminHandler extends BaseHandler
 {
 	private static DevicePolicyManager mDevicePolicyManager = null;
 	private static ComponentName mComponentAdmin = null;
-	private Context mContext = null;
 	private Intent intent = null;
-	private static PolicyData data = null;
-
-	public MDMDeviceAdmin(Context context)
+	private static PolicyData policyData = null;
+	private HashMap<String,String >message = null;
+	public DeviceAdminHandler(Context context)
 	{
-		mContext = context;
-
+		super(context);
 		mDevicePolicyManager = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
-		mComponentAdmin = new ComponentName(mContext, IdeasSDKDeviceAdminReceiver.class);
+		mComponentAdmin = new ComponentName(mContext, DeviceAdministratorReceiver.class);
+		message = new HashMap<String,String>();
+		
 	}
 
 	public void createPolicy(String addAdminExtraAppText)
@@ -35,21 +38,33 @@ public class MDMDeviceAdmin
 				intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, mComponentAdmin);
 
 				if (null != addAdminExtraAppText)
+				{
 					intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, addAdminExtraAppText);
-
-				((Activity) mContext).startActivityForResult(intent, MDMType.REQUEST_CODE_ENABLE_ADMIN);
+				}
+				((Activity) mContext).startActivityForResult(intent, CtrlType.REQUEST_CODE_ENABLE_ADMIN);
+				policyData = new PolicyData(mContext, mDevicePolicyManager, mComponentAdmin);
 			}
-			catch (ActivityNotFoundException e)
+			catch(Exception e)
 			{
-				Logs.showTrace(e.getMessage());
+				message.put("message", e.toString());
+				super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
+				super.returnRespose(CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER, ResponseCode.METHOD_CREATE_POLICY);
+				message.clear();
 			}
-			data = new PolicyData(mContext, mDevicePolicyManager, mComponentAdmin);
+		
 		}
 	}
 
+	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	{
+		//callback to developer 
+		
+	}
+	
+	
 	public PolicyData getPolicyData()
 	{
-		return data;
+		return policyData;
 	}
 
 	public boolean isActive()

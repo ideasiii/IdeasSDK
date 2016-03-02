@@ -3,7 +3,7 @@ package sdk.ideas.ctrl.camera;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.ResponseCode;
-import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
+import sdk.ideas.ctrl.admin.DeviceAdminHandler.PolicyData;
 
 public class CameraHandler extends BaseHandler
 {

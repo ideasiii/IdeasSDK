@@ -1,11 +1,10 @@
-package sdk.ideas.mdm.lock;
+package sdk.ideas.ctrl.lock;
 
 import java.util.HashMap;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
-import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
-import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
+import sdk.ideas.ctrl.admin.DeviceAdminHandler.PolicyData;
 
 public class LockHandler extends BaseHandler
 {
@@ -44,10 +43,7 @@ public class LockHandler extends BaseHandler
 		{
 			message.clear();
 		}
-		
-		
-		
-		
+	
 	}
 
 	public void unLockStatusBar()
@@ -133,7 +129,6 @@ public class LockHandler extends BaseHandler
 	{
 		try
 		{
-			
 			if(ControlLockScreenPassword.lockNow() == true)
 			{
 				message.put("message", "success");

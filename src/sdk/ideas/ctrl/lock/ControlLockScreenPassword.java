@@ -1,11 +1,11 @@
-package sdk.ideas.mdm.lock;
+package sdk.ideas.ctrl.lock;
 
 import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.os.Build;
 import sdk.ideas.common.Logs;
-import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
+import sdk.ideas.ctrl.admin.DeviceAdminHandler.PolicyData;
 
 @SuppressLint("NewApi")
 public class ControlLockScreenPassword

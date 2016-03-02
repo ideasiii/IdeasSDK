@@ -1,14 +1,15 @@
 package sdk.ideas.ctrl.camera;
 
 import java.util.HashMap;
+import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.os.Build;
-import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.ResponseCode.ResponseMessage;
-import sdk.ideas.mdm.admin.MDMDeviceAdmin.PolicyData;
+import sdk.ideas.ctrl.admin.DeviceAdminHandler.PolicyData;
 
+@SuppressLint("NewApi")
 public class ControlCamera
 {
 	public  DevicePolicyManager devicePolicyManager = null;

@@ -31,6 +31,10 @@ public abstract class ResponseCode
 	public static final int ERR_MAX = -100;
 
 	/* FROM which method */
+	
+	//ctrl device admin
+	public final static int METHOD_CREATE_POLICY = 0;
+	
 	// tracker
 	public static final int METHOLD_START_TRACKER = 0;
 	public static final int METHOLD_TRACKER = 1;

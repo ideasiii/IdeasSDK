@@ -1,4 +1,4 @@
-package sdk.ideas.mdm.lock;
+package sdk.ideas.ctrl.lock;
 
 import android.app.admin.DevicePolicyManager;
 
