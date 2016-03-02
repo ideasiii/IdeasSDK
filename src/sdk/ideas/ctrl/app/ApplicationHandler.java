@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
@@ -28,7 +27,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	private ArrayList<AppData> uninstallingPackage = null;
 	private IntentFilter filter = null;
 	private String defaultDownloadApkSavePath = "Download/";
-	
+	private boolean isRegisterReceiver = false;
 
 	public ApplicationHandler(Context context)
 	{
@@ -129,10 +128,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 				returnRespose( CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
 			}
-			else
-			{
-
-			}
+			
 		}
 
 	}
@@ -168,9 +164,8 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	@Override
 	public void startListenAction()
 	{
-		
-		
 		mContext.registerReceiver(receiver, filter);
+		isRegisterReceiver = true;
 		receiver.setOnReceiverListener(new ReturnIntentAction()
 		{
 			@Override
@@ -229,9 +224,10 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	@Override
 	public void stopListenAction()
 	{
-		if (null != receiver)
+		if (null != receiver && isRegisterReceiver == true)
 		{
 			mContext.unregisterReceiver(receiver);
+			isRegisterReceiver = false;
 		}
 	}
 
@@ -255,7 +251,8 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		}
 
 	}
-
+	
+/*
 	private static boolean isAppInstalled(Context mContext, String packageName)
 	{
 		PackageManager pm = mContext.getPackageManager();
@@ -270,36 +267,8 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 			installed = false;
 		}
 		return installed;
-	}
-/*
-	/**
-	 * important test
-	 * 
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 *
-	private void test() throws FileNotFoundException, IOException
-	{
-		ArrayList<String> tmp = IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_APP_PATH);
-		try
-		{
-			IOFileHandler.writeToExternalFile(null, "app_init.txt", tmp);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
-		try
-		{
-			IOFileHandler.writeToExternalFile(null, "sdcard_file_path_record.txt",
-					IOFileHandler.readFromInternalFile(mContext, MDMType.INIT_LOCAL_MDM_SDCARD_PATH));
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
 	}*/
+
 
 	public static class AppData
 	{

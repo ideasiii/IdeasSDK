@@ -26,6 +26,8 @@ public abstract class ResponseCode
 	
 	public static final int ERR_UNREADABLE_EXTERNAL_STORAGE = -14;
 	
+	public final static int ERR_URL_UNLINKABLE = -15;
+	
 	public static final int ERR_MAX = -100;
 
 	/* FROM which method */
@@ -56,10 +58,6 @@ public abstract class ResponseCode
 	public static final int METHOD_RESTORE_APPLICATION = 0;
 	public static final int METHOD_RESTORE_SDCARD_FILE = 1;
 	
-	//ctrl lock
-	public static final int METHOD_LOCK_STATUS_BAR      = 0;
-	public static final int METHOD_LOCK_SCREEN_PASSWORD = 1;
-	
 	//ctrl battery
 	public static final int METHOD_BATTERY = 0;
 	
@@ -70,6 +68,18 @@ public abstract class ResponseCode
 	//ctrl location 
 	public static final int METHOD_UPDATE_LOCATION = 0;
 
+	//ctrl documentWebViewer
+	public final static int METHOD_START_WEBVIEW_INTENT = 0;
+	
+	//ctrl locker
+	public final static int METHOD_RESET_SCEEN_LOCK_PASSWORD = 0;
+	public final static int METHOD_LOCK_SCEEN_NOW = 1;
+	public final static int METHOD_LOCK_STATUS_BAR = 2;
+	public final static int METHOD_UNLOCK_STATUS_BAR = 3;
+	
+	
+	
+	
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;

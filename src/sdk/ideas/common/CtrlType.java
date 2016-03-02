@@ -15,6 +15,9 @@ public abstract class CtrlType
 	public final static int MSG_RESPONSE_LOCATION_HANDLER = 1037;
 	public final static int MSG_RESPONSE_RESTORE_HANDLER = 1038;
 	
+	public final static int MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER = 1039;
+	
+	public final static int MSG_RESPONSE_LOCK_HANDLER = 1040;
 	
 
 }

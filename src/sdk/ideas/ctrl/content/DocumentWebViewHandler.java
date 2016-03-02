@@ -1,48 +1,80 @@
 package sdk.ideas.ctrl.content;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 public class DocumentWebViewHandler extends BaseHandler
 {
-	private Context mContext = null;
 	private Intent intent  = null;
+	private HashMap<String,String>message = null;
 	public DocumentWebViewHandler(Context mContext)
 	{
-		this.mContext = mContext;
-		intent = new Intent(mContext, DocumentWebViewer.class);
+		super(mContext);
+		message = new HashMap<String,String>();
 		
 	}
 
 	public void startIntent(String uRL)
 	{
+		Thread linkable = new Thread(new IsLinkable(uRL));
+		linkable.start();
+	}
+	
+	
+	private void isLinkable(String uRL)
+	{
 		
 		try
 		{
-			if (null != mContext && null != uRL && getResponseCode(uRL)!=200)
+			intent = new Intent(mContext, DocumentWebViewer.class);
+			
+			// parse not English word to utf-8 format
+			uRL = URLEncoder.encode(uRL,"UTF-8").replace("%3A", ":").replace("%2F", "/");
+			int responseCode = getResponseCode(uRL);
+			if (null != mContext && null != uRL && (responseCode == 200 || responseCode == 400))
 			{
+				//Logs.showTrace( "code is :"+ String.valueOf(responseCode));
 				intent.putExtra("linkURL", uRL);
 				((Activity) mContext).startActivityForResult(intent, CtrlType.WEBVIEW_REQUEST_CODE);
+				
+				message.put("message", "success");
+				
+				setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+				returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
+				
 			}
 			else
 			{
-				Logs.showTrace("url is not linkable");
+				message.put("message", "url is not linkable  " + "http code is :"+ String.valueOf(responseCode));
+				//Logs.showTrace("url is not linkable  " + "code is :"+ String.valueOf(responseCode));
+				
+				setResponseMessage(ResponseCode.ERR_URL_UNLINKABLE, message);
+				returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
 			}
 		}
 		catch (Exception e)
 		{
-			Logs.showTrace(e.toString());
+			//Logs.showTrace(e.toString());
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_URL_UNLINKABLE, message);
+			returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
+	
 		}
-
+		finally
+		{
+			message.clear();
+			
+		}
 	}
 	
 	public void setZoomControls(boolean zoomControls)
@@ -56,16 +88,18 @@ public class DocumentWebViewHandler extends BaseHandler
 	{
 		if(resultCode == Activity.RESULT_OK)
 		{
-			
+			//finish 
+			Logs.showTrace("OK!");
 		}
 		else if(resultCode == Activity.RESULT_CANCELED)
 		{
-			
+			//any error will return
+			Logs.showTrace("ERROR!");
 		}
 		
 	}
 
-	public static int getResponseCode(String urlString) throws MalformedURLException, IOException
+	public  int getResponseCode(String urlString) throws MalformedURLException, IOException
 	{
 		URL u = new URL(urlString);
 		HttpURLConnection huc = (HttpURLConnection) u.openConnection();
@@ -73,6 +107,24 @@ public class DocumentWebViewHandler extends BaseHandler
 		huc.connect();
 		return huc.getResponseCode();
 	}
+	
+	public class IsLinkable implements Runnable
+	{
+		private String uRL = null;
+		@Override
+		public void run()
+		{
+			isLinkable(uRL);
+		}
+		public IsLinkable(String uRL)
+		{
+			this.uRL = uRL;
+		}
+	
+	}
+	
+	
+	
 	
 	
 	

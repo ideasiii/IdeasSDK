@@ -3,7 +3,6 @@ package sdk.ideas.ctrl.content;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -11,7 +10,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import sdk.ideas.common.CtrlType;
-import sdk.ideas.common.Logs;
 
 public class DocumentWebViewer extends Activity
 {
@@ -60,30 +58,14 @@ public class DocumentWebViewer extends Activity
 		{
 			view.loadUrl(url);
 			return false;
-			// return super.shouldOverrideUrlLoading(view, url);
-		}
-
-		@Override
-		public void onPageFinished(WebView view, String url)
-		{
-			Logs.showTrace("view go away");
-			super.onPageFinished(view, url);
 		}
 
 		@Override
 		public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
 		{
-			Logs.showTrace("ssssssssssssssssssssssssssssssssssss");
 			finish();
-
 		}
 
-		@Override
-		public void onPageStarted(WebView view, String url, Bitmap favicon)
-		{
-			Logs.showTrace("view go start");
-			super.onPageStarted(view, url, favicon);
-		}
 
 	};
 	private WebChromeClient mWebChromeClient = new WebChromeClient()

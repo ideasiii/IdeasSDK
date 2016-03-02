@@ -25,21 +25,20 @@ public class ControlLockStatusBar
 		view = new CustomViewGroup(context);
 		localLayoutParams = new WindowManager.LayoutParams();
 	}
-
-	public static void fullSceen(Context context)
+	
+	
+	private static void fullSceen(Context context)
 	{
-		((Activity) context).requestWindowFeature(Window.FEATURE_NO_TITLE); // Remove
-																			// title
-																			// bar
+		// Remove title bar
+		((Activity) context).requestWindowFeature(Window.FEATURE_NO_TITLE); 
+		
+		// Remove notification bar
 		((Activity) context).getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);// Remove
-															// notification
-															// bar*/
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 	}
 
 	public static void preventStatusBarExpansion()
 	{
-
 		localLayoutParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ERROR;
 		localLayoutParams.gravity = Gravity.TOP;
 		localLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |

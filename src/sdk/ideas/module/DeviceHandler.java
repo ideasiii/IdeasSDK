@@ -167,7 +167,8 @@ public class DeviceHandler
 		}
 		catch (NumberFormatException nfe)
 		{
-			sdkRelease = "null";
+			//sdkRelease = "null";
+			return null;
 		}
 		// Logs.showTrace("Android" + String.valueOf(sdkRelease));
 		return "Android" + sdkRelease;

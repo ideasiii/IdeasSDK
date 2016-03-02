@@ -13,7 +13,7 @@ public class ControlLockScreenPassword
 
 	private static DevicePolicyManager devicePolicyManager = null;
 	private static ComponentName lockAdmin = null;
-
+	
 	public static void setControlLockScreenPassword(PolicyData data)
 	{
 		if (null != data)
@@ -94,12 +94,14 @@ public class ControlLockScreenPassword
 		}
 	}
 
-	public static void lockNow()
+	public static boolean lockNow()
 	{
 		if (isAdminActive())
 		{
 			devicePolicyManager.lockNow();
+			return true;
 		}
+		return false;
 	}
 
 }

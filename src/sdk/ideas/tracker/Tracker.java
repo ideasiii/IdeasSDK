@@ -76,10 +76,14 @@ public class Tracker
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_SUCCESS,
 								ResponseCode.METHOLD_START_TRACKER, "success");
 					}
+					//CMPClient ERROR 
 					else if (msg.arg1 <= ResponseCode.ERR_MAX)
 					{
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
 								ResponseCode.METHOLD_START_TRACKER, "error in transfer data to server ");
+						//debug use for socket transfer
+						//transferMessage.showLinkServerMessageResult(msg.arg1,
+							//	ResponseCode.METHOLD_START_TRACKER, (String) msg.obj);
 					}
 					else
 					{
@@ -175,7 +179,10 @@ public class Tracker
 
 	private void updateDbServerData()
 	{
-		startTracker(this.startTrackerParm.get("APP_ID"), this.startTrackerParm);
+		if (startTracker(this.startTrackerParm.get("APP_ID"), this.startTrackerParm) == -1)
+		{
+			// error
+		}
 
 		startTrackerParm.values().removeAll(Collections.singleton(""));
 
@@ -199,10 +206,44 @@ public class Tracker
 		deviceHandler.getLocation();
 
 		parm.put("APP_ID", app_id);
-		parm.put("MAC", deviceHandler.getMacAddress().replaceAll(":", ""));
-		parm.put("OS", deviceHandler.getAndroidVersion());
-		parm.put("PHONE", deviceHandler.getPhoneNumber());
-
+		
+		//bug code 
+		//parm.put("MAC", deviceHandler.getMacAddress().replaceAll(":", ""));
+		//parm.put("OS", deviceHandler.getAndroidVersion());
+		//parm.put("PHONE", deviceHandler.getPhoneNumber());
+		
+		// joe fix null bug in 2016/03/02 begin
+		String macAddress = deviceHandler.getMacAddress();
+		if(macAddress == null)
+		{
+			parm.put("MAC", "");
+		}
+		else
+		{
+			parm.put("MAC", macAddress.replaceAll(":", ""));
+		}
+		
+		String androidVersion = deviceHandler.getAndroidVersion();
+		if(androidVersion == null)
+		{
+			parm.put("OS", "");
+		}
+		else
+		{
+			parm.put("OS", androidVersion);
+		}
+		
+		String phone = deviceHandler.getPhoneNumber();
+		if (phone == null)
+		{
+			parm.put("PHONE", "");
+		}
+		else
+		{
+			parm.put("PHONE", phone);
+		}
+		//joe fix null bug in 2016/03/02 end 
+		
 		SparseArray<AccountData> listAccount = new SparseArray<AccountData>();
 
 		int num = deviceHandler.getAccounts(listAccount);
@@ -242,6 +283,7 @@ public class Tracker
 		this.ID = (parm.get("MAC") + parm.get("PHONE") + parm.get("APP_ID") + mailForID);
 		parm.put("ID", this.ID);
 		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.TAIWAN).format(new Date()));
+		
 		return 0;
 	}
 
