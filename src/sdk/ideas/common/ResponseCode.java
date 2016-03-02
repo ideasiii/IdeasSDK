@@ -33,8 +33,8 @@ public abstract class ResponseCode
 	/* FROM which method */
 	
 	//ctrl device admin
-	public final static int METHOD_CREATE_POLICY = 0;
-	
+	public final static int METHOD_ADMIN_CREATE_POLICY = 0;
+	public final static int METHOD_ADMIN_REMOVE_POLICY = 1;
 	// tracker
 	public static final int METHOLD_START_TRACKER = 0;
 	public static final int METHOLD_TRACKER = 1;

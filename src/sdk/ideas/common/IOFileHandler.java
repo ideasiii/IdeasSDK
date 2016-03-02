@@ -380,7 +380,6 @@ public class IOFileHandler
 		if (externalMemoryAvailable())
 		{
 			String secondaryStorage = System.getenv("SECONDARY_STORAGE");
-			Logs.showTrace(secondaryStorage);
 			File f_secs = new File(secondaryStorage);
 			StatFs stat = new StatFs(f_secs.getPath());
 

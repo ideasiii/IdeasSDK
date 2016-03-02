@@ -11,7 +11,7 @@ public class DeviceAdministratorReceiver extends DeviceAdminReceiver
 	public void onEnabled(Context context, Intent intent)
 	{
 		super.onEnabled(context, intent);
-		Logs.showTrace("admin_receiver_status_enabled");
+		//Logs.showTrace("admin_receiver_status_enabled");
 	}
 
 	/**
@@ -21,21 +21,21 @@ public class DeviceAdministratorReceiver extends DeviceAdminReceiver
 	public void onDisabled(Context context, Intent intent)
 	{
 		super.onDisabled(context, intent);
-		Logs.showTrace("admin_receiver_status_disable");
+		//Logs.showTrace("admin_receiver_status_disable");
 	}
 
 	@Override
 	public void onPasswordChanged(Context context, Intent intent)
 	{
 		super.onPasswordChanged(context, intent);
-		Logs.showTrace("onPasswordChanged");
+		//Logs.showTrace("onPasswordChanged");
 	}
 
 	@Override
 	public void onPasswordFailed(Context context, Intent intent)
 	{
 		super.onPasswordFailed(context, intent);
-		Logs.showTrace("onPasswordFailed");
+		//Logs.showTrace("onPasswordFailed");
 	}
 
 	@Override

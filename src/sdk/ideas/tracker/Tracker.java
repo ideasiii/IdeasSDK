@@ -308,8 +308,10 @@ public class Tracker
 
 		parm.put("ID", this.ID);
 
-		parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng)));
-
+		if(DeviceHandler.lat != -1.0 && DeviceHandler.lng != -1.0)
+		{
+			parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng)));
+		}
 		if (!StringUtility.isValid(parm.get("TYPE")))
 		{
 			transferMessage.showLinkServerMessageResult(ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL,
@@ -400,7 +402,6 @@ public class Tracker
 	private void init()
 	{
 		Thread t = new Thread(new sendSocketRunnable(TAG_APPSENSOR_INIT));
-		Logs.showTrace("in 375");
 		t.start();
 
 	}
@@ -516,7 +517,7 @@ public class Tracker
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				//e.printStackTrace();
 				Logs.showTrace("Exception:" + e.getMessage());
 			}
 		}
@@ -530,7 +531,7 @@ public class Tracker
 			}
 			catch (Exception e)
 			{
-				e.printStackTrace();
+				//e.printStackTrace();
 				Logs.showTrace("Exception:" + e.getMessage());
 			}
 

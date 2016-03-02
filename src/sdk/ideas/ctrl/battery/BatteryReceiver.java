@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.BatteryManager;
 import sdk.ideas.common.BaseReceiver;
-import sdk.ideas.common.Logs;
 
 public class BatteryReceiver extends BaseReceiver
 {
@@ -115,7 +114,7 @@ public class BatteryReceiver extends BaseReceiver
 			if (Math.abs(batteryPersent(oldLevel, oldScale) - batteryPersent(nowLevel, nowScale)) >= diff)
 			{
 				HashMap<String, String> data = new HashMap<String, String>();
-				Logs.showTrace(String.valueOf(batteryPersent(nowLevel, nowScale)));
+				//Logs.showTrace(String.valueOf(batteryPersent(nowLevel, nowScale)));
 				data.put("level", String.valueOf(batteryPersent(nowLevel, nowScale)));
 				oldLevel = nowLevel;
 				oldScale = nowScale;
@@ -153,7 +152,6 @@ public class BatteryReceiver extends BaseReceiver
 
 		else if (action.equals(Intent.ACTION_BATTERY_LOW))
 		{
-			Logs.showTrace("Low Battery");
 			// do something after
 
 		}

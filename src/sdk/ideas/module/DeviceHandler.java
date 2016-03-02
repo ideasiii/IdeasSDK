@@ -21,7 +21,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Patterns;
 import android.util.SparseArray;
@@ -34,8 +33,8 @@ public class DeviceHandler
 {
 	private Context mContext = null;
 	private LocationManager manager = null;
-	public static double lat = 0.0;
-	public static double lng = 0.0;
+	public static double lat = -1.0;
+	public static double lng = -1.0;
 
 
 	public static class AccountData
@@ -284,6 +283,7 @@ public class DeviceHandler
 		public void onProviderEnabled(String provider)
 		{
 			Logs.showTrace("Provider now is enabled..");
+			getLocation();
 		}
 
 		@Override
@@ -291,23 +291,25 @@ public class DeviceHandler
 		{
 			updateLocation(null);
 			Logs.showTrace("Location Provider now is disabled..");
-			final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			mContext.startActivity(intent);
+			//final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			//mContext.startActivity(intent);
 		}
 
 	};
 
 	private void updateLocation(Location location)
 	{
-		if (location != null)
+		if (null != location )
 		{
 			DeviceHandler.lat = location.getLatitude();
 			DeviceHandler.lng = location.getLongitude();
-
+			Logs.showTrace("updateLocation Success!");
 		}
 		else
 		{
 			Logs.showTrace("Location: location have some problem about GPS");
+			DeviceHandler.lat = -1;
+			DeviceHandler.lng = -1;
 		}
 
 		// Logs.showTrace("Location:" + latLng);
