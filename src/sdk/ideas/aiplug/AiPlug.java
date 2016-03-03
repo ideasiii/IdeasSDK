@@ -1,5 +1,5 @@
 /**
- * 提供智慧插座使用，主要呼叫SER API
+ * AiPlug智慧插座API，主要呼叫台灣智慧AiPlug API
  */
 package sdk.ideas.aiplug;
 
@@ -15,13 +15,19 @@ import sdk.ideas.module.HttpClient;
  */
 public class AiPlug
 {
-	public static final int	ID_LIST		= 0;
-	public static final int	ID_CONFIG	= 1;
+	private final String						TARGET_HOST			= "http://testserver.tiscservice.com:8080";
+	private final String						PATH_API_REGISTER	= "/AiPlugOpenAPI/Register";
+	private final String						PATH_API_VERIFY		= "/AiPlugOpenAPI/Verify";
+	private final String						PATH_API_LIST		= "/AiPlugOpenAPI/List";
+	private final String						PATH_API_CONFIGURE	= "/AiPlugOpenAPI/Configure";
 
-	private final String TARGET_URL = "http://54.92.30.60:80/api/smarthome/list";
+	private HttpClient							httpClient			= null;
+	private ArrayList<AiPlugResponseListener>	listListener		= null;
 
-	private HttpClient							httpClient		= null;
-	private ArrayList<AiPlugResponseListener>	listListener	= null;
+	private final int							ID_REGISTER			= 1;
+	private final int							ID_VERIFY			= 2;
+	private final int							ID_LIST				= 3;
+	private final int							ID_CONFIGURE		= 4;
 
 	public AiPlug()
 	{
@@ -56,20 +62,41 @@ public class AiPlug
 		}
 	}
 
-	/**
-	 * List all AiPlug device
-	 * 
-	 * @param strToken : API Token
-	 * @return 0:success , -1:fail
-	 */
-	public int list(final String strToken)
+	public int register(final String strOwner, final String strMail)
 	{
-		if (null == strToken)
-			return -1;
-
 		HashMap<String, String> mapParam = new HashMap<String, String>();
+		mapParam.put("owner", strOwner);
+		mapParam.put("mail", strMail);
+		httpClient.httpPost(ID_REGISTER, TARGET_HOST + PATH_API_REGISTER, mapParam);
+		return 0;
+	}
+
+	public int verify(final String strOwner, final String strSmsCode)
+	{
+		HashMap<String, String> mapParam = new HashMap<String, String>();
+		mapParam.put("owner", strOwner);
+		mapParam.put("smscode", strSmsCode);
+		httpClient.httpPost(ID_VERIFY, TARGET_HOST + PATH_API_VERIFY, mapParam);
+		return 0;
+	}
+
+	public int list(final String strOwner, final String strToken)
+	{
+		HashMap<String, String> mapParam = new HashMap<String, String>();
+		mapParam.put("owner", strOwner);
 		mapParam.put("token", strToken);
-		httpClient.httpPost(ID_LIST, TARGET_URL, mapParam);
+		httpClient.httpPost(ID_LIST, TARGET_HOST + PATH_API_LIST, mapParam);
+		return 0;
+	}
+
+	public int configure(final String strOutletId, final String strStatus, final String strOwner, final String strToken)
+	{
+		HashMap<String, String> mapParam = new HashMap<String, String>();
+		mapParam.put("outletid", strOutletId);
+		mapParam.put("status", strStatus);
+		mapParam.put("owner", strOwner);
+		mapParam.put("token", strToken);
+		httpClient.httpPost(ID_CONFIGURE, TARGET_HOST + PATH_API_CONFIGURE, mapParam);
 		return 0;
 	}
 
@@ -78,16 +105,24 @@ public class AiPlug
 		@Override
 		public void response(int nId, int nCode, String strContent)
 		{
+			Logs.showTrace("HTTP RESPONSE - Code:" + String.valueOf(nCode) + " Content:" + strContent + " ID: "
+					+ String.valueOf(nId));
 			switch(nId)
 			{
+			case ID_REGISTER:
+				callback(ID_REGISTER, nCode, strContent);
+				break;
+			case ID_VERIFY:
+				callback(ID_VERIFY, nCode, strContent);
+				break;
 			case ID_LIST:
-				Logs.showTrace("HTTP RESPONSE - Code:" + String.valueOf(nCode) + " Content:" + strContent);
 				callback(ID_LIST, nCode, strContent);
 				break;
-			case ID_CONFIG:
-				callback(ID_CONFIG, nCode, strContent);
+			case ID_CONFIGURE:
+				callback(ID_CONFIGURE, nCode, strContent);
 				break;
 			default:
+				callback(-1, nCode, strContent);
 				break;
 			}
 		}
