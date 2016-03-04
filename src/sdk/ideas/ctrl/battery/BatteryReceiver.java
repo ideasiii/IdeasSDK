@@ -92,7 +92,7 @@ public class BatteryReceiver extends BaseReceiver
 				break;
 
 			case BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE:
-				healthString = "Voltage";
+				healthString = "Over Voltage";
 				break;
 
 			case BatteryManager.BATTERY_HEALTH_UNSPECIFIED_FAILURE:
@@ -130,6 +130,7 @@ public class BatteryReceiver extends BaseReceiver
 					data.put("voltage", String.valueOf(voltage));
 					data.put("temperature", String.valueOf(temperature));
 					data.put("technology", technology);
+				
 				}
 				if (null != listener)
 				{

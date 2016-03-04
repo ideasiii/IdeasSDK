@@ -24,7 +24,7 @@ public class DeviceAdminHandler extends BaseHandler
 		mDevicePolicyManager = (DevicePolicyManager) mContext.getSystemService(Context.DEVICE_POLICY_SERVICE);
 		mComponentAdmin = new ComponentName(mContext, DeviceAdministratorReceiver.class);
 		message = new HashMap<String, String>();
-
+		policyData = new PolicyData(mContext, mDevicePolicyManager, mComponentAdmin);
 	}
 
 	public void createPolicy(String addAdminExtraAppText)
@@ -41,7 +41,7 @@ public class DeviceAdminHandler extends BaseHandler
 					intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, addAdminExtraAppText);
 				}
 				((Activity) mContext).startActivityForResult(intent, CtrlType.REQUEST_CODE_ENABLE_ADMIN);
-				policyData = new PolicyData(mContext, mDevicePolicyManager, mComponentAdmin);
+				
 			}
 			catch (Exception e)
 			{

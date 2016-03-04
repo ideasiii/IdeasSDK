@@ -2,13 +2,11 @@ package sdk.ideas.ctrl.gps;
 
 import java.util.HashMap;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.ListenReceiverAction;
@@ -57,14 +55,40 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 
 	private void getLocation()
 	{
-		String provider = manager.getBestProvider(criteria, false);
-		Logs.showTrace("Location Provider:" + provider);
-		Location location = manager.getLastKnownLocation(provider);
+		try
+		{
+			String provider = manager.getBestProvider(criteria, false);
+			Logs.showTrace("Location Provider:" + provider);
+			Location location = manager.getLastKnownLocation(provider);
 
-		updateLocation(location);
+			updateLocation(location);
 
-		manager.requestLocationUpdates(provider, millisecondTime, meterDistance, locationListener);
+			manager.requestLocationUpdates(provider, millisecondTime, meterDistance, locationListener);
+		}
+		catch (SecurityException e )
+		{
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+		}
+		catch(IllegalArgumentException e)
+		{
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+		}
+		catch (Exception e)
+		{
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
+			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+		}
+		finally
+		{
+			message.clear();
+		}
 	}
+	
 
 	private final LocationListener locationListener = new LocationListener()
 	{
@@ -84,6 +108,7 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		public void onProviderEnabled(String provider)
 		{
 			Logs.showTrace("Provider now is enabled..");
+			getLocation();
 		}
 
 		@Override
@@ -91,8 +116,13 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		{
 			updateLocation(null);
 			Logs.showTrace("Location Provider now is disabled..");
-			final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			mContext.startActivity(intent);
+			
+			setResponseMessage(ResponseCode.ERR_GPS_INACTIVE, message);
+			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+			message.clear();
+			
+			//final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			//mContext.startActivity(intent);
 		}
 
 	};
@@ -103,7 +133,7 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		{
 			message.put("lat", String.valueOf(location.getLatitude()));
 			message.put("lng", String.valueOf(location.getLongitude()));
-
+			message.put("message", "success");
 			setResponseMessage(ResponseCode.ERR_SUCCESS, message);
 			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
 			message.clear();
@@ -133,9 +163,6 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		{
 			isLocationOn = false;
 			manager.removeUpdates(locationListener);
-			message.put("close", "success");
-			setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			message.clear();
 		}
 	}
 

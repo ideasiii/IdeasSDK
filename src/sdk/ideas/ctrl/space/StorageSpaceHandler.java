@@ -8,12 +8,13 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.ListenReceiverAction;
+import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAction
 {
 	// default 1 min check
-	private int checkTime = 60000;
+	private long checkTime = 60000;
 
 	// default 50 mb update data
 	private int diffStorageSpace = 50;
@@ -32,18 +33,20 @@ public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAc
 	/**
 	 * checkTime : millisecond
 	 * */
-	public void setCheckTime(int checkTime)
+	public void setCheckTime(long millisecondTime)
 	{
-		this.checkTime = checkTime;
+		if(millisecondTime > 0)
+			this.checkTime = millisecondTime;
 
 	}
 
 	/**
 	 * diffStorageSpace: MB
 	 * */
-	public void setDiffStorageSpace(int diffStorageSpace)
+	public void setDiffStorageSpace(int diffStorageSpaceMB)
 	{
-		this.diffStorageSpace = diffStorageSpace;
+		if(diffStorageSpaceMB > 0)
+			this.diffStorageSpace = diffStorageSpaceMB;
 	}
 
 	public class CheckSpaceTimer extends TimerTask
@@ -60,45 +63,88 @@ public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAc
 
 		public void run()
 		{
-			//Logs.showTrace("in run");
-			message.clear();
-			double externalMem = IOFileHandler.getAvailableExternalMemorySize(false);
-			double removableExternalMem = IOFileHandler.getAvailableRemovableExternalMemorySize(false);
-
 			// for external memory
-			if (Math.abs(externalMemOLD - externalMem) > diffStorageSpace)
+			try
 			{
-				double totalExternalMem = IOFileHandler.getTotalExternalMemorySize(false);
-				if (totalExternalMem != -1)
+				double externalMem = IOFileHandler.getAvailableExternalMemorySize(false);
+				
+				if (Math.abs(externalMemOLD - externalMem) > diffStorageSpace)
 				{
-					message.put("externalMemory", String.valueOf((externalMem * 100) / totalExternalMem));
-					setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER,
-							ResponseCode.METHOD_EXTERNAL_MEMORY);
+					double totalExternalMem = IOFileHandler.getTotalExternalMemorySize(false);
+					if (totalExternalMem != -1)
+					{
+						//using debug
+						//Logs.showTrace("externalMem"+ String.valueOf(externalMem)+" totalExternalMem"+String.valueOf(totalExternalMem));
+						
+						message.put("message", "success");
+						message.put("availablememory", String.valueOf(externalMem));
+						message.put("totalmemory", String.valueOf(totalExternalMem));
+						
+						
+						
+						//message.put("externalMemory", String.valueOf((externalMem * 100) / totalExternalMem));
+						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+						returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY);
 
-					externalMemOLD = externalMem;
-					message.clear();
+						externalMemOLD = externalMem;
+					}
+					else
+					{
+						message.put("message", "the external memory not available");
+						setResponseMessage(ResponseCode.ERR_EXTERNAL_MEMORY_UNAVAILABLE, message);
+						returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY);
+					}
 				}
 			}
+			catch (Exception e)
+			{
+				message.put("message", e.toString());
+				setResponseMessage(ResponseCode.ERR_UNKNOWN,message);
+				returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY);
+			}
+			finally
+			{
+				message.clear();
+			}
+			
 			// for removable external memory
-			if (Math.abs(removableExternalMemOLD - removableExternalMem) >= diffStorageSpace)
+			try
 			{
-				double totalRemovableExternalMem = IOFileHandler.getTotalRemovableExternalMemorySize(false);
-				if (totalRemovableExternalMem != -1)
+				double removableExternalMem = IOFileHandler.getAvailableRemovableExternalMemorySize(false);
+				
+				if (Math.abs(removableExternalMemOLD - removableExternalMem) >= diffStorageSpace)
 				{
-					message.put("removableExternalMemory",
-							String.valueOf((removableExternalMem * 100) / totalRemovableExternalMem));
-					setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER,
-							ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY);
+					double totalRemovableExternalMem = IOFileHandler.getTotalRemovableExternalMemorySize(false);
+					if (totalRemovableExternalMem != -1)
+					{
+						message.put("message", "success");
+						message.put("availablememory", String.valueOf(removableExternalMem));
+						message.put("totalmemory", String.valueOf(totalRemovableExternalMem));
+						
+						
+						//message.put("removableExternalMemory",
+						//		String.valueOf((removableExternalMem * 100) / totalRemovableExternalMem));
+						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+						returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER,
+								ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY);
 
-					removableExternalMemOLD = removableExternalMem;
-					message.clear();
-
+						removableExternalMemOLD = removableExternalMem;
+					}
 				}
 			}
+			catch (Exception e)
+			{
+				message.put("message", e.toString());
+				setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
+				returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY);
+			}
+			finally
+			{
+				message.clear();
+			}
+			
 		}
-	}
+		}
 
 	@Override
 	public void startListenAction()

@@ -100,13 +100,13 @@ public class LockHandler extends BaseHandler
 			{
 				message.put("message", "success");
 				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCEEN_LOCK_PASSWORD);
+				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD);
 			}
 			else
 			{
-				message.put("message", "fail Admin Active");
+				message.put("message", "fail cause device admin inactive");
 				super.setResponseMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCEEN_LOCK_PASSWORD);
+				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD);
 			}
 
 			this.lastPassword = password;
@@ -115,8 +115,8 @@ public class LockHandler extends BaseHandler
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCEEN_LOCK_PASSWORD);
+			super.setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_POLICY, message);
+			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD);
 		}
 		finally
 		{
@@ -133,13 +133,13 @@ public class LockHandler extends BaseHandler
 			{
 				message.put("message", "success");
 				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCEEN_NOW);
+				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCREEN_NOW);
 			}
 			else
 			{
-				message.put("message", "fail Admin Active");
+				message.put("message", "fail cause device admin inactive");
 				super.setResponseMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCEEN_NOW);
+				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCREEN_NOW);
 			}
 			
 		}
@@ -148,7 +148,7 @@ public class LockHandler extends BaseHandler
 			message.put("message",
 					"The calling device admin must have requested DeviceAdminInfo. USES_POLICY_FORCE_LOCK to be able to call this method; if it has not, a security exception will be thrown.");
 			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCEEN_NOW);
+			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCREEN_NOW);
 		}
 		finally
 		{

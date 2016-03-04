@@ -50,15 +50,13 @@ public abstract class BaseHandler
 	 * and will return callbackID
 	 * 
 	 * */
-	public int setOnCallbackResultListener(OnCallbackResult listener)
+	public void setOnCallbackResultListener(OnCallbackResult listener)
 	{
 		if (null != listener)
 		{
 			this.listener.add( listener);
 			isListenerEnable = true;
-			return this.listener.size() - 1;
 		}
-		return -1;
 	}
 
 	/**
