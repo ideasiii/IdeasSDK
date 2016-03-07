@@ -27,7 +27,7 @@ public class DocumentWebViewer extends Activity
 		intent = getIntent();
 		String linkURL = intent.getStringExtra("linkURL");
 		
-		boolean zoomControls = intent.getBooleanExtra("zoomControls", false);
+		boolean zoomControls = intent.getBooleanExtra("zoomControls", true);
 		mWebView = new WebView(DocumentWebViewer.this);
 
 		mWebView.setWebChromeClient(mWebChromeClient);

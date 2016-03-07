@@ -34,6 +34,7 @@ public abstract class ResponseCode
 	public final static int ERR_NO_SPECIFY_USE_PERMISSION      = -18;
 	
 	public final static int ERR_EXTERNAL_MEMORY_UNAVAILABLE    = -19 ;
+	public final static int ERR_DOWNLOAD_ON_MAIN_THREAD        = -20 ;
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */

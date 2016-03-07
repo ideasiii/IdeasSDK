@@ -37,8 +37,8 @@ public class RecordHandler extends BaseHandler
 	private boolean isFilePathRecordOK = true;
 	
 	//default all true
-	private boolean restoreAppFlag = true;
-	private boolean restoreFileFlag = true;
+	private boolean recordAppFlag = true;
+	private boolean recordFileFlag = true;
 
 	private ArrayList<String> particularPathScan = null;
 
@@ -59,38 +59,42 @@ public class RecordHandler extends BaseHandler
 		}
 		this.appFileName = appFileName;
 		this.filePathName = filePathName;
-		this.isWriteFile = true;
+		if(null != this.appFileName && null!= this.filePathName)
+			this.isWriteFile = true;
 
 	}
 	
-	public void setRecordFlag(boolean restoreAppFlag ,boolean restoreFileFlag)
+	public void setRecordFlag(boolean recordAppFlag ,boolean recordFileFlag)
 	{
-		this.restoreAppFlag = restoreAppFlag;
-		this.restoreFileFlag = restoreFileFlag;
+		this.recordAppFlag = recordAppFlag;
+		this.recordFileFlag = recordFileFlag;
 	}
 
-	public void setParticularRecordPath(ArrayList<String> particularPathScan, boolean isAbsolutePath)
+	private void setParticularRecordPath(ArrayList<String> particularPathScan, boolean isAbsolutePath)
 	{
-
-		if (isAbsolutePath == false)
+		if (null != particularPathScan)
 		{
-			this.particularPathScan = new ArrayList<String>();
 
-			for (int i = 0; i < particularPathScan.size(); i++)
+			if (isAbsolutePath == false)
 			{
-				this.particularPathScan
-						.add(IOFileHandler.getExternalStorageDirectory() + "/" + particularPathScan.get(i));
+				this.particularPathScan = new ArrayList<String>();
+
+				for (int i = 0; i < particularPathScan.size(); i++)
+				{
+					this.particularPathScan
+							.add(IOFileHandler.getExternalStorageDirectory() + "/" + particularPathScan.get(i));
+				}
 			}
-		}
-		else
-		{
-			this.particularPathScan = particularPathScan;
+			else
+			{
+				this.particularPathScan = particularPathScan;
+			}
 		}
 	}
 
 	public void record()
 	{
-		if (restoreFileFlag == true)
+		if (recordFileFlag == true)
 		{
 			recordFilePathInSDCard(true);
 			if (isFilePathRecordOK)
@@ -101,7 +105,7 @@ public class RecordHandler extends BaseHandler
 				message.clear();
 			}
 		}
-		if (restoreAppFlag == true)
+		if (recordAppFlag == true)
 		{
 			appData = recordApplication();
 			if (isAppRecordOK)
@@ -155,6 +159,13 @@ public class RecordHandler extends BaseHandler
 					
 					IOFileHandler.writeToExternalFile(externalPath, appFileName, appListString);
 				}
+			}
+			catch(NullPointerException e)
+			{
+				this.isAppRecordOK = false;
+				message.put("message", e.toString());
+				setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION);
 			}
 			catch (FileNotFoundException e)
 			{
@@ -210,7 +221,7 @@ public class RecordHandler extends BaseHandler
 		}
 	}
 
-	public class RecordFileData implements Runnable
+	private class RecordFileData implements Runnable
 	{
 		private ArrayList<String> particularlyPath = null;
 		private ArrayList<FileData> fileData = null;
@@ -250,7 +261,7 @@ public class RecordHandler extends BaseHandler
 					}
 					else
 					{
-						if (restoreAppFlag == true)
+						if (recordAppFlag == true)
 						{
 							filePathData.add(Environment.getExternalStorageDirectory().toString() + "/" + externalPath
 									+ appFileName);
@@ -261,6 +272,13 @@ public class RecordHandler extends BaseHandler
 					}
 
 				}
+			}
+			catch(NullPointerException e)
+			{
+				isFilePathRecordOK = false;
+				message.put("message", e.toString());
+				setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
 			}
 			catch (FileNotFoundException e)
 			{
@@ -307,6 +325,7 @@ public class RecordHandler extends BaseHandler
 	{
 
 		ArrayList<FileData> datas = new ArrayList<FileData>();
+		
 		if (IOFileHandler.isExternalStorageReadable())
 		{
 			String path = Environment.getExternalStorageDirectory().toString();
@@ -322,12 +341,14 @@ public class RecordHandler extends BaseHandler
 			returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
 			message.clear();
 		}
+		
 		return datas;
 	}
 
 	private ArrayList<FileData> recordFilePath(ArrayList<String> particularlyPath)
 	{
 		ArrayList<FileData> datas = new ArrayList<FileData>();
+
 		if (IOFileHandler.isExternalStorageReadable())
 		{
 			for (int i = 0; i < particularlyPath.size(); i++)
@@ -343,6 +364,7 @@ public class RecordHandler extends BaseHandler
 			returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
 			message.clear();
 		}
+		
 		return datas;
 	}
 

@@ -4,12 +4,15 @@ package sdk.ideas.ctrl.app;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.NetworkOnMainThreadException;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
@@ -19,6 +22,7 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.ReturnIntentAction;
 
+@SuppressLint("NewApi")
 public class ApplicationHandler extends BaseHandler implements ListenReceiverAction
 {
 	private Context mContext = null;
@@ -71,10 +75,10 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	/**
 	 * use thread to install
 	 */
-	public void installApplicationThread(String url, String apkName, int appID)
+	public void installApplicationThread(String url,String savePath, String apkName, int appID)
 	{
 
-		Thread install = new Thread(new InstallAppRunnable(url, apkName, appID));
+		Thread install = new Thread(new InstallAppRunnable(url,savePath, apkName, appID));
 		install.start();
 	}
 
@@ -101,6 +105,11 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 					apkName, installingPackage, appID);
 			anyError = false;
 		}
+		catch(SocketException e)
+		{
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+		}
 		catch (MalformedURLException e)
 		{
 			message.put("message", e.toString());
@@ -115,6 +124,11 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		{
 			message.put("message", e.toString());
 			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
+		}
+		catch(NetworkOnMainThreadException e)
+		{
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_DOWNLOAD_ON_MAIN_THREAD, message);
 		}
 		catch (Exception e)
 		{
@@ -235,19 +249,21 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	{
 		private String uRLPath = null;
 		private String fileName = null;
+		private String savePath = null;
 		private int appID;
 
 		@Override
 		public void run()
 		{
-			installApplication(uRLPath, null ,fileName, appID);
+			installApplication(uRLPath, savePath ,fileName, appID);
 		}
 
-		public InstallAppRunnable(String uRLPath, String fileName, int appID)
+		public InstallAppRunnable(String uRLPath,String savePath, String fileName, int appID)
 		{
 			this.fileName = fileName;
 			this.uRLPath = uRLPath;
 			this.appID = appID;
+			this.savePath = savePath;
 		}
 
 	}

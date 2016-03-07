@@ -226,6 +226,13 @@ public class RestoreHandler extends BaseHandler
 				}
 			}
 		}
+		catch(SecurityException e)
+		{
+			restoreAppError = true;
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+		}
 		catch (FileNotFoundException e)
 		{
 			restoreAppError = true;
@@ -318,6 +325,13 @@ public class RestoreHandler extends BaseHandler
 			{
 				Logs.showTrace("delete append file successful");
 			}
+		}
+		catch(SecurityException e)
+		{
+			restoreFileError = true;
+			message.put("message", e.toString());
+			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE);
 		}
 		catch (FileNotFoundException e)
 		{
