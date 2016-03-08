@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class ApplicationList
 {
-	public static String[] getApplicationListasArray(Context mContext)
+	public static String[] getApplicationPackageNameList(Context mContext)
 	{
 		if (null != mContext)
 		{
@@ -74,7 +74,7 @@ public class ApplicationList
 
 	}
 
-	public static String getAppNameFromPackage(Context mContext, String packageName)
+	public static String getAppNameFromPackageName(Context mContext, String packageName)
 	{
 		if (null != mContext && null != packageName)
 		{

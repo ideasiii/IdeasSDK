@@ -134,6 +134,31 @@ public class WiFiConfigHandler
 		Log.d("WifiPreference", "enableNetwork returned " + b);
 		return saved;
 	}
+	public boolean saveWPAConfig(String SSID, String PASSWORD)
+	{
+		WifiManager wifi = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
+		WifiConfiguration wc = new WifiConfiguration();
+		wc.SSID = "\""+SSID+"\"";
+		wc.preSharedKey  = "\""+PASSWORD+"\"";
+		wc.hiddenSSID = true;
+		wc.status = WifiConfiguration.Status.ENABLED;        
+		wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+		wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+		wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+		wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+		wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+		wc.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+		int res = wifi.addNetwork(wc);
+		Log.d("WifiPreference", "add Network returned " + res );
+		boolean saved = wifi.saveConfiguration();
+		Log.d("WifiPreference", "saveConfiguration returned " + saved);
+		boolean b = wifi.enableNetwork(res, true);        
+		Log.d("WifiPreference", "enableNetwork returned " + b );
+		
+		return saved;
+	}
+	
+	
 
 	public boolean removeWiFiConfigurationBySSID(String ssid)
 	{

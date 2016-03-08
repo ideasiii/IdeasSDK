@@ -35,6 +35,13 @@ public abstract class ResponseCode
 	
 	public final static int ERR_EXTERNAL_MEMORY_UNAVAILABLE    = -19 ;
 	public final static int ERR_DOWNLOAD_ON_MAIN_THREAD        = -20 ;
+	
+	public final static int ERR_WIFI_SAVE_WIFICONFIG_OPERATION_EXECUTE_FAIL = -21;
+	
+	public final static int ERR_WIFI_SSID_NOT_FOUND = -22;
+	
+	
+	
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */
@@ -89,8 +96,12 @@ public abstract class ResponseCode
 	public final static int METHOD_LOCK_SCREEN_NOW            = 1;
 	public final static int METHOD_LOCK_STATUS_BAR           = 2;
 	public final static int METHOD_UNLOCK_STATUS_BAR         = 3;
-	
-	
+
+    //ctrl wifi
+	public final static int METHOD_WIFI_LOCK = 0;
+	public final static int METHOD_REMOVE_WIFI_CONFIG = 1;
+	public final static int METHOD_SAVE_WIFI_CONFIG = 2;
+	public final static int METHOD_DISCONNECT_SSID = 3;
 	
 	
 	public static class ResponseMessage

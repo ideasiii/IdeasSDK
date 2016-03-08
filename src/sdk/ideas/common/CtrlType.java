@@ -20,5 +20,7 @@ public abstract class CtrlType
 	public final static int MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER = 1039;
 	public final static int MSG_RESPONSE_LOCK_HANDLER = 1040;
 	
+	public final static int MSG_RESPONSE_WIFI_HANDLER = 1041;
+	
 
 }
