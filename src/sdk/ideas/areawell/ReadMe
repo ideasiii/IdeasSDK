@@ -1,0 +1,110 @@
+ReadMe
+
+how to use
+
+import 以下 lib
+
+import sdk.ideas.areawell.*;
+import sdk.ideas.areawell.BaseHandlerDL.OnCallbackResult;
+import java.util.HashMap;
+
+
+
+Method 解說
+
+
+     		 method                                 |      description
+___________________________________________________________________________      
+AW2401(Context context)                             |          建構
+  													|
+void setIPAndPort(String ip, int port)				|        設定 IP跟Port
+													|         
+void setPowerPortSetting(String controllerID,		|        設定power port 
+  int powerWire, int powerPort, boolean powerSetOn)	|
+ 													|
+void getPowerPortState(String controllerID,         |        取得power port 狀態
+  int powerWire)                                    |
+  													|
+void setOnCallbackResultListener(OnCallbackResult   |        設定callback listener
+  listener)  
+ 
+ 
+
+
+以下為範例code
+************************************************************************
+AW2401 mAW2401 = null;
+
+String controllerID = "xxxxxxx";
+
+mAW2401 = new AW2401(this);
+		
+mAW2401.setIPAndPort("192.168.0.104", 2307);
+
+mAW2401.setOnCallbackResultListener(new OnCallbackResult()
+{
+	@Override
+	public void onCallbackResult(int result, int from, HashMap<String, String> message)
+	{
+		Log.d("interface Result : " + String.valueOf(result) + " From : " + String.valueOf(from)
+				+ " Message : " + message.get("message"));
+	}
+
+});
+
+mAW2401.setPowerPortSetting(cotrollerID, 1, 2, true);
+
+mAW2401.getPowerPortState(cotrollerID, 1);
+
+************************************************************************
+
+onCallbackResult method
+
+result //成功或失敗代碼
+
+    value         |          description
+__________________________________________________
+      1           |            SUCCESS
+      -1          |     CONNECTED FAIL, IO　ERROR
+      -2          |     ILLEGAL_ARGUMENT_ERROR
+      -23         |     POWER_PORT_SETTING_FAIL
+      -24         |     ERR_GET_POWER_STATE_FAIL
+      
+      
+      
+      
+      
+from  //from which method    
+
+    value         |           description
+______________________________________________________
+      0           |     METHOD_SET_IP_AND_PORT
+                  |
+      1           |     METHOD_SET_POWER_PORT_SETTING
+                  |
+      2           |     METHOD_GET_POWER_PORT_STATE
+      
+      
+
+message
+
+*FOR METHOD_SET_IP_AND_PORT
+   使用 message.get("message") 會取得執行成功或失敗描述內容
+
+*FOR METHOD_SET_POWER_PORT_SETTING
+   使用 message.get("message") 會取得執行成功或失敗描述內容
+
+*FOR METHOD_GET_POWER_PORT_STATE
+   使用message.get("message") 
+
+    1.當執行成功會取得 所指定那個wire每一個port值
+     ex. 1110 or 0101 其中1為有電,0為無電 
+      _ _ _ _              _ _ _ _
+     |1|1|0|0|  代表 port 為  |1|2|3|4| 3,4 port無電, 1,2 port有電 
+
+    2.當執行失敗會取得描述內容
+      
+
+  
+  
+  

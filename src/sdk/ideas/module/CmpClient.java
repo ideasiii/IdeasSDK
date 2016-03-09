@@ -622,7 +622,7 @@ public class CmpClient
 			buf.clear();
 			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE + 255);
 			nLength = inSocket.read(buf.array());
-			
+			Logs.showTrace(String.valueOf(nLength));
 			buf.rewind();
 			
 			//Logs.showTrace("State length: "+String.valueOf(nLength));
@@ -640,10 +640,10 @@ public class CmpClient
 				byte[] bytes = new byte[buf.getInt(0)];
 
 				buf.get(bytes);
-				String strTemp = new String(bytes, Charset.forName("UTF-8"));
+				String strTemp = new String(bytes, Charset.forName("US-ASCII"));
 				String strBody = strTemp.substring(16);
 				respData.put("RESP_BODY", strBody);
-
+				Logs.showTrace(strTemp.substring(16));
 				response.mstrContent = respData.get("RESP_BODY");
 			}
 			
