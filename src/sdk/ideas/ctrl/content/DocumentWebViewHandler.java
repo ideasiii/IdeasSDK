@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
-import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 public class DocumentWebViewHandler extends BaseHandler

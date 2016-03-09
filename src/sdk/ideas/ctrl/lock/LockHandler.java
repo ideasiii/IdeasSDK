@@ -23,7 +23,7 @@ public class LockHandler extends BaseHandler
 		message = new HashMap<String,String>();
 	}
 
-	public void lockStatusBar()
+	private void lockStatusBar()
 	{
 		try
 		{
@@ -46,7 +46,7 @@ public class LockHandler extends BaseHandler
 	
 	}
 
-	public void unLockStatusBar()
+	private void unLockStatusBar()
 	{
 		try
 		{

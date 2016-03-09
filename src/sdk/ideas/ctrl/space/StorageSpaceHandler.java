@@ -8,7 +8,6 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.ListenReceiverAction;
-import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAction

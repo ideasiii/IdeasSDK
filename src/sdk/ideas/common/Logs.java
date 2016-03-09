@@ -33,7 +33,7 @@ public abstract class Logs
 	{
 		if (Type.INVALID == mnEnable)
 		{
-			Log.d("Logs", "Logs is Invalid");
+			//Log.d("Logs", "Logs is Invalid");
 			return;
 		}
 
