@@ -540,10 +540,10 @@ public class CmpClient
 			respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
 
 			// for debuging
-			Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
-			Logs.showTrace("RESP_ID "  + respData.get("RESP_ID"));
-			Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
-			Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
+			//Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
+			//Logs.showTrace("RESP_ID "  + respData.get("RESP_ID"));
+			//Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
+			//Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
 			
 			
 
@@ -625,8 +625,9 @@ public class CmpClient
 			
 			buf.rewind();
 			
-			Logs.showTrace("State length: "+String.valueOf(nLength));
-			Logs.showTrace(new String(buf.array()));
+			//Logs.showTrace("State length: "+String.valueOf(nLength));
+			//Logs.showTrace(new String(buf.array()));
+			
 			response.mnCode = checkResponse(buf, nSequence);
 			buf.order(ByteOrder.BIG_ENDIAN);
 			respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
@@ -647,10 +648,10 @@ public class CmpClient
 			}
 			
 			// for debuging
-			 Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
-			 Logs.showTrace("RESP_ID " + respData.get("RESP_ID"));
-			 Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
-			 Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
+			// Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
+			// Logs.showTrace("RESP_ID " + respData.get("RESP_ID"));
+			// Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
+			// Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
 			
 
 			buf.clear();
@@ -701,9 +702,18 @@ public class CmpClient
 		}
 		else
 		{
+			Logs.showTrace(String.valueOf(cmpResp.nStatus));
 			if (Protocol.STATUS_ROK == cmpResp.nStatus)
 			{
 				nResult = ResponseCode.ERR_SUCCESS;
+			}
+			else if (Protocol.STATUS_RPPSFAIL == cmpResp.nStatus)
+			{
+				nResult = ResponseCode.ERR_POWER_PORT_SETTING_FAIL;
+			}
+			else if (Protocol.STATUS_RPPSTAFAIL == cmpResp.nStatus)
+			{
+				nResult = ResponseCode.ERR_GET_POWER_STATE_FAIL; 
 			}
 			else
 			{

@@ -17,12 +17,12 @@ public class AW2401 extends BaseHandlerDL
 	
 	//for outside message begin
 	//what class messgae response
-	private final static int MSG_RESPONSE_AW2401 = 1;
+	public final static int MSG_RESPONSE_AW2401 = 1;
 
 	//from which method
-	private final static int METHOD_SET_IP_AND_PORT = 0;
-	private final static int METHOD_SET_POWER_PORT_SETTING = 1;
-	private final static int METHOD_GET_POWER_PORT_STATE = 2;
+	public final static int METHOD_SET_IP_AND_PORT = 0;
+	public final static int METHOD_SET_POWER_PORT_SETTING = 1;
+	public final static int METHOD_GET_POWER_PORT_STATE = 2;
 	//for outside message end
 	
 	
@@ -56,7 +56,16 @@ public class AW2401 extends BaseHandlerDL
 						returnRespose(MSG_RESPONSE_AW2401, METHOD_SET_POWER_PORT_SETTING);
 						message.clear();
 					}
-					else
+					else if (msg.arg1 == ResponseCode.ERR_POWER_PORT_SETTING_FAIL)
+					{
+						message.put("message", "power port setting fail");
+						setResponseMessage(ResponseCode.ERR_POWER_PORT_SETTING_FAIL, message);
+						returnRespose(MSG_RESPONSE_AW2401, METHOD_SET_POWER_PORT_SETTING);
+						message.clear();
+						
+					}
+					
+					else 
 					{
 						message.put("message", (String)msg.obj);
 						setResponseMessage(msg.arg1, message);
@@ -70,6 +79,13 @@ public class AW2401 extends BaseHandlerDL
 					{
 						message.put("message", (String)msg.obj);
 						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+						returnRespose(MSG_RESPONSE_AW2401, METHOD_GET_POWER_PORT_STATE);
+						message.clear();
+					}
+					else if (msg.arg1 == ResponseCode.ERR_GET_POWER_STATE_FAIL)
+					{
+						message.put("message", "get power state fail");
+						setResponseMessage(ResponseCode.ERR_POWER_PORT_SETTING_FAIL, message);
 						returnRespose(MSG_RESPONSE_AW2401, METHOD_GET_POWER_PORT_STATE);
 						message.clear();
 					}

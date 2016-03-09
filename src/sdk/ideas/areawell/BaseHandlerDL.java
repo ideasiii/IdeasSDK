@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import android.content.Context;
 import android.os.Handler;
-import sdk.ideas.common.OnCallbackResult;
 import sdk.ideas.common.ResponseCode.ResponseMessage;
 
 public abstract class BaseHandlerDL
@@ -41,7 +40,7 @@ public abstract class BaseHandlerDL
 	 * 
 	 * this setOnCallbackResultListener is multi listener
 	 * and will return callbackID
-	 * 
+	 * @param listener OnCallbackResult
 	 * */
 	public void setOnCallbackResultListener(OnCallbackResult listener)
 	{
@@ -55,10 +54,10 @@ public abstract class BaseHandlerDL
 	/**
 	 *  Waring! call this method "setResponseMessage" first to set mResponseMessage
 	 *  
-	 *  mWhat                        : which Ctrl module message
-	 * 	mFrom                        : which Ctrl module method message
-	 *  mResponseMessage.mnCode      : error code
-	 *  mResponseMessage.mStrContent : HashMap<String,String> detail error message or other functional message 
+	 *  @param mWhat                        : which Ctrl module message
+	 * 	@param mFrom                        : which Ctrl module method message
+	 *  @param mResponseMessage.mnCode      : error code
+	 *  @param mResponseMessage.mStrContent : HashMap<String,String> detail error message or other functional message 
 	 */                                                                              
 	
 	protected void returnRespose(int mWhat, int mFrom)
@@ -66,7 +65,7 @@ public abstract class BaseHandlerDL
 		if (isListenerEnable)
 		{
 			for (int i = 0; i < listener.size(); i++)
-				listener.get(i).onCallbackResult(mResponseMessage.mnCode, mWhat, mFrom, mResponseMessage.mStrContent);
+				listener.get(i).onCallbackResult(mResponseMessage.mnCode, mFrom, mResponseMessage.mStrContent);
 		}
 		
 	}
@@ -74,17 +73,17 @@ public abstract class BaseHandlerDL
 	/**
 	 *  Waring! call this method "setResponseMessage" first to set mResponseMessage
 	 *  
-	 *  mWhat                        : which Ctrl module message
-	 * 	mFrom                        : which Ctrl module method message
-	 *  mResponseMessage.mnCode      : error code
-	 *  mResponseMessage.mStrContent : HashMap<String,String> detail error message or other functional message 
-	 *  callbackID                   : if you use interface to listen callback method should have this id
+	 *  @param mWhat                        : which Ctrl module message
+	 * 	@param mFrom                        : which Ctrl module method message
+	 *  @param mResponseMessage.mnCode      : error code
+	 *  @param mResponseMessage.mStrContent : HashMap<String,String> detail error message or other functional message 
+	 *  @param callbackID                   : if you use interface to listen callback method should have this id
 	 * */
 	protected void returnResponse(int mWhat , int mFrom, int callbackID)
 	{
 		if (isListenerEnable)
 		{
-			listener.get(callbackID).onCallbackResult(mResponseMessage.mnCode, mWhat, mFrom,mResponseMessage.mStrContent);
+			listener.get(callbackID).onCallbackResult(mResponseMessage.mnCode , mFrom,mResponseMessage.mStrContent);
 		}
 		
 	}
@@ -97,6 +96,11 @@ public abstract class BaseHandlerDL
 		mResponseMessage.mStrContent = new HashMap<String,String>(message);
 	}
 
+	public interface OnCallbackResult
+	{
+		void onCallbackResult(int result, int from, HashMap<String,String> message);
+
+	}
 	
 
 

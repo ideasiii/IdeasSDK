@@ -40,6 +40,8 @@ public abstract class ResponseCode
 	
 	public final static int ERR_WIFI_SSID_NOT_FOUND = -22;
 	
+	public final static int ERR_POWER_PORT_SETTING_FAIL = -23;
+	public final static int ERR_GET_POWER_STATE_FAIL    = -24;
 	
 	
 	public static final int ERR_MAX                            = -100;
