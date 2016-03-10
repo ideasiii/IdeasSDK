@@ -61,6 +61,12 @@ public class AW2401 extends BaseHandlerDL
 						setResponseMessage(ResponseCode.ERR_POWER_PORT_SETTING_FAIL, message);
 						returnRespose(MSG_RESPONSE_AW2401, METHOD_SET_POWER_PORT_SETTING);
 					}
+					else if (msg.arg1 == ResponseCode.ERR_UNKNOWN)
+					{
+						message.put("message", String.valueOf((msg.obj)));
+						setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
+						returnRespose(MSG_RESPONSE_AW2401, METHOD_SET_POWER_PORT_SETTING);
+					}
 					else 
 					{
 						//debug use
@@ -85,6 +91,12 @@ public class AW2401 extends BaseHandlerDL
 					{
 						message.put("message", "get power state fail");
 						setResponseMessage(ResponseCode.ERR_GET_POWER_STATE_FAIL, message);
+						returnRespose(MSG_RESPONSE_AW2401, METHOD_GET_POWER_PORT_STATE);
+					}
+					else if (msg.arg1 == ResponseCode.ERR_UNKNOWN)
+					{
+						message.put("message", String.valueOf((msg.obj)));
+						setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
 						returnRespose(MSG_RESPONSE_AW2401, METHOD_GET_POWER_PORT_STATE);
 					}
 					else

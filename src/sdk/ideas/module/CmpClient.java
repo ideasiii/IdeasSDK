@@ -2,6 +2,8 @@ package sdk.ideas.module;
 
 import java.nio.*;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import android.annotation.SuppressLint;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
@@ -544,9 +546,7 @@ public class CmpClient
 			//Logs.showTrace("RESP_ID "  + respData.get("RESP_ID"));
 			//Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
 			//Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
-			
-			
-
+		
 			buf.clear();
 			buf = null;
 			msocket.close();
@@ -559,8 +559,15 @@ public class CmpClient
 			response.mstrContent = "IOException, network inconnect";
 			Logs.showTrace(e.toString());
 		}
+		catch (Exception e)
+		{
+			response.mnCode = 0;
+			response.mstrContent = e.toString();
+			Logs.showTrace(e.toString());
+		}
 	
 	}
+	
 	public static void powerPortStateRequest(final String strIP, final int nPort, int wireNum, String controllerID, HashMap<String, String> respData, Response response)
 	{
 		if (null == response)
@@ -637,14 +644,30 @@ public class CmpClient
 
 			if (ResponseCode.ERR_SUCCESS == response.mnCode)
 			{
+				
 				byte[] bytes = new byte[buf.getInt(0)];
 
-				buf.get(bytes);
-				String strTemp = new String(bytes, Charset.forName("US-ASCII"));
-				String strBody = strTemp.substring(16);
-				respData.put("RESP_BODY", strBody);
-				Logs.showTrace(strTemp.substring(16));
-				response.mstrContent = respData.get("RESP_BODY");
+			    buf.get(bytes);
+			    
+			    String strTemp = new String(bytes, Charset.forName("UTF-8"));
+
+			    String strBody = strTemp.substring(16);
+
+			    byte[] bBody = strBody.getBytes();
+
+			    int i;
+				for (i = 0; i < bBody.length; ++i)
+				{
+					if (0 == bBody[i])
+					{
+						break;
+					}
+				}
+
+			    strBody = strBody.substring(0, i);
+			    
+			    respData.put("RESP_BODY", strBody);
+			    response.mstrContent = strBody;
 			}
 			
 			// for debuging
@@ -652,19 +675,22 @@ public class CmpClient
 			// Logs.showTrace("RESP_ID " + respData.get("RESP_ID"));
 			// Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
 			// Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
-			
 
 			buf.clear();
 			buf = null;
 			msocket.close();
-			
-			
-			
+	
+		}
+		catch (IOException e)
+		{
+			//Logs.showError(e.toString());
+			response.mnCode = -1;
+			response.mstrContent = "IOException, network inconnect";
 		}
 		catch (Exception e)
 		{
-			response.mnCode = -1;
-			response.mstrContent = "IOException, network inconnect";
+			response.mnCode = 0;
+			response.mstrContent = e.toString();
 		}
 		
 		
@@ -697,12 +723,12 @@ public class CmpClient
 
 		if (cmpResp.nSequence != nSequence)
 		{
-			Logs.showTrace(String.valueOf(cmpResp.nSequence)+"   "+String.valueOf(nSequence));
+		//	Logs.showTrace(String.valueOf(cmpResp.nSequence)+"   "+String.valueOf(nSequence));
 			nResult = ERR_PACKET_SEQUENCE;
 		}
 		else
 		{
-			Logs.showTrace(String.valueOf(cmpResp.nStatus));
+			//Logs.showTrace(String.valueOf(cmpResp.nStatus));
 			if (Protocol.STATUS_ROK == cmpResp.nStatus)
 			{
 				nResult = ResponseCode.ERR_SUCCESS;

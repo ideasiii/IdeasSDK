@@ -11,23 +11,15 @@ import android.net.wifi.WifiManager.WifiLock;
 
 public class WifiAdmin
 {
-	// 定義WifiManager對象
 	private WifiManager mWifiManager;
-	// 定義WifiInfo對象
 	private WifiInfo mWifiInfo;
-	// 掃瞄出的網絡連接列表
 	private List<ScanResult> mWifiList;
-	// 網絡連接列表
 	private List<WifiConfiguration> mWifiConfiguration;
-	// 定義一個WifiLock
 	WifiLock mWifiLock;
 
-	// 構造器
 	public WifiAdmin(Context context)
 	{
-		// 取得WifiManager對象
 		mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-		// 取得WifiInfo對象
 		mWifiInfo = mWifiManager.getConnectionInfo();
 		
 		
@@ -62,22 +54,18 @@ public class WifiAdmin
 		}
 	}
 
-	// 檢查當前WIFI狀態
 	public int checkState()
 	{
 		return mWifiManager.getWifiState();
 	}
 
-	// 鎖定WifiLock
 	public void acquireWifiLock()
 	{
 		mWifiLock.acquire();
 	}
 
-	// 解鎖WifiLock
 	public void releaseWifiLock()
 	{
-		// 判斷時候鎖定
 		if (mWifiLock.isHeld())
 		{
 			mWifiLock.release();
@@ -93,77 +81,63 @@ public class WifiAdmin
 		mWifiLock = mWifiManager.createWifiLock(lockType, lockName);
 	}
 
-	// 得到配置好的網絡
 	public List<WifiConfiguration> getConfiguration()
 	{
 		return mWifiConfiguration;
 	}
 
-	// 指定配置好的網絡進行連接
 	public void connectConfiguration(int index)
 	{
-		// 索引大於配置好的網絡索引返回
 		if (index > mWifiConfiguration.size())
 		{
 			return;
 		}
-		// 連接配置好的指定ID的網絡
 		mWifiManager.enableNetwork(mWifiConfiguration.get(index).networkId, true);
 	}
 
 	public void startScan()
 	{
 		mWifiManager.startScan();
-		// 得到掃瞄結果
 		mWifiList = mWifiManager.getScanResults();
-		// 得到配置好的網絡連接
 		mWifiConfiguration = mWifiManager.getConfiguredNetworks();
 	}
 
-	// 得到網絡列表
 	public List<ScanResult> getWifiList()
 	{
 		return mWifiList;
 	}
 
-	// 查看掃瞄結果
 	public ArrayList<String> lookUpScanResult()
 	{
 		ArrayList<String > scanResult = new ArrayList<String >();
 		for (int i = 0; i < mWifiList.size(); i++)
 		{
-			//  BSSID、SSID、capabilities、frequency、level
 			scanResult.add((mWifiList.get(i)).toString());
 	
 		}
 		return scanResult;
 	}
 
-	// 得到MAC地址
 	public String getMacAddress()
 	{
 		return (mWifiInfo == null) ? "NULL" : mWifiInfo.getMacAddress();
 	}
 
-	// 得到接入點的BSSID
 	public String getBSSID()
 	{
 		return (mWifiInfo == null) ? "NULL" : mWifiInfo.getBSSID();
 	}
 
-	// 得到IP地址
 	public int getIPAddress()
 	{
 		return (mWifiInfo == null) ? 0 : mWifiInfo.getIpAddress();
 	}
 
-	// 得到連接的ID
 	public int getNetworkId()
 	{
 		return (mWifiInfo == null) ? 0 : mWifiInfo.getNetworkId();
 	}
 
-	// 得到WifiInfo的所有信息包
 	public String getWifiInfo()
 	{
 		return (mWifiInfo == null) ? "NULL" : mWifiInfo.toString();
@@ -268,7 +242,6 @@ public class WifiAdmin
 		return config;
 	}
 
-	// 斷開指定ID的網絡
 	public boolean disconnectWifi(int netId)
 	{
 		if(mWifiManager.disableNetwork(netId) == true && mWifiManager.disconnect() == true)

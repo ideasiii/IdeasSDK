@@ -2,7 +2,7 @@ ReadMe
 
 how to use
 
-import ¥H¤U lib
+import ä»¥ä¸‹ libs
 
 import sdk.ideas.areawell.*;
 import sdk.ideas.areawell.BaseHandlerDL.OnCallbackResult;
@@ -10,28 +10,28 @@ import java.util.HashMap;
 
 
 
-Method ¸Ñ»¡
+Method è§£èªª
 
 
      		 method                                 |      description
 ___________________________________________________________________________      
-AW2401(Context context)                             |          «Øºc
+AW2401(Context context)                             |          å»ºæ§‹
   													|
-void setIPAndPort(String ip, int port)				|        ³]©w IP¸òPort
+void setIPAndPort(String ip, int port)				|        è¨­å®š IPè·ŸPort
 													|         
-void setPowerPortSetting(String controllerID,		|        ³]©wpower port 
+void setPowerPortSetting(String controllerID,		|        è¨­å®špower port 
   int powerWire, int powerPort, boolean powerSetOn)	|
  													|
-void getPowerPortState(String controllerID,         |        ¨ú±opower port ª¬ºA
+void getPowerPortState(String controllerID,         |        å–å¾—power port ç‹€æ…‹
   int powerWire)                                    |
   													|
-void setOnCallbackResultListener(OnCallbackResult   |        ³]©wcallback listener
+void setOnCallbackResultListener(OnCallbackResult   |        è¨­å®šcallback listener
   listener)  
  
  
 
 
-¥H¤U¬°½d¨Òcode
+ä»¥ä¸‹ç‚ºç¯„ä¾‹code
 ************************************************************************
 AW2401 mAW2401 = null;
 
@@ -60,15 +60,16 @@ mAW2401.getPowerPortState(cotrollerID, 1);
 
 onCallbackResult method
 
-result //¦¨¥\©Î¥¢±Ñ¥N½X
+result //æˆåŠŸæˆ–å¤±æ•—ä»£ç¢¼
 
     value         |          description
-__________________________________________________
+__________________________________________________________________________________
       1           |            SUCCESS
-      -1          |     CONNECTED FAIL, IO¡@ERROR
-      -2          |     ILLEGAL_ARGUMENT_ERROR
-      -23         |     POWER_PORT_SETTING_FAIL
-      -24         |     ERR_GET_POWER_STATE_FAIL
+      0			  |     UNKOWN ERROR Check message to get detail information 
+      -1          |     CONNECTED FAIL, IOã€€ERROR
+      -2          |     ILLEGAL ARGUMENT ERROR
+      -23         |     POWER PORT SETTING FAIL
+      -24         |     GET POWER STATE FAIL
       
       
       
@@ -89,20 +90,20 @@ ______________________________________________________
 message
 
 *FOR METHOD_SET_IP_AND_PORT
-   ¨Ï¥Î message.get("message") ·|¨ú±o°õ¦æ¦¨¥\©Î¥¢±Ñ´y­z¤º®e
+   ä½¿ç”¨ message.get("message") æœƒå–å¾—åŸ·è¡ŒæˆåŠŸæˆ–å¤±æ•—æè¿°å…§å®¹
 
 *FOR METHOD_SET_POWER_PORT_SETTING
-   ¨Ï¥Î message.get("message") ·|¨ú±o°õ¦æ¦¨¥\©Î¥¢±Ñ´y­z¤º®e
+   ä½¿ç”¨ message.get("message") æœƒå–å¾—åŸ·è¡ŒæˆåŠŸæˆ–å¤±æ•—æè¿°å…§å®¹
 
 *FOR METHOD_GET_POWER_PORT_STATE
-   ¨Ï¥Îmessage.get("message") 
+   ä½¿ç”¨message.get("message") 
 
-    1.·í°õ¦æ¦¨¥\·|¨ú±o ©Ò«ü©w¨º­Ówire¨C¤@­Óport­È
-     ex. 1110 or 0101 ¨ä¤¤1¬°¦³¹q,0¬°µL¹q 
+    1.ç•¶åŸ·è¡ŒæˆåŠŸæœƒå–å¾— æ‰€æŒ‡å®šé‚£å€‹wireæ¯ä¸€å€‹portå€¼
+     ex. 1110 or 0101 å…¶ä¸­1ç‚ºæœ‰é›»,0ç‚ºç„¡é›» 
       _ _ _ _              _ _ _ _
-     |1|1|0|0|  ¥Nªí port ¬°  |1|2|3|4| 3,4 portµL¹q, 1,2 port¦³¹q 
+     |1|1|0|0|  ä»£è¡¨ port ç‚º  |1|2|3|4| 3,4 portç„¡é›», 1,2 portæœ‰é›» 
 
-    2.·í°õ¦æ¥¢±Ñ·|¨ú±o´y­z¤º®e
+    2.ç•¶åŸ·è¡Œå¤±æ•—æœƒå–å¾—æè¿°å…§å®¹
       
 
   
