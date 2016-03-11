@@ -629,7 +629,7 @@ public class CmpClient
 			buf.clear();
 			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE + 255);
 			nLength = inSocket.read(buf.array());
-			Logs.showTrace(String.valueOf(nLength));
+			//Logs.showTrace(String.valueOf(nLength));
 			buf.rewind();
 			
 			//Logs.showTrace("State length: "+String.valueOf(nLength));
