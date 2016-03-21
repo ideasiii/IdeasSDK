@@ -70,6 +70,7 @@ public class RecordHandler extends BaseHandler
 		this.recordFileFlag = recordFileFlag;
 	}
 
+	@SuppressWarnings("unused")
 	private void setParticularRecordPath(ArrayList<String> particularPathScan, boolean isAbsolutePath)
 	{
 		if (null != particularPathScan)

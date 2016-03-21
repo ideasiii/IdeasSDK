@@ -2,8 +2,6 @@ package sdk.ideas.module;
 
 import java.nio.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import android.annotation.SuppressLint;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
@@ -13,21 +11,21 @@ import sdk.ideas.common.ResponseCode;
 
 public class CmpClient
 {
-	private static final int ERR_CMP = -1000;
-	public static final int ERR_PACKET_LENGTH = -6 + ERR_CMP;
-	public static final int ERR_PACKET_SEQUENCE = -7 + ERR_CMP;
-	public static final int ERR_REQUEST_FAIL = -8 + ERR_CMP;
-	public static final int ERR_SOCKET_INVALID = -9 + ERR_CMP;
-	public static final int ERR_INVALID_PARAM = -10 + ERR_CMP;
-	public static final int ERR_LOG_DATA_LENGTH = -11 + ERR_CMP;
-	private static final String CODE_TYPE = "UTF-8";
+	private static final int	ERR_CMP				= -1000;
+	public static final int		ERR_PACKET_LENGTH	= -6 + ERR_CMP;
+	public static final int		ERR_PACKET_SEQUENCE	= -7 + ERR_CMP;
+	public static final int		ERR_REQUEST_FAIL	= -8 + ERR_CMP;
+	public static final int		ERR_SOCKET_INVALID	= -9 + ERR_CMP;
+	public static final int		ERR_INVALID_PARAM	= -10 + ERR_CMP;
+	public static final int		ERR_LOG_DATA_LENGTH	= -11 + ERR_CMP;
+	private static final String	CODE_TYPE			= "UTF-8";
 
-	private final String VERSION = "CMP Client Version 0.16.03.08";
+	private final String		VERSION				= "CMP Client Version 0.16.03.08";
 
 	public static class Response
 	{
-		public int mnCode = 0;
-		public String mstrContent = null;
+		public int		mnCode		= 0;
+		public String	mstrContent	= null;
 	}
 
 	public CmpClient()
@@ -161,20 +159,11 @@ public class CmpClient
 				// debug
 
 				/*
-				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
-				 * Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
-				 * Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
-				 * Logs.showTrace("REQ_SEQUENCE: " +
-				 * respData.get("REQ_SEQUENCE")); Logs.showTrace(
-				 * "REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
-				 * 
-				 * 
-				 * Logs.showTrace("RESP_LENGTH: " +
-				 * respData.get("RESP_LENGTH")); Logs.showTrace("RESP_ID: " +
-				 * respData.get("RESP_ID")); Logs.showTrace("RESP_STATUS: " +
-				 * respData.get("RESP_STATUS")); Logs.showTrace(
-				 * "RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
-				 * Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
+				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH")); Logs.showTrace("REQ_ID: " + respData.get("REQ_ID")); Logs.showTrace("REQ_STATUS: " +
+				 * respData.get("REQ_STATUS")); Logs.showTrace("REQ_SEQUENCE: " + respData.get("REQ_SEQUENCE")); Logs.showTrace( "REQ_BODY_INIT_TYPE: " +
+				 * respData.get("REQ_BODY_INIT_TYPE")); Logs.showTrace("RESP_LENGTH: " + respData.get("RESP_LENGTH")); Logs.showTrace("RESP_ID: " + respData.get("RESP_ID"));
+				 * Logs.showTrace("RESP_STATUS: " + respData.get("RESP_STATUS")); Logs.showTrace( "RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE")); Logs.showTrace("RESP_BODY: " +
+				 * respData.get("RESP_BODY"));
 				 */
 
 			}
@@ -330,7 +319,6 @@ public class CmpClient
 			response.mnCode = -1;
 			response.mstrContent = "connected fail, IO exception";
 		}
-	
 
 		// Logs.showTrace(String.valueOf(response.mnCode));
 	}
@@ -387,7 +375,7 @@ public class CmpClient
 
 			inSocket = msocket.getInputStream();
 
-			int nLength = Protocol.CMP_HEADER_SIZE + 1 + accessLogData.getBytes(CODE_TYPE).length + 1 ;
+			int nLength = Protocol.CMP_HEADER_SIZE + 1 + accessLogData.getBytes(CODE_TYPE).length + 1;
 
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
 
@@ -403,7 +391,7 @@ public class CmpClient
 			buf.putInt(nSequence);
 
 			Logs.showTrace("put success");
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "access_log_request");
 			respData.put("REQ_STATUS", "0");
@@ -469,11 +457,8 @@ public class CmpClient
 			response.mstrContent = "IOException, network inconnect";
 		}
 		/*
-		catch(Exception e)
-		{
-			response.mnCode = 0;
-			response.mstrContent = e.toString();
-		}*/
+		 * catch(Exception e) { response.mnCode = 0; response.mstrContent = e.toString(); }
+		 */
 
 	}
 

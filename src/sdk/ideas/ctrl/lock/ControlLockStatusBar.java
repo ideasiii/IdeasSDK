@@ -27,6 +27,7 @@ public class ControlLockStatusBar
 	}
 	
 	
+	@SuppressWarnings("unused")
 	private static void fullSceen(Context context)
 	{
 		// Remove title bar

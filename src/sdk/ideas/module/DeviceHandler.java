@@ -1,6 +1,5 @@
 package sdk.ideas.module;
 
-
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -12,6 +11,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.location.Criteria;
 import android.location.Location;
@@ -31,29 +31,28 @@ import sdk.ideas.common.Logs;
 @SuppressLint("NewApi")
 public class DeviceHandler
 {
-	private Context mContext = null;
-	private LocationManager manager = null;
-	public static double lat = -1.0;
-	public static double lng = -1.0;
-
+	private Context			mContext	= null;
+	private LocationManager	manager		= null;
+	public static double	lat			= -1.0;
+	public static double	lng			= -1.0;
 
 	public static class AccountData
 	{
-		public String strAccount;
-		public String strType;
+		public String	strAccount;
+		public String	strType;
 	}
 
 	public static class TeleData
 	{
-		public String lineNumber;
-		public String imei;
-		public String imsi;
-		public String roamingStatus;
-		public String country;
-		public String operator;
-		public String operatorName;
-		public String networkType;
-		public String phoneType;
+		public String	lineNumber;
+		public String	imei;
+		public String	imsi;
+		public String	roamingStatus;
+		public String	country;
+		public String	operator;
+		public String	operatorName;
+		public String	networkType;
+		public String	phoneType;
 	}
 
 	public DeviceHandler(Context context)
@@ -166,7 +165,7 @@ public class DeviceHandler
 		}
 		catch (NumberFormatException nfe)
 		{
-			//sdkRelease = "null";
+			// sdkRelease = "null";
 			return null;
 		}
 		// Logs.showTrace("Android" + String.valueOf(sdkRelease));
@@ -238,8 +237,6 @@ public class DeviceHandler
 		return ((float) level / (float) scale) * 100.0f;
 	}
 
-	
-
 	public void getLocation()
 	{
 		manager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
@@ -291,15 +288,15 @@ public class DeviceHandler
 		{
 			updateLocation(null);
 			Logs.showTrace("Location Provider now is disabled..");
-			//final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			//mContext.startActivity(intent);
+			// final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			// mContext.startActivity(intent);
 		}
 
 	};
 
 	private void updateLocation(Location location)
 	{
-		if (null != location )
+		if (null != location)
 		{
 			DeviceHandler.lat = location.getLatitude();
 			DeviceHandler.lng = location.getLongitude();
@@ -313,6 +310,43 @@ public class DeviceHandler
 		}
 
 		// Logs.showTrace("Location:" + latLng);
+	}
+
+	/**
+	 * Determines if the context calling has the required permission
+	 * 
+	 * @param context - the IPC context
+	 * @param permissions - The permissions to check
+	 * @return true if the IPC has the granted permission
+	 */
+	public static boolean hasPermission(Context context, String permission)
+	{
+		int res = context.checkCallingOrSelfPermission(permission);
+		return res == PackageManager.PERMISSION_GRANTED;
+	}
+
+	/**
+	 * Determines if the context calling has the required permissions
+	 * 
+	 * @param context - the IPC context
+	 * @param permissions - The permissions to check
+	 * @return true if the IPC has the granted permission
+	 * @example hasPermissions(mContext, new String[] { android.Manifest.permission.ACCESS_WIFI_STATE, android.Manifest.permission.READ_PHONE_STATE,
+	 *          android.Manifest.permission.ACCESS_NETWORK_STATE, android.Manifest.permission.INTERNET, });
+	 */
+	public static boolean hasPermissions(Context context, String... permissions)
+	{
+		boolean hasAllPermissions = true;
+
+		for (String permission : permissions)
+		{
+			if (!hasPermission(context, permission))
+			{
+				hasAllPermissions = false;
+			}
+		}
+
+		return hasAllPermissions;
 	}
 
 }

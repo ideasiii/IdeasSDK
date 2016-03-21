@@ -1,17 +1,9 @@
 /*
- * ~ Copyright (c) 2014, WSO2 Inc. (http://wso2.com/) All Rights Reserved. ~ ~
- * Licensed under the Apache License, Version 2.0 (the "License"); ~ you may not
- * use this file except in compliance with the License. ~ You may obtain a copy
- * of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~ ~ Unless
- * required by applicable law or agreed to in writing, software ~ distributed
- * under the License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES OR
- * CONDITIONS OF ANY KIND, either express or implied. ~ See the License for the
- * specific language governing permissions and ~ limitations under the License.
- * 
- * 
- * modify by joe 
- * need this permission
- * <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+ * ~ Copyright (c) 2014, WSO2 Inc. (http://wso2.com/) All Rights Reserved. ~ ~ Licensed under the Apache License, Version 2.0 (the "License"); ~ you may not use this file except in
+ * compliance with the License. ~ You may obtain a copy of the License at ~ ~ http://www.apache.org/licenses/LICENSE-2.0 ~ ~ Unless required by applicable law or agreed to in
+ * writing, software ~ distributed under the License is distributed on an "AS IS" BASIS, ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. ~ See the
+ * License for the specific language governing permissions and ~ limitations under the License. modify by joe need this permission <uses-permission
+ * android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
  */
 package sdk.ideas.module;
 
@@ -21,7 +13,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -39,18 +30,18 @@ import android.util.Log;
 
 public class WiFiConfigHandler
 {
-	private Context context;
-	private static ConnectivityManager connectivityManager;
-	private WifiManager wifi_open_config;
-	private static final String INT_PRIVATE_KEY = "private_key";
-	private static final String INT_PHASE2 = "phase2";
-	private static final String INT_PASSWORD = "password";
-	private static final String INT_IDENTITY = "identity";
-	private static final String INT_EAP = "eap";
-	private static final String INT_CLIENT_CERT = "client_cert";
-	private static final String INT_CA_CERT = "ca_cert";
-	private static final String INT_ANONYMOUS_IDENTITY = "anonymous_identity";
-	final String INT_ENTERPRISEFIELD_NAME = "android.net.wifi.WifiConfiguration$EnterpriseField";
+	private Context						context;
+	private static ConnectivityManager	connectivityManager;
+	private WifiManager					wifi_open_config;
+	private static final String			INT_PRIVATE_KEY				= "private_key";
+	private static final String			INT_PHASE2					= "phase2";
+	private static final String			INT_PASSWORD				= "password";
+	private static final String			INT_IDENTITY				= "identity";
+	private static final String			INT_EAP						= "eap";
+	private static final String			INT_CLIENT_CERT				= "client_cert";
+	private static final String			INT_CA_CERT					= "ca_cert";
+	private static final String			INT_ANONYMOUS_IDENTITY		= "anonymous_identity";
+	final String						INT_ENTERPRISEFIELD_NAME	= "android.net.wifi.WifiConfiguration$EnterpriseField";
 
 	public WiFiConfigHandler(Context context)
 	{
@@ -64,7 +55,8 @@ public class WiFiConfigHandler
 	}
 
 	/**
-	 * Checks whether the WIFI is switched on 
+	 * Checks whether the WIFI is switched on
+	 * 
 	 * @deprecated
 	 */
 	@SuppressWarnings("unused")
@@ -77,13 +69,14 @@ public class WiFiConfigHandler
 		}
 		return networkInfo == null ? false : networkInfo.isConnected();
 	}
+
 	/**
 	 * Checks whether the WIFI is switched on
 	 */
 	private static boolean isConnected(WifiManager wifiMgr)
 	{
 		if (wifiMgr.isWifiEnabled())
-		{ 
+		{
 			// WiFi adapter is ON
 			WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
 			if (wifiInfo.getNetworkId() == -1)
@@ -125,7 +118,7 @@ public class WiFiConfigHandler
 		wc.wepTxKeyIndex = 0;
 
 		WifiManager wifiManag = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
-		boolean res1 = wifiManag.setWifiEnabled(true);
+		wifiManag.setWifiEnabled(true);
 		int res = wifi.addNetwork(wc);
 		Log.d("WifiPreference", "add Network returned " + res);
 		boolean saved = wifi.saveConfiguration();
@@ -134,14 +127,15 @@ public class WiFiConfigHandler
 		Log.d("WifiPreference", "enableNetwork returned " + b);
 		return saved;
 	}
+
 	public boolean saveWPAConfig(String SSID, String PASSWORD)
 	{
 		WifiManager wifi = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
 		WifiConfiguration wc = new WifiConfiguration();
-		wc.SSID = "\""+SSID+"\"";
-		wc.preSharedKey  = "\""+PASSWORD+"\"";
+		wc.SSID = "\"" + SSID + "\"";
+		wc.preSharedKey = "\"" + PASSWORD + "\"";
 		wc.hiddenSSID = true;
-		wc.status = WifiConfiguration.Status.ENABLED;        
+		wc.status = WifiConfiguration.Status.ENABLED;
 		wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
 		wc.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
 		wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
@@ -149,16 +143,14 @@ public class WiFiConfigHandler
 		wc.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
 		wc.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
 		int res = wifi.addNetwork(wc);
-		Log.d("WifiPreference", "add Network returned " + res );
+		Log.d("WifiPreference", "add Network returned " + res);
 		boolean saved = wifi.saveConfiguration();
 		Log.d("WifiPreference", "saveConfiguration returned " + saved);
-		boolean b = wifi.enableNetwork(res, true);        
-		Log.d("WifiPreference", "enableNetwork returned " + b );
-		
+		boolean b = wifi.enableNetwork(res, true);
+		Log.d("WifiPreference", "enableNetwork returned " + b);
+
 		return saved;
 	}
-	
-	
 
 	public boolean removeWiFiConfigurationBySSID(String ssid)
 	{
@@ -231,9 +223,7 @@ public class WiFiConfigHandler
 	/**
 	 * Saves a EAP WIFI Configuration Profile
 	 * 
-	 * @params userName, passString, eapMethod, phase2AuthMethod - WiFi User
-	 *         Name, Password, EAP Method and Phase2 Authentication(Optional)
-	 *         Method should be passed in.
+	 * @params userName, passString, eapMethod, phase2AuthMethod - WiFi User Name, Password, EAP Method and Phase2 Authentication(Optional) Method should be passed in.
 	 */
 	public void saveEAPConfig(String userName, String passString, String eapMethod, String phase2AuthMethod)
 	{
@@ -303,11 +293,11 @@ public class WiFiConfigHandler
 		try
 		{
 			// Let the magic start
-			Class[] wcClasses = WifiConfiguration.class.getClasses();
+			Class<?>[] wcClasses = WifiConfiguration.class.getClasses();
 			// null for overzealous java compiler
-			Class wcEnterpriseField = null;
+			Class<?> wcEnterpriseField = null;
 
-			for (Class wcClass : wcClasses)
+			for (Class<?> wcClass : wcClasses)
 				if (wcClass.getName().equals(INT_ENTERPRISEFIELD_NAME))
 				{
 					wcEnterpriseField = wcClass;
@@ -455,7 +445,7 @@ public class WiFiConfigHandler
 		}
 
 		WifiManager wifiManag = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
-		boolean res1 = wifiManag.setWifiEnabled(true);
+		wifiManag.setWifiEnabled(true);
 		int res = wifiManag.addNetwork(selectedConfig);
 		Log.d("WifiPreference", "add Network returned " + res);
 		boolean b = wifiManag.enableNetwork(selectedConfig.networkId, false);
@@ -504,8 +494,7 @@ public class WiFiConfigHandler
 		/* Get All WIfi configurations */
 		List<WifiConfiguration> configList = wifi.getConfiguredNetworks();
 		/*
-		 * Now we need to search appropriate configuration i.e. with name
-		 * SSID_Name
+		 * Now we need to search appropriate configuration i.e. with name SSID_Name
 		 */
 		for (int i = 0; i < configList.size(); i++)
 		{
@@ -514,12 +503,11 @@ public class WiFiConfigHandler
 				/*
 				 * We found the appropriate config now read all config details
 				 */
-				Iterator<WifiConfiguration> iter = configList.iterator();
+				// Iterator<WifiConfiguration> iter = configList.iterator();
 				WifiConfiguration config = configList.get(i);
 
 				/*
-				 * I dont think these fields have anything to do with EAP config
-				 * but still will print these to be on safe side
+				 * I dont think these fields have anything to do with EAP config but still will print these to be on safe side
 				 */
 				try
 				{
@@ -630,11 +618,11 @@ public class WiFiConfigHandler
 				try
 				{
 					// Let the magic start
-					Class[] wcClasses = WifiConfiguration.class.getClasses();
+					Class<?>[] wcClasses = WifiConfiguration.class.getClasses();
 					// null for overzealous java compiler
-					Class wcEnterpriseField = null;
+					Class<?> wcEnterpriseField = null;
 
-					for (Class wcClass : wcClasses)
+					for (Class<?> wcClass : wcClasses)
 						if (wcClass.getName().equals(INT_ENTERPRISEFIELD_NAME))
 						{
 							wcEnterpriseField = wcClass;
@@ -686,7 +674,7 @@ public class WiFiConfigHandler
 					Object obj = null;
 					if (!noEnterpriseFieldType)
 					{
-						obj = wcefValue.invoke(wcefEap.get(config), (Class<?>)null);
+						obj = wcefValue.invoke(wcefEap.get(config), (Class<?>) null);
 						String retval = (String) obj;
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP METHOD]" + retval);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP METHOD]" + retval);
@@ -694,13 +682,13 @@ public class WiFiConfigHandler
 					else
 					{
 						obj = wcefEap.get(config);
-						String retval = (String) obj;
+						// String retval = (String) obj;
 					}
 
 					/* phase 2 */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefPhase2.get(config), (Class<?>)null);
+						result = (String) wcefValue.invoke(wcefPhase2.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP PHASE 2 AUTHENTICATION]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP PHASE 2 AUTHENTICATION]" + result);
 					}
@@ -712,7 +700,7 @@ public class WiFiConfigHandler
 					/* Anonymous Identity */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefAnonymousId.get(config),(Class<?>) null);
+						result = (String) wcefValue.invoke(wcefAnonymousId.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP ANONYMOUS IDENTITY]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP ANONYMOUS IDENTITY]" + result);
 					}
@@ -724,7 +712,7 @@ public class WiFiConfigHandler
 					/* CA certificate */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefCaCert.get(config), (Class<?>)null);
+						result = (String) wcefValue.invoke(wcefCaCert.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP CA CERTIFICATE]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP CA CERTIFICATE]" + result);
 					}
@@ -737,7 +725,7 @@ public class WiFiConfigHandler
 					/* private key */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefPrivateKey.get(config), (Class<?>)null);
+						result = (String) wcefValue.invoke(wcefPrivateKey.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP PRIVATE KEY]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP PRIVATE KEY]" + result);
 					}
@@ -749,7 +737,7 @@ public class WiFiConfigHandler
 					/* Identity */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefIdentity.get(config),(Class<?>) null);
+						result = (String) wcefValue.invoke(wcefIdentity.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP IDENTITY]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP IDENTITY]" + result);
 					}
@@ -761,7 +749,7 @@ public class WiFiConfigHandler
 					/* Password */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefPassword.get(config),(Class<?>) null);
+						result = (String) wcefValue.invoke(wcefPassword.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP PASSWORD]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP PASSWORD]" + result);
 					}
@@ -773,7 +761,7 @@ public class WiFiConfigHandler
 					/* client certificate */
 					if (!noEnterpriseFieldType)
 					{
-						result = (String) wcefValue.invoke(wcefClientCert.get(config),(Class<?>) null);
+						result = (String) wcefValue.invoke(wcefClientCert.get(config), (Class<?>) null);
 						Log.d("<<<<<<<<<<WifiPreference>>>>>>>>>>>>", "[EAP CLIENT CERT]" + result);
 						out.write("<<<<<<<<<<WifiPreference>>>>>>>>>>>>" + "[EAP CLIENT CERT]" + result);
 						Log.e("READ EROR : ", "All config data logged to ReadConfigLog.txt");
