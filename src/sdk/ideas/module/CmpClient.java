@@ -13,20 +13,21 @@ import sdk.ideas.common.ResponseCode;
 
 public class CmpClient
 {
-	private static final int	ERR_CMP				= -1000;
-	public static final int		ERR_PACKET_LENGTH	= -6 + ERR_CMP;
-	public static final int		ERR_PACKET_SEQUENCE	= -7 + ERR_CMP;
-	public static final int		ERR_REQUEST_FAIL	= -8 + ERR_CMP;
-	public static final int		ERR_SOCKET_INVALID	= -9 + ERR_CMP;
-	public static final int		ERR_INVALID_PARAM	= -10 + ERR_CMP;
-	public static final int		ERR_LOG_DATA_LENGTH	= -11 + ERR_CMP;
+	private static final int ERR_CMP = -1000;
+	public static final int ERR_PACKET_LENGTH = -6 + ERR_CMP;
+	public static final int ERR_PACKET_SEQUENCE = -7 + ERR_CMP;
+	public static final int ERR_REQUEST_FAIL = -8 + ERR_CMP;
+	public static final int ERR_SOCKET_INVALID = -9 + ERR_CMP;
+	public static final int ERR_INVALID_PARAM = -10 + ERR_CMP;
+	public static final int ERR_LOG_DATA_LENGTH = -11 + ERR_CMP;
+	private static final String CODE_TYPE = "UTF-8";
 
 	private final String VERSION = "CMP Client Version 0.16.03.08";
 
 	public static class Response
 	{
-		public int		mnCode		= 0;
-		public String	mstrContent	= null;
+		public int mnCode = 0;
+		public String mstrContent = null;
 	}
 
 	public CmpClient()
@@ -138,7 +139,7 @@ public class CmpClient
 				buf.order(ByteOrder.BIG_ENDIAN);
 
 				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
-				//Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				// Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
 				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
 
 				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
@@ -147,7 +148,8 @@ public class CmpClient
 				if (ResponseCode.ERR_SUCCESS == response.mnCode)
 				{
 					byte[] bytes = new byte[buf.getInt(0)];
-					//Logs.showTrace(String.valueOf("remaining " + buf.remaining()));
+					// Logs.showTrace(String.valueOf("remaining " +
+					// buf.remaining()));
 					buf.get(bytes);
 					String strTemp = new String(bytes, Charset.forName("UTF-8"));
 					String strBody = strTemp.substring(16);
@@ -189,7 +191,7 @@ public class CmpClient
 		}
 		catch (Exception e)
 		{
-			//Logs.showTrace(e.getMessage());
+			Logs.showTrace(e.getMessage());
 			response.mnCode = -1;
 			response.mstrContent = "connected fail, IO exception";
 		}
@@ -230,7 +232,7 @@ public class CmpClient
 		try
 		{
 
-			//Logs.showTrace("IP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("IP: " + strIP + " port: " + nPort);
 			msocket = new Socket(strIP, nPort);
 
 			if (!validSocket(msocket))
@@ -305,10 +307,10 @@ public class CmpClient
 
 				// debug
 				// Logs.showTrace(respData.get("REQ_BODY_SIGN_UP_DATA"));
-				//Logs.showTrace(respData.get("RESP_LENGTH"));
-				//Logs.showTrace(respData.get("RESP_ID"));
-				//Logs.showTrace(respData.get("RESP_STATUS"));
-				///Logs.showTrace(respData.get("RESP_SEQUENCE"));
+				// Logs.showTrace(respData.get("RESP_LENGTH"));
+				// Logs.showTrace(respData.get("RESP_ID"));
+				// Logs.showTrace(respData.get("RESP_STATUS"));
+				/// Logs.showTrace(respData.get("RESP_SEQUENCE"));
 
 			}
 			else
@@ -320,7 +322,7 @@ public class CmpClient
 			buf.clear();
 			buf = null;
 			msocket.close();
-			//Logs.showTrace("final sign up");
+			// Logs.showTrace("final sign up");
 
 		}
 		catch (IOException e)
@@ -328,14 +330,16 @@ public class CmpClient
 			response.mnCode = -1;
 			response.mstrContent = "connected fail, IO exception";
 		}
+	
 
-		//Logs.showTrace(String.valueOf(response.mnCode));
+		// Logs.showTrace(String.valueOf(response.mnCode));
 	}
 
 	public static void accessLogRequest(final String strIP, final int nPort, String accessLogType, String accessLogData,
 			HashMap<String, String> respData, Response response)
 	{
-
+		Logs.showTrace(accessLogData);
+		Logs.showTrace(accessLogType);
 		if (null == response)
 			return;
 		Socket msocket = null;
@@ -348,7 +352,7 @@ public class CmpClient
 		}
 		try
 		{
-			if (accessLogData.getBytes("US-ASCII").length > 2000)
+			if (accessLogData.getBytes(CODE_TYPE).length > 2000)
 			{
 				response.mstrContent = "accessLogData too much character";
 				response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -364,9 +368,9 @@ public class CmpClient
 		// Logs.showTrace("377");
 		try
 		{
-			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			msocket = new Socket(strIP, nPort);
-			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -383,8 +387,7 @@ public class CmpClient
 
 			inSocket = msocket.getInputStream();
 
-			// Logs.showTrace("398");
-			int nLength = Protocol.CMP_HEADER_SIZE + 1 + accessLogData.length() + 1;
+			int nLength = Protocol.CMP_HEADER_SIZE + 1 + accessLogData.getBytes(CODE_TYPE).length + 1 ;
 
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
 
@@ -399,6 +402,8 @@ public class CmpClient
 			buf.putInt(0);
 			buf.putInt(nSequence);
 
+			Logs.showTrace("put success");
+			
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "access_log_request");
 			respData.put("REQ_STATUS", "0");
@@ -408,11 +413,11 @@ public class CmpClient
 			// accessLogType 1
 			// accessLogData MAX 2000
 
-			buf.put(accessLogType.getBytes("US-ASCII"));
+			buf.put(accessLogType.getBytes(CODE_TYPE));
 
 			respData.put("REQ_BODY_ACCESS_LOG_TYPE", accessLogType);
 
-			buf.put(accessLogData.getBytes("US-ASCII"));
+			buf.put(accessLogData.getBytes(CODE_TYPE));
 
 			buf.put((byte) 0);
 			respData.put("REQ_BODY_ACCESS_LOG_DATA", accessLogData);
@@ -439,10 +444,10 @@ public class CmpClient
 				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
 				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
 
-				//Logs.showTrace(respData.get("RESP_LENGTH"));
-				//Logs.showTrace(respData.get("RESP_ID"));
-				//Logs.showTrace(respData.get("RESP_STATUS"));
-				//Logs.showTrace(respData.get("RESP_SEQUENCE"));
+				// Logs.showTrace(respData.get("RESP_LENGTH"));
+				// Logs.showTrace(respData.get("RESP_ID"));
+				// Logs.showTrace(respData.get("RESP_STATUS"));
+				// Logs.showTrace(respData.get("RESP_SEQUENCE"));
 
 			}
 			else
@@ -459,19 +464,26 @@ public class CmpClient
 		}
 		catch (IOException e)
 		{
+			Logs.showTrace(e.toString());
 			response.mnCode = -1;
 			response.mstrContent = "IOException, network inconnect";
 		}
+		/*
+		catch(Exception e)
+		{
+			response.mnCode = 0;
+			response.mstrContent = e.toString();
+		}*/
 
 	}
-	
+
 	public static void powerPortSettingRequest(final String strIP, final int nPort, int wireNum, int portNum,
 			String powerState, String controllerID, HashMap<String, String> respData, Response response)
 	{
 		if (null == response)
 			return;
 		Socket msocket = null;
-		if(null == respData || null == powerState || null == controllerID)
+		if (null == respData || null == powerState || null == controllerID)
 		{
 			response.mstrContent = "respData or powerState or controllerID is null";
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -479,16 +491,16 @@ public class CmpClient
 		}
 		try
 		{
-			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			msocket = new Socket(strIP, nPort);
-			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
 				response.mnCode = ERR_SOCKET_INVALID;
 				return;
 			}
-			
+
 			final int nSequence = getSequence();
 			OutputStream outSocket = null;
 
@@ -497,24 +509,24 @@ public class CmpClient
 			InputStream inSocket = null;
 
 			inSocket = msocket.getInputStream();
-			
+
 			int nLength = Protocol.CMP_HEADER_SIZE + 4 + 4 + 1 + controllerID.length() + 1;
-			
+
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
-			
-			//header
+
+			// header
 			buf.putInt(nLength);
 			buf.putInt(Protocol.POWER_PORT_SETTING_REQUEST);
 			buf.putInt(0);
 			buf.putInt(nSequence);
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "PowerPortSetting_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
-			//end header
+			// end header
 
-			//body
+			// body
 			buf.putInt(wireNum);
 			buf.putInt(portNum);
 			buf.put(powerState.getBytes("US-ASCII"));
@@ -524,16 +536,15 @@ public class CmpClient
 			respData.put("REQ_BODY_PORT_NUMBER", String.valueOf(portNum));
 			respData.put("REQ_BODY_POWER_STATE", powerState);
 			respData.put("REQ_BODY_CONTROLLER_ID", controllerID);
-			//end body
-			
+			// end body
+
 			buf.flip();
 			outSocket.write(buf.array());
 			buf.clear();
 			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE + 10);
 			nLength = inSocket.read(buf.array());
 			buf.rewind();
-			
-			
+
 			response.mnCode = checkResponse(buf, nSequence);
 			buf.order(ByteOrder.BIG_ENDIAN);
 			respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
@@ -542,16 +553,15 @@ public class CmpClient
 			respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
 
 			// for debuging
-			//Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
-			//Logs.showTrace("RESP_ID "  + respData.get("RESP_ID"));
-			//Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
-			//Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
-		
+			// Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
+			// Logs.showTrace("RESP_ID " + respData.get("RESP_ID"));
+			// Logs.showTrace("RESP_STATUS " + respData.get("RESP_STATUS"));
+			// Logs.showTrace("RESP_SEQUENCE "+ respData.get("RESP_SEQUENCE"));
+
 			buf.clear();
 			buf = null;
 			msocket.close();
-			
-			
+
 		}
 		catch (IOException e)
 		{
@@ -565,15 +575,16 @@ public class CmpClient
 			response.mstrContent = e.toString();
 			Logs.showTrace(e.toString());
 		}
-	
+
 	}
-	
-	public static void powerPortStateRequest(final String strIP, final int nPort, int wireNum, String controllerID, HashMap<String, String> respData, Response response)
+
+	public static void powerPortStateRequest(final String strIP, final int nPort, int wireNum, String controllerID,
+			HashMap<String, String> respData, Response response)
 	{
 		if (null == response)
 			return;
 		Socket msocket = null;
-		if(null == respData || null == controllerID)
+		if (null == respData || null == controllerID)
 		{
 			response.mstrContent = "respData or controllerID is null";
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -581,9 +592,9 @@ public class CmpClient
 		}
 		try
 		{
-			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			msocket = new Socket(strIP, nPort);
-			//Logs.showTrace("strIP: " + strIP + " port: " + nPort);
+			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -598,43 +609,43 @@ public class CmpClient
 			InputStream inSocket = null;
 
 			inSocket = msocket.getInputStream();
-			
+
 			int nLength = Protocol.CMP_HEADER_SIZE + 4 + controllerID.length() + 1;
-			
+
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
-			
-			//header 
+
+			// header
 			buf.putInt(nLength);
 			buf.putInt(Protocol.POWER_PORT_STATE_REQUEST);
 			buf.putInt(0);
 			buf.putInt(nSequence);
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "power_port_state_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
-			//header end
-			
-			//body
+			// header end
+
+			// body
 			buf.putInt(wireNum);
 			buf.put(controllerID.getBytes("US-ASCII"));
 			buf.put((byte) 0);
-			
+
 			respData.put("REQ_BODY_WIRE_NUMBER", String.valueOf(wireNum));
 			respData.put("REQ_BODY_CONTROLLER_ID", controllerID);
-			//body end
-			
+			// body end
+
 			buf.flip();
 			outSocket.write(buf.array());
 			buf.clear();
 			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE + 255);
 			nLength = inSocket.read(buf.array());
-			//Logs.showTrace(String.valueOf(nLength));
+			// Logs.showTrace(String.valueOf(nLength));
 			buf.rewind();
-			
-			//Logs.showTrace("State length: "+String.valueOf(nLength));
-			//Logs.showTrace(new String(buf.array()));
-			
+
+			// Logs.showTrace("State length: "+String.valueOf(nLength));
+			// Logs.showTrace(new String(buf.array()));
+
 			response.mnCode = checkResponse(buf, nSequence);
 			buf.order(ByteOrder.BIG_ENDIAN);
 			respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
@@ -644,18 +655,18 @@ public class CmpClient
 
 			if (ResponseCode.ERR_SUCCESS == response.mnCode)
 			{
-				
+
 				byte[] bytes = new byte[buf.getInt(0)];
 
-			    buf.get(bytes);
-			    
-			    String strTemp = new String(bytes, Charset.forName("UTF-8"));
+				buf.get(bytes);
 
-			    String strBody = strTemp.substring(16);
+				String strTemp = new String(bytes, Charset.forName("UTF-8"));
 
-			    byte[] bBody = strBody.getBytes();
+				String strBody = strTemp.substring(16);
 
-			    int i;
+				byte[] bBody = strBody.getBytes();
+
+				int i;
 				for (i = 0; i < bBody.length; ++i)
 				{
 					if (0 == bBody[i])
@@ -664,12 +675,12 @@ public class CmpClient
 					}
 				}
 
-			    strBody = strBody.substring(0, i);
-			    
-			    respData.put("RESP_BODY", strBody);
-			    response.mstrContent = strBody;
+				strBody = strBody.substring(0, i);
+
+				respData.put("RESP_BODY", strBody);
+				response.mstrContent = strBody;
 			}
-			
+
 			// for debuging
 			// Logs.showTrace("RESP_LENGTH "+ respData.get("RESP_LENGTH"));
 			// Logs.showTrace("RESP_ID " + respData.get("RESP_ID"));
@@ -679,11 +690,11 @@ public class CmpClient
 			buf.clear();
 			buf = null;
 			msocket.close();
-	
+
 		}
 		catch (IOException e)
 		{
-			//Logs.showError(e.toString());
+			// Logs.showError(e.toString());
 			response.mnCode = -1;
 			response.mstrContent = "IOException, network inconnect";
 		}
@@ -692,23 +703,16 @@ public class CmpClient
 			response.mnCode = 0;
 			response.mstrContent = e.toString();
 		}
-		
-		
-		
+
 	}
-	
-	
-	
-	
+
 	public static void mdmRequest(final String strIP, final int nPort, String mdmType, String mdmData,
 			HashMap<String, String> respData, Response response)
 	{
-		
-		//....
-		
+
+		// ....
+
 	}
-	
-	
 
 	private static int checkResponse(ByteBuffer buf, int nSequence)
 	{
@@ -723,12 +727,13 @@ public class CmpClient
 
 		if (cmpResp.nSequence != nSequence)
 		{
-		//	Logs.showTrace(String.valueOf(cmpResp.nSequence)+"   "+String.valueOf(nSequence));
+			// Logs.showTrace(String.valueOf(cmpResp.nSequence)+"
+			// "+String.valueOf(nSequence));
 			nResult = ERR_PACKET_SEQUENCE;
 		}
 		else
 		{
-			//Logs.showTrace(String.valueOf(cmpResp.nStatus));
+			// Logs.showTrace(String.valueOf(cmpResp.nStatus));
 			if (Protocol.STATUS_ROK == cmpResp.nStatus)
 			{
 				nResult = ResponseCode.ERR_SUCCESS;
@@ -739,7 +744,7 @@ public class CmpClient
 			}
 			else if (Protocol.STATUS_RPPSTAFAIL == cmpResp.nStatus)
 			{
-				nResult = ResponseCode.ERR_GET_POWER_STATE_FAIL; 
+				nResult = ResponseCode.ERR_GET_POWER_STATE_FAIL;
 			}
 			else
 			{

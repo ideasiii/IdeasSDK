@@ -98,10 +98,14 @@ public class Tracker
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_SUCCESS,
 								ResponseCode.METHOLD_TRACKER, "success");
 					}
+					//CMPClient ERROR 
 					else if (msg.arg1 <= ResponseCode.ERR_MAX)
 					{
 						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
 								ResponseCode.METHOLD_TRACKER, "error in transfer data to server ");
+						//debug use for socket transfer
+						//transferMessage.showLinkServerMessageResult(msg.arg1,
+							//	ResponseCode.METHOLD_TRACKER, (String) msg.obj);
 					}
 					else
 					{
@@ -282,7 +286,7 @@ public class Tracker
 
 		this.ID = (parm.get("MAC") + parm.get("PHONE") + parm.get("APP_ID") + mailForID);
 		parm.put("ID", this.ID);
-		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.TAIWAN).format(new Date()));
+		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
 		
 		return 0;
 	}
@@ -319,7 +323,7 @@ public class Tracker
 			return;
 
 		}
-		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd  HH:mm:ss", Locale.TAIWAN).format(new Date()));
+		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
 		parm.values().removeAll(Collections.singleton(""));
 
 		JSONObject jsonParm = new JSONObject(parm);

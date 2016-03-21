@@ -43,6 +43,7 @@ public abstract class ResponseCode
 	public final static int ERR_POWER_PORT_SETTING_FAIL = -23;
 	public final static int ERR_GET_POWER_STATE_FAIL    = -24;
 	
+	public final static int ERR_DEVICE_NOT_SUPPORT_BLUETOOTH = -25;
 	
 	public static final int ERR_MAX                            = -100;
 
@@ -104,6 +105,10 @@ public abstract class ResponseCode
 	public final static int METHOD_REMOVE_WIFI_CONFIG = 1;
 	public final static int METHOD_SAVE_WIFI_CONFIG = 2;
 	public final static int METHOD_DISCONNECT_SSID = 3;
+	
+	
+	//ctrl bluetooth
+	public final static int METHOD_SETUP_BLUETOOTH = 0;
 	
 	
 	public static class ResponseMessage

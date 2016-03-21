@@ -201,7 +201,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
 							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
 									ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
-							// »Ý¼g§R°£ ¦w¸Ë¦¨¥\ªº apk ÀÉ®×
+							// ï¿½Ý¼gï¿½Rï¿½ï¿½ ï¿½wï¿½Ë¦ï¿½ï¿½\ï¿½ï¿½ apk ï¿½É®ï¿½
 							IOFileHandler.deleteFile(IOFileHandler.getExternalStorageDirectory() + "/"
 									+ defaultDownloadApkSavePath + installed.fileName);
 							

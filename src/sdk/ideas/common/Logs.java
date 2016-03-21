@@ -14,7 +14,7 @@ import java.lang.Throwable;
 
 public abstract class Logs
 {
-	private static final int	mnEnable		= Type.VALID;
+	private static final int	mnEnable		= Type.INVALID;
 	private static final int	mnTraceLevel	= Type.TRACE_LEVEL_SIMPLE;
 
 	private static class LogInfo

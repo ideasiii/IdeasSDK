@@ -7,6 +7,8 @@ public abstract class CtrlType
 	public final static String URL_GOOGLE_DOC_VIEWER = "https://docs.google.com/gview?embedded=true&url=";
 	
 	public final static int REQUEST_CODE_ENABLE_ADMIN  = 3333;
+	public final static int REQUEST_CODE_ENABLE_BLUETOOTH  = 3334;
+	public final static int REQUEST_CODE_DISABLE_BLUETOOTH  = 3335;
 	
 	public final static int MSG_RESPONSE_DEVICE_ADMIN_HANDLER = 1030;
 	public final static int MSG_RESPONSE_CAMERA_HANDLER = 1031;
@@ -22,5 +24,6 @@ public abstract class CtrlType
 	
 	public final static int MSG_RESPONSE_WIFI_HANDLER = 1041;
 	
+	public final static int MSG_RESPONSE_BLUETOOTH_HANDLER = 1042;
 
 }
