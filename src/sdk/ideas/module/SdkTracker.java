@@ -1,5 +1,9 @@
 package sdk.ideas.module;
 
+import java.util.HashMap;
+
+import org.json.JSONObject;
+
 import android.content.Context;
 import sdk.ideas.common.Logs;
 
@@ -13,23 +17,34 @@ public class SdkTracker
 		Logs.showTrace("Internet permission:" + String.valueOf(mbInterNet));
 	}
 
-	public void track(final String strParam)
+	public void track(final HashMap<String, String> mapParam)
 	{
-		trackerThread thdTracker = new trackerThread();
+		TrackerThread thdTracker = new TrackerThread(mapParam);
 		thdTracker.start();
 	}
 
-	private class trackerThread extends Thread
+	private class TrackerThread extends Thread
 	{
+		String strParam = null;
+
 		@Override
 		public void run()
 		{
-			runTracker("", "");
+			if (null == strParam)
+				return;
+			send(strParam);
+		}
+
+		public TrackerThread(final HashMap<String, String> mapParam)
+		{
+			JSONObject jsonObj = new JSONObject(mapParam);
+			strParam = jsonObj.toString();
 		}
 	}
 
-	private int runTracker(final String strTargetURL, final String strParameters)
+	private int send(final String strParameters)
 	{
+		Logs.showTrace("SDK send:" + strParameters);
 		return 0;
 	}
 
