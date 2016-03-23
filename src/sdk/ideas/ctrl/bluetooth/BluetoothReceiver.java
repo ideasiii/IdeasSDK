@@ -127,7 +127,7 @@ public class BluetoothReceiver extends BaseReceiver
 				 {
 	               // Get Services for paired devices
 	               BluetoothDevice device = itr.next();
-	               Logs.showTrace("\nGetting Services for " + device.getName() + ", " + device);
+	               //Logs.showTrace("\nGetting Services for " + device.getName() + ", " + device);
 	               if(device.fetchUuidsWithSdp() == false) 
 				   {
 	            	   Logs.showTrace("\nSDP Failed for " + device.getName());
@@ -135,13 +135,15 @@ public class BluetoothReceiver extends BaseReceiver
 	               }
 	               else
 	               {
-						/* for debugging */
+						/* for debugging 
 						if (null != device.getUuids())
 						{
 							Parcelable a[] = device.getUuids();
 							for (int i = 0; i < a.length; i++)
+							{
 								Logs.showTrace(device.getName() + ": service : " + a[i]);
-						}
+							}
+						}*/
 	               }
 	               
 	             }

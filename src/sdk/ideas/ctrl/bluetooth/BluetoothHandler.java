@@ -185,40 +185,30 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		{
 			BluetoothDevice device = null;
 			device = isPairedDevices(address);
+			
 			if (null != device)
 			{
 				isDevicePaired = true;
-				device = isPairedDevices(address);
-
-				if (device.fetchUuidsWithSdp() == true)
-				{
-					if (null == device.getUuids())
-					{
-						Logs.showTrace("uuid is null");
-					}
-					else
-					{
-						Parcelable a[] = device.getUuids();
-						for (int i = 0; i < a.length; i++)
-						{
-							Logs.showTrace(device.getName() + ": service : " + a[i]);
-						}
-					}
-				}
+			}
+			
+			if(isDevicePaired)
+			{
+				Logs.showTrace("device is already paired");
+				showDeviceService(device);
 			}
 			else
 			{
-				device = mBluetoothAdapter.getRemoteDevice(address);
-			}
-			if (null == device)
-			{
-				Logs.showTrace("device is null");
-				return;
-			}
-			
-			if (isDevicePaired == false)
-			{
+				Logs.showTrace("device is not paired");
 				// start to pair new device
+				device = mBluetoothAdapter.getRemoteDevice(address);
+				if (null == device)
+				{
+					Logs.showTrace("device is null");
+					return;
+				}
+		
+				showDeviceService(device);
+			
 				try
 				{
 					Boolean returnValue = false;
@@ -227,7 +217,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 						// 利用反射方法调用BluetoothDevice.createBond(BluetoothDevice
 						// remoteDevice);
 						Method createBondMethod = BluetoothDevice.class.getMethod("createBond");
-						Logs.showTrace("start to bond to " + device.getName() + " address:" + device.getAddress());
+						Logs.showTrace("start to pair to " + device.getName() + " address:" + device.getAddress());
 						returnValue = (Boolean) createBondMethod.invoke(device);
 
 					}
@@ -255,6 +245,31 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		// device.createInsecureRfcommSocketToServiceRecord("");
 	
 	}
+	
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+	private void showDeviceService(BluetoothDevice device)
+	{
+		if (device.fetchUuidsWithSdp() == true)
+		{
+			if (null == device.getUuids())
+			{
+				Logs.showTrace("uuid is null");
+			}
+			else
+			{
+				Parcelable a[] = device.getUuids();
+				for (int i = 0; i < a.length; i++)
+				{
+					Logs.showTrace(device.getName() + ": service : " + a[i]);
+				}
+			}
+		}
+		else
+		{
+			Logs.showTrace("device.fetchUuidsWithSdp() = false");
+		}
+	}
+	
 	
 	private BluetoothDevice isPairedDevices(String address)
 	{
