@@ -18,6 +18,7 @@ public abstract class BaseReceiver extends BroadcastReceiver
 		if (null != listener)
 		{
 			this.listener = listener;
+			//Logs.showTrace("listener is set OK" );
 		}
 	}
 
