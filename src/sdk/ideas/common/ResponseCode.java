@@ -44,6 +44,7 @@ public abstract class ResponseCode
 	public final static int ERR_GET_POWER_STATE_FAIL    = -24;
 	
 	public final static int ERR_DEVICE_NOT_SUPPORT_BLUETOOTH = -25;
+	public final static int ERR_BLUETOOTH_CANCELLED_BY_USER = -26;
 	
 	public static final int ERR_MAX                            = -100;
 
@@ -109,6 +110,13 @@ public abstract class ResponseCode
 	
 	//ctrl bluetooth
 	public final static int METHOD_SETUP_BLUETOOTH = 0;
+	public final static int METHOD_BLUETOOTH_DISCOVERING_NEW_DEVICE = 1;
+	public final static int METHOD_BLUETOOTH_DISCOVER_FINISHED = 2;
+	public final static int BLUETOOTH_IS_ON = 3;
+	public final static int BLUETOOTH_IS_OFF = 4;
+	public final static int METHOD_DISCOVERABLE_BLUETOOTH = 5;
+	public final static int METHOD_SCAN_MODE_CHANGE_BLUETOOTH = 6;
+	public final static int METHOD_BOND_STATE_CHANGE_BLUETOOTH = 7;
 	
 	
 	public static class ResponseMessage

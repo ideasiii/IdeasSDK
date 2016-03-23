@@ -3,8 +3,10 @@ package sdk.ideas.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import android.bluetooth.BluetoothDevice;
 import sdk.ideas.ctrl.app.ApplicationHandler.AppData;
 import sdk.ideas.ctrl.applist.ApplicationList.AppInfo;
+import sdk.ideas.ctrl.bluetooth.BluetoothHandler.BluetoothDeviceLinkableDevice;
 
 public class ArrayListUtility
 {
@@ -79,6 +81,26 @@ public class ArrayListUtility
 		return null;
 		
 	}
+
+
+	public static boolean findEqualForBluetoothDeviceLinkableDeviceClass(
+			ArrayList<BluetoothDeviceLinkableDevice> data, String MACAddress)
+	{
+		Iterator<BluetoothDeviceLinkableDevice> iter = data.iterator();
+		while (iter.hasNext())
+		{
+
+			BluetoothDeviceLinkableDevice tmp = iter.next();
+			if (tmp.address.equals(MACAddress))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	
 	public static AppData findEqualForAppDataClass(ArrayList<AppData> data,int appID)
 	{
 		Iterator<AppData> iter = data.iterator();
