@@ -9,7 +9,7 @@ import sdk.ideas.common.Logs;
 import sdk.ideas.common.Protocol;
 import sdk.ideas.common.ResponseCode;
 
-public class CmpClient
+public abstract class CmpClient
 {
 	private static final int	ERR_CMP				= -1000;
 	public static final int		ERR_PACKET_LENGTH	= -6 + ERR_CMP;
@@ -20,17 +20,12 @@ public class CmpClient
 	public static final int		ERR_LOG_DATA_LENGTH	= -11 + ERR_CMP;
 	private static final String	CODE_TYPE			= "UTF-8";
 
-	private final String		VERSION				= "CMP Client Version 0.16.03.08";
+	private final String		VERSION				= "CMP Client Version 0.16.03.23";
 
 	public static class Response
 	{
 		public int		mnCode		= 0;
 		public String	mstrContent	= null;
-	}
-
-	public CmpClient()
-	{
-
 	}
 
 	@Override
@@ -58,13 +53,13 @@ public class CmpClient
 		return Protocol.msnSequence;
 	}
 
-	public static void init(final String strIP, final int nPort, String initType, HashMap<String, String> respData,
-			Response response)
+	public static void init(final String strIP, final int nPort, final int nServiceType,
+			HashMap<String, String> respData, Response response)
 	{
 		if (null == response)
 			return;
 
-		if (null == initType || null == respData)
+		if (null == respData)
 		{
 			response.mstrContent = "respData or initType is null";
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -113,11 +108,9 @@ public class CmpClient
 			// Body Field Name Size octets
 			// InitType 4
 
-			int initTypeInt = Integer.valueOf(initType);
+			buf.putInt(nServiceType);
 
-			buf.putInt(initTypeInt);
-
-			respData.put("REQ_BODY_INIT_TYPE", initType);
+			respData.put("REQ_BODY_INIT_TYPE", String.valueOf(nServiceType));
 
 			buf.put((byte) 0);
 
@@ -187,13 +180,13 @@ public class CmpClient
 
 	}
 
-	public static void SignUpRequest(final String strIP, final int nPort, String signUpType, String signUpData,
+	public static void SignUpRequest(final String strIP, final int nPort, final int nServiceType, String signUpData,
 			HashMap<String, String> respData, Response response)
 	{
 		if (null == response)
 			return;
 
-		if (null == signUpType || null == signUpData || null == respData)
+		if (null == signUpData || null == respData)
 		{
 			response.mstrContent = "respData or signUpType or signUpData is null";
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -265,8 +258,8 @@ public class CmpClient
 			// signUpType 1
 			// signUpDATA MAX 2000
 
-			buf.putInt(Integer.valueOf(signUpType));
-			respData.put("REQ_BODY_SIGN_UP_TYPE", signUpType);
+			buf.putInt(nServiceType);
+			respData.put("REQ_BODY_SIGN_UP_TYPE", String.valueOf(nServiceType));
 
 			buf.put(signUpData.getBytes("US-ASCII"));
 			respData.put("REQ_BODY_SIGN_UP_DATA", signUpData);
@@ -323,16 +316,16 @@ public class CmpClient
 		// Logs.showTrace(String.valueOf(response.mnCode));
 	}
 
-	public static void accessLogRequest(final String strIP, final int nPort, String accessLogType, String accessLogData,
-			HashMap<String, String> respData, Response response)
+	public static void accessLogRequest(final String strIP, final int nPort, final int nServiceType,
+			String accessLogData, HashMap<String, String> respData, Response response)
 	{
 		Logs.showTrace(accessLogData);
-		Logs.showTrace(accessLogType);
+
 		if (null == response)
 			return;
 		Socket msocket = null;
 
-		if (null == respData || null == accessLogType || null == accessLogData)
+		if (null == respData || null == accessLogData)
 		{
 			response.mstrContent = "respData or accessLogType or accessLogData is null";
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -401,9 +394,9 @@ public class CmpClient
 			// accessLogType 1
 			// accessLogData MAX 2000
 
-			buf.put(accessLogType.getBytes(CODE_TYPE));
+			buf.putInt(nServiceType);
 
-			respData.put("REQ_BODY_ACCESS_LOG_TYPE", accessLogType);
+			respData.put("REQ_BODY_ACCESS_LOG_TYPE", String.valueOf(nServiceType));
 
 			buf.put(accessLogData.getBytes(CODE_TYPE));
 
@@ -697,6 +690,74 @@ public class CmpClient
 
 		// ....
 
+	}
+
+	public static void sdkTrackerRequest(final String strIP, final int nPort, final String trackData)
+	{
+		try
+		{
+			if (null == trackData || (trackData.getBytes(CODE_TYPE).length > 2000))
+			{
+				return;
+			}
+
+			// Socket msocket = new Socket(strIP, nPort);
+			final int nConnectTimeOut = 3000; // 3 秒
+
+			Socket msocket = new Socket();
+			// This limits the time allowed to establish a connection in the case
+			// that the connection is refused or server doesn't exist.
+			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+			// This stops the request from dragging on after connection succeeds.
+			msocket.setSoTimeout(nConnectTimeOut);
+
+			if (!validSocket(msocket))
+			{
+				Logs.showError("sdkTrackerRequest socker create fail");
+				return;
+			}
+
+			final int nSequence = getSequence();
+			OutputStream outSocket = null;
+
+			outSocket = msocket.getOutputStream();
+
+			InputStream inSocket = null;
+
+			inSocket = msocket.getInputStream();
+
+			int nLength = Protocol.CMP_HEADER_SIZE + trackData.getBytes(CODE_TYPE).length + 1;
+
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+
+			buf.putInt(nLength);
+			buf.putInt(Protocol.SDK_TRACKER_REQUEST);
+			buf.putInt(0);
+			buf.putInt(nSequence);
+			buf.put(trackData.getBytes(CODE_TYPE));
+			buf.put((byte) 0);
+
+			buf.flip();
+
+			outSocket.write(buf.array());
+
+			buf.clear();
+
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+
+			nLength = inSocket.read(buf.array());
+
+			buf.rewind();
+
+			buf.clear();
+			buf = null;
+			msocket.close();
+
+		}
+		catch (IOException e)
+		{
+			Logs.showTrace(e.toString());
+		}
 	}
 
 	private static int checkResponse(ByteBuffer buf, int nSequence)

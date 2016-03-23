@@ -6,10 +6,15 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.Protocol;
+import sdk.ideas.common.Type;
+import sdk.ideas.module.CmpClient.Response;
 
 public class SdkTracker
 {
-	private boolean mbInterNet = false;
+	private boolean	mbInterNet	= false;
+	private String	mstrHost	= null;
+	private int		mnPort		= Type.INVALID;
 
 	public SdkTracker(Context context)
 	{
@@ -17,8 +22,17 @@ public class SdkTracker
 		Logs.showTrace("Internet permission:" + String.valueOf(mbInterNet));
 	}
 
+	public void init(final String strInitHost, final int nInitPort)
+	{
+		HashMap<String, String> respData = new HashMap<String, String>();
+		Response response = new Response();
+		CmpClient.init(strInitHost, nInitPort, Protocol.TYPE_SDK_TRACKER, respData, response);
+	}
+
 	public void track(final HashMap<String, String> mapParam)
 	{
+		if (!mbInterNet || null == mapParam || 0 >= mapParam.size())
+			return;
 		TrackerThread thdTracker = new TrackerThread(mapParam);
 		thdTracker.start();
 	}
@@ -30,8 +44,6 @@ public class SdkTracker
 		@Override
 		public void run()
 		{
-			if (null == strParam)
-				return;
 			send(strParam);
 		}
 
@@ -42,10 +54,11 @@ public class SdkTracker
 		}
 	}
 
-	private int send(final String strParameters)
+	private void send(final String strParameters)
 	{
-		Logs.showTrace("SDK send:" + strParameters);
-		return 0;
+		if (null == mstrHost || Type.INVALID >= mnPort)
+			return;
+		CmpClient.sdkTrackerRequest(mstrHost, mnPort, strParameters);
 	}
 
 }

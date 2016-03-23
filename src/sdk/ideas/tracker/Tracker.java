@@ -13,6 +13,7 @@ import android.os.Message;
 import android.util.SparseArray;
 import sdk.ideas.common.Common;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.Protocol;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.StringUtility;
 import sdk.ideas.module.CmpClient;
@@ -21,106 +22,124 @@ import sdk.ideas.module.DeviceHandler.AccountData;
 
 public class Tracker
 {
-	public static final String	TYPE_VIEW					= "0";
-	public static final String	TYPE_SHOPPING_CART_ADD		= "1";
-	public static final String	TYPE_SHOPPING_CART_CANCEL	= "2";
-	public static final String	TYPE_PROD_ORDER				= "3";
-	public static final String	TYPE_PROD_CANCEL			= "4";
-	public static final String	TYPE_PROD_PREORDER			= "5";
-	public static final String	TYPE_PROD_SEARCH			= "6";
-	public static final String	TYPE_PROD_SELECT			= "7";
-	public static final String	TYPE_BONUS_SELECT			= "8";
-	public static final String	TYPE_GIFT_SELECT			= "9";
-	public static final String	TYPE_VALUE_ADD_SELECT		= "10";
-	public static final String	TYPE_OUTLET_SELECT			= "11";
-	public static final String	TYPE_WELFARE_SELECT			= "12";
-	public static final String	TYPE_PUSH_MESSAGE_VIEW		= "13";
-	public static final String	TYPE_SERIAL_GET				= "14";
-	public static final String	TYPE_SERVICE				= "15";
+	public static final String		TYPE_VIEW					= "0";
+	public static final String		TYPE_SHOPPING_CART_ADD		= "1";
+	public static final String		TYPE_SHOPPING_CART_CANCEL	= "2";
+	public static final String		TYPE_PROD_ORDER				= "3";
+	public static final String		TYPE_PROD_CANCEL			= "4";
+	public static final String		TYPE_PROD_PREORDER			= "5";
+	public static final String		TYPE_PROD_SEARCH			= "6";
+	public static final String		TYPE_PROD_SELECT			= "7";
+	public static final String		TYPE_BONUS_SELECT			= "8";
+	public static final String		TYPE_GIFT_SELECT			= "9";
+	public static final String		TYPE_VALUE_ADD_SELECT		= "10";
+	public static final String		TYPE_OUTLET_SELECT			= "11";
+	public static final String		TYPE_WELFARE_SELECT			= "12";
+	public static final String		TYPE_PUSH_MESSAGE_VIEW		= "13";
+	public static final String		TYPE_SERIAL_GET				= "14";
+	public static final String		TYPE_SERVICE				= "15";
 
-	private TransferMessage	transferMessage				= null;
-	private final int		TAG_APPSENSOR_INIT			= 1025;
-	private final int		TAG_APPSENSOR_STARTTRACKER	= 1027;
-	private final int		TAG_APPSENSOR_TRACKER		= 1028;
+	private TransferMessage			transferMessage				= null;
+	private final int				TAG_APPSENSOR_INIT			= 1025;
+	private final int				TAG_APPSENSOR_STARTTRACKER	= 1027;
+	private final int				TAG_APPSENSOR_TRACKER		= 1028;
 
-	public static final int MSG_RESPONSE = 1026;
+	public static final int			MSG_RESPONSE				= 1026;
 
-	private Context			parentContext		= null;
-	private DeviceHandler	deviceHandler		= null;
-	private boolean			availableTracker	= false;
+	private Context					parentContext				= null;
+	private DeviceHandler			deviceHandler				= null;
+	private boolean					availableTracker			= false;
 
 	// MAC + Phone + APP ID +Email(facebook first)
-	private String ID = "";
+	private String					ID							= "";
 
-	private HashMap<String, String> startTrackerParm = null;
+	private HashMap<String, String>	startTrackerParm			= null;
 
-	private Handler theHandler = new Handler()
-	{
-		@Override
-		public void handleMessage(Message msg)
-		{
-			if (MSG_RESPONSE == msg.what)
-			{
-				switch(msg.arg2)
-				{
+	private Handler					theHandler					= new Handler()
+																{
+																	@Override
+																	public void handleMessage(Message msg)
+																	{
+																		if (MSG_RESPONSE == msg.what)
+																		{
+																			switch(msg.arg2)
+																			{
 
-				case TAG_APPSENSOR_INIT:
-					initHandle(msg.arg1, (String) msg.obj);
-					updateDbServerData();
-					break;
+																			case TAG_APPSENSOR_INIT:
+																				initHandle(msg.arg1, (String) msg.obj);
+																				updateDbServerData();
+																				break;
 
-				case TAG_APPSENSOR_STARTTRACKER:
-					if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-					{
-						availableTracker = true;
-						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_SUCCESS,
-								ResponseCode.METHOLD_START_TRACKER, "success");
-					}
-					//CMPClient ERROR 
-					else if (msg.arg1 <= ResponseCode.ERR_MAX)
-					{
-						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
-								ResponseCode.METHOLD_START_TRACKER, "error in transfer data to server ");
-						//debug use for socket transfer
-						//transferMessage.showLinkServerMessageResult(msg.arg1,
-							//	ResponseCode.METHOLD_START_TRACKER, (String) msg.obj);
-					}
-					else
-					{
-						transferMessage.showLinkServerMessageResult(msg.arg1, ResponseCode.METHOLD_START_TRACKER,
-								(String) msg.obj);
-					}
-					break;
+																			case TAG_APPSENSOR_STARTTRACKER:
+																				if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+																				{
+																					availableTracker = true;
+																					transferMessage
+																							.showLinkServerMessageResult(
+																									ResponseCode.ERR_SUCCESS,
+																									ResponseCode.METHOLD_START_TRACKER,
+																									"success");
+																				}
+																				// CMPClient ERROR
+																				else if (msg.arg1 <= ResponseCode.ERR_MAX)
+																				{
+																					transferMessage
+																							.showLinkServerMessageResult(
+																									ResponseCode.ERR_IO_EXCEPTION,
+																									ResponseCode.METHOLD_START_TRACKER,
+																									"error in transfer data to server ");
+																					// debug use for socket transfer
+																					// transferMessage.showLinkServerMessageResult(msg.arg1,
+																					// ResponseCode.METHOLD_START_TRACKER, (String) msg.obj);
+																				}
+																				else
+																				{
+																					transferMessage
+																							.showLinkServerMessageResult(
+																									msg.arg1,
+																									ResponseCode.METHOLD_START_TRACKER,
+																									(String) msg.obj);
+																				}
+																				break;
 
-				case TAG_APPSENSOR_TRACKER:
-					if (msg.arg1 == ResponseCode.ERR_SUCCESS)
-					{
-						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_SUCCESS,
-								ResponseCode.METHOLD_TRACKER, "success");
-					}
-					//CMPClient ERROR 
-					else if (msg.arg1 <= ResponseCode.ERR_MAX)
-					{
-						transferMessage.showLinkServerMessageResult(ResponseCode.ERR_IO_EXCEPTION,
-								ResponseCode.METHOLD_TRACKER, "error in transfer data to server ");
-						//debug use for socket transfer
-						//transferMessage.showLinkServerMessageResult(msg.arg1,
-							//	ResponseCode.METHOLD_TRACKER, (String) msg.obj);
-					}
-					else
-					{
-						transferMessage.showLinkServerMessageResult(msg.arg1, ResponseCode.METHOLD_TRACKER,
-								(String) msg.obj);
-					}
-					break;
+																			case TAG_APPSENSOR_TRACKER:
+																				if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+																				{
+																					transferMessage
+																							.showLinkServerMessageResult(
+																									ResponseCode.ERR_SUCCESS,
+																									ResponseCode.METHOLD_TRACKER,
+																									"success");
+																				}
+																				// CMPClient ERROR
+																				else if (msg.arg1 <= ResponseCode.ERR_MAX)
+																				{
+																					transferMessage
+																							.showLinkServerMessageResult(
+																									ResponseCode.ERR_IO_EXCEPTION,
+																									ResponseCode.METHOLD_TRACKER,
+																									"error in transfer data to server ");
+																					// debug use for socket transfer
+																					// transferMessage.showLinkServerMessageResult(msg.arg1,
+																					// ResponseCode.METHOLD_TRACKER, (String) msg.obj);
+																				}
+																				else
+																				{
+																					transferMessage
+																							.showLinkServerMessageResult(
+																									msg.arg1,
+																									ResponseCode.METHOLD_TRACKER,
+																									(String) msg.obj);
+																				}
+																				break;
 
-				default:
+																			default:
 
-					break;
-				}
-			}
-		}
-	};
+																				break;
+																			}
+																		}
+																	}
+																};
 
 	public static interface TransferMessage
 	{
@@ -150,8 +169,7 @@ public class Tracker
 	}
 
 	/**
-	 * startTracker( Parameter MAX Size APP ID 20 FB_ID 20 FB_NAME 50 FB_EMAIL
-	 * 50 )
+	 * startTracker( Parameter MAX Size APP ID 20 FB_ID 20 FB_NAME 50 FB_EMAIL 50 )
 	 */
 
 	public int startTracker(String app_id)
@@ -210,15 +228,15 @@ public class Tracker
 		deviceHandler.getLocation();
 
 		parm.put("APP_ID", app_id);
-		
-		//bug code 
-		//parm.put("MAC", deviceHandler.getMacAddress().replaceAll(":", ""));
-		//parm.put("OS", deviceHandler.getAndroidVersion());
-		//parm.put("PHONE", deviceHandler.getPhoneNumber());
-		
+
+		// bug code
+		// parm.put("MAC", deviceHandler.getMacAddress().replaceAll(":", ""));
+		// parm.put("OS", deviceHandler.getAndroidVersion());
+		// parm.put("PHONE", deviceHandler.getPhoneNumber());
+
 		// joe fix null bug in 2016/03/02 begin
 		String macAddress = deviceHandler.getMacAddress();
-		if(macAddress == null)
+		if (macAddress == null)
 		{
 			parm.put("MAC", "");
 		}
@@ -226,9 +244,9 @@ public class Tracker
 		{
 			parm.put("MAC", macAddress.replaceAll(":", ""));
 		}
-		
+
 		String androidVersion = deviceHandler.getAndroidVersion();
-		if(androidVersion == null)
+		if (androidVersion == null)
 		{
 			parm.put("OS", "");
 		}
@@ -236,7 +254,7 @@ public class Tracker
 		{
 			parm.put("OS", androidVersion);
 		}
-		
+
 		String phone = deviceHandler.getPhoneNumber();
 		if (phone == null)
 		{
@@ -246,8 +264,8 @@ public class Tracker
 		{
 			parm.put("PHONE", phone);
 		}
-		//joe fix null bug in 2016/03/02 end 
-		
+		// joe fix null bug in 2016/03/02 end
+
 		SparseArray<AccountData> listAccount = new SparseArray<AccountData>();
 
 		int num = deviceHandler.getAccounts(listAccount);
@@ -287,7 +305,7 @@ public class Tracker
 		this.ID = (parm.get("MAC") + parm.get("PHONE") + parm.get("APP_ID") + mailForID);
 		parm.put("ID", this.ID);
 		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
-		
+
 		return 0;
 	}
 
@@ -312,7 +330,7 @@ public class Tracker
 
 		parm.put("ID", this.ID);
 
-		if(DeviceHandler.lat != -1.0 && DeviceHandler.lng != -1.0)
+		if (DeviceHandler.lat != -1.0 && DeviceHandler.lng != -1.0)
 		{
 			parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng)));
 		}
@@ -336,46 +354,19 @@ public class Tracker
 	}
 
 	/**
-	 * track( Parameter MAX Size TYPE 4 SOURCE_FROM 50 PAGE 50 PRODUCTION 50
-	 * PRICE 10 )
+	 * track( Parameter MAX Size TYPE 4 SOURCE_FROM 50 PAGE 50 PRODUCTION 50 PRICE 10 )
 	 */
 	/*
-	 * private int track(String type, String source_from, String page, String
-	 * production, String price) { if (availableTracker == false) {
-	 * transferMessage.showLinkServerMessageResult(ResponseCode.
-	 * ERR_IO_EXCEPTION, ResponseCode.METHOLD_TRACKER,
-	 * "can not start tracker because startTarcker fail or stopTracker already called"
-	 * ); return -1; } // return error code table HashMap<String, String> parm =
-	 * new HashMap<String, String>();
-	 * 
-	 * if ((!StringUtility.stringCheck(this.ID, 0, 100)) ||
-	 * (!StringUtility.stringCheck(type, 0, 4)) ||
-	 * (!StringUtility.stringCheck(source_from, 0, 50)) ||
-	 * (!StringUtility.stringCheck(page, 0, 50)) ||
-	 * (!StringUtility.stringCheck(production, 0, 50)) ||
-	 * (!StringUtility.stringCheck(price, 0, 50))) { Logs.showTrace(this.ID +
-	 * " " + type + " " + source_from + " "); Logs.showTrace(page + " " +
-	 * production + " " + price + " ");
-	 * transferMessage.showLinkServerMessageResult(ResponseCode.
-	 * ERR_ILLEGAL_STRING_LENGTH_OR_NULL, ResponseCode.METHOLD_TRACKER,
-	 * "one of row too more character or null");
-	 * 
-	 * return -1; }
-	 * 
-	 * parm.put("ID", this.ID); parm.put("TYPE", type); parm.put("SOURCE_FROM",
-	 * source_from); parm.put("PAGE", page); parm.put("PRODUCTION", production);
-	 * parm.put("PRICE", price);
-	 * 
-	 * parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," +
-	 * String.valueOf(DeviceHandler.lng)));
-	 * 
-	 * parm.values().removeAll(Collections.singleton(""));
-	 * 
-	 * this.sendEvent(parm, ResponseCode.METHOLD_TRACKER);
-	 * 
-	 * parm.clear(); parm = null;
-	 * 
-	 * return 0; }
+	 * private int track(String type, String source_from, String page, String production, String price) { if (availableTracker == false) {
+	 * transferMessage.showLinkServerMessageResult(ResponseCode. ERR_IO_EXCEPTION, ResponseCode.METHOLD_TRACKER,
+	 * "can not start tracker because startTarcker fail or stopTracker already called" ); return -1; } // return error code table HashMap<String, String> parm = new HashMap<String,
+	 * String>(); if ((!StringUtility.stringCheck(this.ID, 0, 100)) || (!StringUtility.stringCheck(type, 0, 4)) || (!StringUtility.stringCheck(source_from, 0, 50)) ||
+	 * (!StringUtility.stringCheck(page, 0, 50)) || (!StringUtility.stringCheck(production, 0, 50)) || (!StringUtility.stringCheck(price, 0, 50))) { Logs.showTrace(this.ID + " " +
+	 * type + " " + source_from + " "); Logs.showTrace(page + " " + production + " " + price + " "); transferMessage.showLinkServerMessageResult(ResponseCode.
+	 * ERR_ILLEGAL_STRING_LENGTH_OR_NULL, ResponseCode.METHOLD_TRACKER, "one of row too more character or null"); return -1; } parm.put("ID", this.ID); parm.put("TYPE", type);
+	 * parm.put("SOURCE_FROM", source_from); parm.put("PAGE", page); parm.put("PRODUCTION", production); parm.put("PRICE", price); parm.put("LOCATION",
+	 * (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng))); parm.values().removeAll(Collections.singleton("")); this.sendEvent(parm,
+	 * ResponseCode.METHOLD_TRACKER); parm.clear(); parm = null; return 0; }
 	 */
 
 	public void stopTracker()
@@ -397,10 +388,7 @@ public class Tracker
 	}
 
 	/*
-	 * public void init(HashMap<String, String> sendParm) { Thread t = new
-	 * Thread(new sendPostRunnable( sendParm, TAG_APPSENSOR_INIT)); t.start();
-	 * 
-	 * }
+	 * public void init(HashMap<String, String> sendParm) { Thread t = new Thread(new sendPostRunnable( sendParm, TAG_APPSENSOR_INIT)); t.start(); }
 	 */
 
 	private void init()
@@ -420,7 +408,6 @@ public class Tracker
 				JSONObject dataArray = new JSONObject(strContent);
 				JSONObject startTrackerData = null, trackerData = null;
 
-				
 				if (((JSONObject) dataArray.getJSONArray("server").get(0)).get("id").equals(0))
 				{
 					startTrackerData = ((JSONObject) dataArray.getJSONArray("server").get(0));
@@ -459,16 +446,8 @@ public class Tracker
 		}
 	}
 	/*
-	 * public void sendEvent(HashMap<String, String> postParams, final int nTag)
-	 * {
-	 * 
-	 * if (null == Common.URL_APPSENSOR_STARTTRACKER) { Logs.showTrace(
-	 * "App Sensor Not Done Init");
-	 * 
-	 * return; }
-	 * 
-	 * Thread t = new Thread(new sendPostRunnable(postParams, nTag)); t.start();
-	 * }
+	 * public void sendEvent(HashMap<String, String> postParams, final int nTag) { if (null == Common.URL_APPSENSOR_STARTTRACKER) { Logs.showTrace( "App Sensor Not Done Init");
+	 * return; } Thread t = new Thread(new sendPostRunnable(postParams, nTag)); t.start(); }
 	 */
 
 	protected void sendEvent(String jsonString, final int nTag)
@@ -516,12 +495,12 @@ public class Tracker
 			{
 
 				CmpClient.accessLogRequest(Common.URL_APPSENSOR_TRACKER, Common.PORT_APPSENSOR_TRACKER,
-						Common.MOBILE_DEVICE, parm, respData, response);
+						Protocol.TYPE_MOBILE_TRACKER, parm, respData, response);
 
 			}
 			catch (Exception e)
 			{
-				//e.printStackTrace();
+				// e.printStackTrace();
 				Logs.showTrace("Exception:" + e.getMessage());
 			}
 		}
@@ -529,13 +508,13 @@ public class Tracker
 		{
 			try
 			{
-				CmpClient.init(Common.URL_APPSENSOR_INIT, Common.PORT_APPSENSOR_INIT,
-						String.valueOf(Common.MOBILE_DEVICE), respData, response);
+				CmpClient.init(Common.URL_APPSENSOR_INIT, Common.PORT_APPSENSOR_INIT, Protocol.TYPE_MOBILE_TRACKER,
+						respData, response);
 
 			}
 			catch (Exception e)
 			{
-				//e.printStackTrace();
+				// e.printStackTrace();
 				Logs.showTrace("Exception:" + e.getMessage());
 			}
 
@@ -544,7 +523,7 @@ public class Tracker
 		{
 
 			CmpClient.SignUpRequest(Common.URL_APPSENSOR_STARTTRACKER, Common.PORT_APPSENSOR_STARTTRACKER,
-					Common.MOBILE_DEVICE, parm, respData, response);
+					Protocol.TYPE_MOBILE_TRACKER, parm, respData, response);
 
 		}
 		return response.mnCode;
@@ -566,14 +545,8 @@ public class Tracker
 
 			Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag, response.mstrContent);
 			/*
-			 * if(mnTag == TAG_APPSENSOR_TRACKER) {
-			 * Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode,
-			 * mnTag, response.mstrContent); } else if(mnTag ==
-			 * TAG_APPSENSOR_INIT) {
-			 * 
-			 * } else if(mnTag == TAG_APPSENSOR_STARTTRACKER) {
-			 * Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode,
-			 * mnTag, response.mstrContent); }
+			 * if(mnTag == TAG_APPSENSOR_TRACKER) { Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag, response.mstrContent); } else if(mnTag ==
+			 * TAG_APPSENSOR_INIT) { } else if(mnTag == TAG_APPSENSOR_STARTTRACKER) { Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag, response.mstrContent); }
 			 */
 
 		}
@@ -593,73 +566,23 @@ public class Tracker
 	}
 
 	/*
-	 * private int sendPostData(Map<String, String> parm, HttpClient.Response
-	 * response) { if (null == parm || null == response) { return -1; }
-	 * 
-	 * try { HttpClient.sendPostData(Common.URL_APPSENSOR_TRACKER, parm,
-	 * response, this.transferMessage);
-	 * 
-	 * } catch (Exception e) { e.printStackTrace(); Logs.showTrace("Exception:"
-	 * + e.getMessage()); } return response.mnCode; }
-	 * 
-	 * 
-	 * class sendPostRunnable implements Runnable { Map<String, String> parm;
-	 * private int mnTag = 0;
-	 * 
-	 * @Override public void run() { HttpClient.Response response = new
-	 * HttpClient.Response(); sendPostData(parm, response);
-	 * 
-	 * /*Message msg = new Message(); msg.what = MSG_RESPONSE; msg.arg1 =
-	 * response.mnCode; msg.arg2 = mnTag; msg.obj = response.mstrContent;
-	 * theHandler.sendMessage(msg); msg = null;
-	 * 
-	 * Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag,
-	 * response.mstrContent);
-	 * 
-	 * 
-	 * parm.clear(); parm = null; }
+	 * private int sendPostData(Map<String, String> parm, HttpClient.Response response) { if (null == parm || null == response) { return -1; } try {
+	 * HttpClient.sendPostData(Common.URL_APPSENSOR_TRACKER, parm, response, this.transferMessage); } catch (Exception e) { e.printStackTrace(); Logs.showTrace("Exception:" +
+	 * e.getMessage()); } return response.mnCode; } class sendPostRunnable implements Runnable { Map<String, String> parm; private int mnTag = 0;
+	 * @Override public void run() { HttpClient.Response response = new HttpClient.Response(); sendPostData(parm, response); /*Message msg = new Message(); msg.what = MSG_RESPONSE;
+	 * msg.arg1 = response.mnCode; msg.arg2 = mnTag; msg.obj = response.mstrContent; theHandler.sendMessage(msg); msg = null; Common.postMessage(theHandler, MSG_RESPONSE,
+	 * response.mnCode, mnTag, response.mstrContent); parm.clear(); parm = null; }
 	 */
 	/*
-	 * public sendPostRunnable(HashMap<String, String> PostParm, final int nTag)
-	 * { this.mnTag = nTag; parm = new HashMap<String, String>();
-	 * 
-	 * if (null != PostParm && 0 < PostParm.size()) { for (Entry<String, String>
-	 * item : PostParm.entrySet()) { parm.put(item.getKey(), item.getValue()); }
-	 * } } }
-	 * 
-	 * private int sendGetData(final String strURL, Map<String, String> parm,
-	 * HttpClient.Response response) { if (null == strURL || null == response) {
-	 * return -1; }
-	 * 
-	 * try { HttpClient.sendGetData(strURL, parm, response); } catch (Exception
-	 * e) { e.printStackTrace(); Logs.showTrace("Exception:" + e.getMessage());
-	 * } return response.mnCode; }
-	 * 
-	 * class sendGetRunnable implements Runnable { private String mstrURL =
-	 * null; private HashMap<String, String> parm = null; private int mnTag = 0;
-	 * 
-	 * @Override public void run() { HttpClient.Response response = new
-	 * HttpClient.Response(); sendGetData(mstrURL, parm, response); /* 
-	 * message Message msg = new Message(); msg.what = MSG_RESPONSE; msg.arg1 =
-	 * response.mnCode; msg.arg2 = mnTag; msg.obj = response.mstrContent;
-	 * theHandler.sendMessage(msg); msg = null;
-	 * 
-	 * 
-	 * 
-	 * Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag,
-	 * response.mstrContent);
-	 * 
-	 * parm.clear(); parm = null;
-	 * 
-	 * }
-	 *
-	 * public sendGetRunnable(final String strURL, final HashMap<String, String>
-	 * sendParm, final int nTag) { if (!StringUtility.isValid(strURL)) return;
-	 * 
-	 * mstrURL = strURL; mnTag = nTag; parm = new HashMap<String, String>();
-	 * 
-	 * if (null != sendParm && 0 < sendParm.size()) { for (Entry<String, String>
-	 * item : sendParm.entrySet()) { parm.put(item.getKey(), item.getValue()); }
-	 * } }
+	 * public sendPostRunnable(HashMap<String, String> PostParm, final int nTag) { this.mnTag = nTag; parm = new HashMap<String, String>(); if (null != PostParm && 0 <
+	 * PostParm.size()) { for (Entry<String, String> item : PostParm.entrySet()) { parm.put(item.getKey(), item.getValue()); } } } } private int sendGetData(final String strURL,
+	 * Map<String, String> parm, HttpClient.Response response) { if (null == strURL || null == response) { return -1; } try { HttpClient.sendGetData(strURL, parm, response); }
+	 * catch (Exception e) { e.printStackTrace(); Logs.showTrace("Exception:" + e.getMessage()); } return response.mnCode; } class sendGetRunnable implements Runnable { private
+	 * String mstrURL = null; private HashMap<String, String> parm = null; private int mnTag = 0;
+	 * @Override public void run() { HttpClient.Response response = new HttpClient.Response(); sendGetData(mstrURL, parm, response); /* message Message msg = new Message();
+	 * msg.what = MSG_RESPONSE; msg.arg1 = response.mnCode; msg.arg2 = mnTag; msg.obj = response.mstrContent; theHandler.sendMessage(msg); msg = null;
+	 * Common.postMessage(theHandler, MSG_RESPONSE, response.mnCode, mnTag, response.mstrContent); parm.clear(); parm = null; } public sendGetRunnable(final String strURL, final
+	 * HashMap<String, String> sendParm, final int nTag) { if (!StringUtility.isValid(strURL)) return; mstrURL = strURL; mnTag = nTag; parm = new HashMap<String, String>(); if
+	 * (null != sendParm && 0 < sendParm.size()) { for (Entry<String, String> item : sendParm.entrySet()) { parm.put(item.getKey(), item.getValue()); } } }
 	 */
 }

@@ -5,25 +5,20 @@ import android.os.Message;
 
 public abstract class Common
 {
-	public final static String BANNER_AD_UNIT_ID       = "ca-app-pub-4351303625351134/2404547206";
-	public final static String INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-4351303625351134/4481552801";
-	public final static int TYPE_BANNER_AD 	    	   = 1;
-	public final static int TYPE_INTERSTITIALAD 	   = 2;
-	public static String Version = "0.16.01.11";
-	
-	public static String URL_APPSENSOR_INIT 			= "54.199.198.94";
-	public static int 	 PORT_APPSENSOR_INIT 			= 6607;
-	
-	public static String URL_APPSENSOR_STARTTRACKER 	= "";
-	public static int	 PORT_APPSENSOR_STARTTRACKER 	= 0;
-	
-	public static String URL_APPSENSOR_TRACKER 			= "";
-	public static int	 PORT_APPSENSOR_TRACKER 		= 0;
-	
-	public static String MOBILE_DEVICE       			= "1";
-	public static String SMART_POWER_STATION 			= "2";
-	//public static String MOBILE_DEVICE_ACCESS       = "1";
-	
+	public final static String	BANNER_AD_UNIT_ID			= "ca-app-pub-4351303625351134/2404547206";
+	public final static String	INTERSTITIAL_AD_UNIT_ID		= "ca-app-pub-4351303625351134/4481552801";
+	public final static int		TYPE_BANNER_AD				= 1;
+	public final static int		TYPE_INTERSTITIALAD			= 2;
+	public static String		Version						= "0.16.01.11";
+
+	public static String		URL_APPSENSOR_INIT			= "54.199.198.94";
+	public static int			PORT_APPSENSOR_INIT			= 6607;
+
+	public static String		URL_APPSENSOR_STARTTRACKER	= "";
+	public static int			PORT_APPSENSOR_STARTTRACKER	= 0;
+
+	public static String		URL_APPSENSOR_TRACKER		= "";
+	public static int			PORT_APPSENSOR_TRACKER		= 0;
 
 	public static void postMessage(Handler handler, int nWhat, int nArg0, int nArg1, Object obj)
 	{
@@ -35,8 +30,8 @@ public abstract class Common
 
 	private static class postMsgRunnable implements Runnable
 	{
-		private Message message = null;
-		private Handler theHandler = null;
+		private Message	message		= null;
+		private Handler	theHandler	= null;
 
 		@Override
 		public void run()
