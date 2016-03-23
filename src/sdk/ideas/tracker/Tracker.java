@@ -1,10 +1,7 @@
 package sdk.ideas.tracker;
 
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.content.Context;
@@ -304,14 +301,10 @@ public class Tracker
 
 		this.ID = (parm.get("MAC") + parm.get("PHONE") + parm.get("APP_ID") + mailForID);
 		parm.put("ID", this.ID);
-<<<<<<< HEAD
-		parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
 
-=======
-		//3/23 註解時間
-		//parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
-		
->>>>>>> c59f1d994785f77e3db0b811ed1544bf8498d17a
+		// 3/23 註解時間
+		// parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
+
 		return 0;
 	}
 
@@ -347,8 +340,8 @@ public class Tracker
 			return;
 
 		}
-		//3/23 註解時間
-		//parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
+		// 3/23 註解時間
+		// parm.put("DATE", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN).format(new Date()));
 		parm.values().removeAll(Collections.singleton(""));
 
 		JSONObject jsonParm = new JSONObject(parm);
