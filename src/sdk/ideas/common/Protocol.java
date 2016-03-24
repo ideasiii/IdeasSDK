@@ -6,7 +6,7 @@ public abstract class Protocol
 	 * Service Type
 	 */
 	static public final int	TYPE_MOBILE_TRACKER			= 1;
-	static public final int	TYPE_POWER_STATION			= 2;
+	static public final int	TYPE_POWER_STATION	 		= 2;
 	static public final int	TYPE_SDK_TRACKER			= 3;
 
 	/** CMP Command **/
