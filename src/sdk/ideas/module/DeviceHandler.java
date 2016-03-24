@@ -252,11 +252,15 @@ public class DeviceHandler
 		String provider = manager.getBestProvider(criteria, false);
 
 		Logs.showTrace("Location Provider:" + provider);
-		Location location = manager.getLastKnownLocation(provider);
 
-		updateLocation(location);
+		if (null != provider)
+		{
+			Location location = manager.getLastKnownLocation(provider);
 
-		manager.requestLocationUpdates(provider, 5000, 10, locationListener);
+			updateLocation(location);
+
+			manager.requestLocationUpdates(provider, 5000, 10, locationListener);
+		}
 	}
 
 	private final LocationListener locationListener = new LocationListener()

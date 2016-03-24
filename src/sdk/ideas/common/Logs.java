@@ -31,9 +31,8 @@ public abstract class Logs
 	@SuppressWarnings("unused")
 	public static void showTrace(String msg)
 	{
-		if (Type.INVALID == mnEnable)
+		if (Type.INVALID >= mnEnable)
 		{
-			//Log.d("Logs", "Logs is Invalid");
 			return;
 		}
 
