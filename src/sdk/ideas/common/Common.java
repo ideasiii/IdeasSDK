@@ -20,8 +20,8 @@ public abstract class Common
 	public static String URL_APPSENSOR_TRACKER 			= "";
 	public static int	 PORT_APPSENSOR_TRACKER 		= 0;
 	
-	public static String MOBILE_DEVICE       			= "1";
-	public static String SMART_POWER_STATION 			= "2";
+	public final static int MOBILE_DEVICE       			= 1;
+	public final static int SMART_POWER_STATION 			= 2;
 	//public static String MOBILE_DEVICE_ACCESS       = "1";
 	
 

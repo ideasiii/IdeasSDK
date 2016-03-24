@@ -3,7 +3,6 @@ package sdk.ideas.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import android.bluetooth.BluetoothDevice;
 import sdk.ideas.ctrl.app.ApplicationHandler.AppData;
 import sdk.ideas.ctrl.applist.ApplicationList.AppInfo;
 import sdk.ideas.ctrl.bluetooth.BluetoothHandler.BluetoothDeviceLinkableDevice;

@@ -518,7 +518,7 @@ public class Tracker
 			{
 
 				CmpClient.accessLogRequest(Common.URL_APPSENSOR_TRACKER, Common.PORT_APPSENSOR_TRACKER,
-						Common.MOBILE_DEVICE, parm, respData, response);
+						String.valueOf(Common.MOBILE_DEVICE), parm, respData, response);
 
 			}
 			catch (Exception e)
@@ -532,7 +532,7 @@ public class Tracker
 			try
 			{
 				CmpClient.init(Common.URL_APPSENSOR_INIT, Common.PORT_APPSENSOR_INIT,
-						String.valueOf(Common.MOBILE_DEVICE), respData, response);
+						Common.MOBILE_DEVICE, respData, response);
 
 			}
 			catch (Exception e)
@@ -546,7 +546,7 @@ public class Tracker
 		{
 
 			CmpClient.SignUpRequest(Common.URL_APPSENSOR_STARTTRACKER, Common.PORT_APPSENSOR_STARTTRACKER,
-					Common.MOBILE_DEVICE, parm, respData, response);
+					String.valueOf(Common.MOBILE_DEVICE), parm, respData, response);
 
 		}
 		return response.mnCode;

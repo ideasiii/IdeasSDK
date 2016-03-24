@@ -8,8 +8,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Parcelable;
-import android.util.Log;
 import sdk.ideas.common.BaseReceiver;
 import sdk.ideas.common.Logs;
 import sdk.ideas.ctrl.bluetooth.BluetoothHandler.BluetoothDeviceLinkableDevice;

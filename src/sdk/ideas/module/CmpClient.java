@@ -58,15 +58,15 @@ public class CmpClient
 		return Protocol.msnSequence;
 	}
 
-	public static void init(final String strIP, final int nPort, String initType, HashMap<String, String> respData,
+	public static void init(final String strIP, final int nPort, int initType, HashMap<String, String> respData,
 			Response response)
 	{
 		if (null == response)
 			return;
 
-		if (null == initType || null == respData)
+		if ( null == respData)
 		{
-			response.mstrContent = "respData or initType is null";
+			response.mstrContent = "respData is null";
 			response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
 			return;
 		}
@@ -113,11 +113,9 @@ public class CmpClient
 			// Body Field Name Size octets
 			// InitType 4
 
-			int initTypeInt = Integer.valueOf(initType);
+			buf.putInt(initType);
 
-			buf.putInt(initTypeInt);
-
-			respData.put("REQ_BODY_INIT_TYPE", initType);
+			respData.put("REQ_BODY_INIT_TYPE", String.valueOf(initType));
 
 			buf.put((byte) 0);
 

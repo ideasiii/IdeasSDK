@@ -117,8 +117,10 @@ public abstract class ResponseCode
 	public final static int METHOD_DISCOVERABLE_BLUETOOTH = 5;
 	public final static int METHOD_SCAN_MODE_CHANGE_BLUETOOTH = 6;
 	public final static int METHOD_BOND_STATE_CHANGE_BLUETOOTH = 7;
-	
-	
+	public final static int METHOD_RETURN_MESSAGE_BLUETOOTH = 8;
+	public final static int METHOD_CLOSE_BLUETOOTH_LINK = 9;
+	public final static int METHOD_SEND_MESSAGE_BLUETOOTH = 10;
+	public final static int METHOD_GET_MESSAGE_BLUETOOTH = 11;
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;

@@ -1,6 +1,9 @@
 package sdk.ideas.ctrl.bluetooth;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,9 +42,23 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	private static boolean isRegister = false;
 	private int discoverableTime = 300;
 	
-	private static BluetoothSocket btSocket = null;  
 	
+	//Standard SerialPortService ID
 	public static final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";  
+	
+	private static BluetoothSocket mmSocket = null;  
+	public static BluetoothDevice mBluetoothDevice = null;
+	
+	private OutputStream mmOutputStream = null;
+	private InputStream mmInputStream = null;
+	
+	private volatile boolean stopWorker;
+	private Thread workerThread;
+	private byte[] readBuffer;
+	private int readBufferPosition;
+	
+	private final static String codeType = "US-ASCII";
+	private static boolean nowConnecting = false;
 	
 	
 	public BluetoothHandler(Context context)
@@ -94,6 +111,12 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 					{
 						message.put("message", "BOND_STATE_CHANGED");
 						message.put("state", action.get("state"));
+						if(action.get("state").equals("BOND_BONDED"))
+						{
+							connect();
+						}
+						
+						
 						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
 						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
 								ResponseCode.METHOD_BOND_STATE_CHANGE_BLUETOOTH);
@@ -165,6 +188,170 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 
 	}
 	
+	private void connect()
+	{
+		if(null != mBluetoothDevice)
+		{
+			UUID uuid = UUID.fromString(SPP_UUID); 
+	       
+			try
+			{
+				mmSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(uuid);
+				mmSocket.connect();
+				mmOutputStream = mmSocket.getOutputStream();
+				mmInputStream = mmSocket.getInputStream();
+				nowConnecting = true;
+				beginListenForData();
+			}
+			catch (IOException e)
+			{
+				Logs.showTrace(e.toString());
+			}
+			catch(Exception e)
+			{
+				Logs.showTrace(e.toString());
+			}
+			finally
+			{
+				
+			}
+
+			
+		}
+	}
+	
+	
+	private void beginListenForData()
+	{
+
+		final byte delimiter = 10; // This is the ASCII code for a newline
+									// character
+
+		stopWorker = false;
+		readBufferPosition = 0;
+		readBuffer = new byte[1024];
+		workerThread = new Thread(new Runnable()
+		{
+			public void run()
+			{
+				while (!Thread.currentThread().isInterrupted() && !stopWorker)
+				{
+					try
+					{
+						int bytesAvailable = mmInputStream.available();
+						if (bytesAvailable > 0)
+						{
+							byte[] packetBytes = new byte[bytesAvailable];
+							mmInputStream.read(packetBytes);
+							for (int i = 0; i < bytesAvailable; i++)
+							{
+								byte b = packetBytes[i];
+								if (b == delimiter)
+								{
+									byte[] encodedBytes = new byte[readBufferPosition];
+									System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+									final String returnMessage = new String(encodedBytes, codeType);
+									readBufferPosition = 0;
+
+									message.put("message", returnMessage);
+									setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+									returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+											ResponseCode.METHOD_RETURN_MESSAGE_BLUETOOTH);
+
+								}
+								else
+								{
+									readBuffer[readBufferPosition++] = b;
+								}
+							}
+						}
+					}
+					catch (IOException ex)
+					{
+						stopWorker = true;
+					}
+				}
+			}
+		});
+
+		workerThread.start();
+	}
+
+	public void sendData(String msg) 
+	{
+		message.clear();
+		if(nowConnecting == false)
+		{
+			return;
+		}
+		if(null == msg)
+		{
+			
+			message.put("message", "message is null");
+			super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
+			super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
+			return;
+		}
+		if (null != msg)
+		{
+			msg += "\n";
+			try
+			{
+				mmOutputStream.write(msg.getBytes(codeType));
+				message.put("message", "success");
+				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
+				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
+			}
+			catch (UnsupportedEncodingException e)
+			{
+
+				message.put("message", e.toString());
+				super.setResponseMessage(ResponseCode.ERR_UNSUPPORTED_ENCODING_EXCEPTION, message);
+				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
+				
+			}
+			catch (IOException e)
+			{
+				message.put("message", e.toString());
+				super.setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
+				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
+				
+			}
+			finally
+			{
+				message.clear();
+			}
+			Logs.showTrace("Data Sent");
+		}
+	}
+
+	private void closeBluetooth() throws IOException
+	{
+		if (nowConnecting == true)
+		{
+			stopWorker = true;
+			mmOutputStream.close();
+			mmInputStream.close();
+			mmSocket.close();
+			nowConnecting = false;
+		}
+	}
+	
+	public void closeBluetoothLink() 
+	{
+		try
+		{
+			closeBluetooth();
+		}
+		catch (IOException e)
+		{
+			message.put("message", e.toString());
+			super.setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
+			super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_CLOSE_BLUETOOTH_LINK);
+		}
+	}
+	
+	
 	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 	public void connectDevice(String address)
 	{
@@ -183,10 +370,10 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		// Logs.showTrace(tmp.getAddress());
 		if (isDeviceExist == true)
 		{
-			BluetoothDevice device = null;
-			device = isPairedDevices(address);
+			mBluetoothDevice= null;
+			mBluetoothDevice = isPairedDevices(address);
 			
-			if (null != device)
+			if (null != mBluetoothDevice)
 			{
 				isDevicePaired = true;
 			}
@@ -194,45 +381,30 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			if(isDevicePaired)
 			{
 				Logs.showTrace("device is already paired");
-				showDeviceService(device);
+				showDeviceService(mBluetoothDevice);
+				connect();
 			}
 			else
 			{
 				Logs.showTrace("device is not paired");
 				// start to pair new device
-				device = mBluetoothAdapter.getRemoteDevice(address);
-				if (null == device)
+				mBluetoothDevice = mBluetoothAdapter.getRemoteDevice(address);
+				if (null == mBluetoothDevice)
 				{
 					Logs.showTrace("device is null");
 					return;
 				}
 		
-				showDeviceService(device);
+				showDeviceService(mBluetoothDevice);
 			
 				try
 				{
 					Boolean returnValue = false;
-					if (device.getBondState() == BluetoothDevice.BOND_NONE)
-					{
-						// 利用反射方法调用BluetoothDevice.createBond(BluetoothDevice
-						// remoteDevice);
-						Method createBondMethod = BluetoothDevice.class.getMethod("createBond");
-						Logs.showTrace("start to pair to " + device.getName() + " address:" + device.getAddress());
-						returnValue = (Boolean) createBondMethod.invoke(device);
 
-					}
-					else if (device.getBondState() == BluetoothDevice.BOND_BONDED)
-					{
-						UUID uuid = UUID.fromString(SPP_UUID);
-
-						btSocket = device.createRfcommSocketToServiceRecord(uuid);
-						Logs.showTrace("start to link");
-						btSocket.connect();
-					}
-				}
-				catch (IOException e)
-				{
-					Logs.showTrace(e.toString());
+					Method createBondMethod = BluetoothDevice.class.getMethod("createBond");
+					Logs.showTrace("start to pair to " + mBluetoothDevice.getName() + " address:" + mBluetoothDevice.getAddress());
+					returnValue = (Boolean) createBondMethod.invoke(mBluetoothDevice);
+					
 				}
 				catch (Exception e)
 				{
@@ -301,6 +473,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	{
 		if (null != mBluetoothAdapter)
 		{
+			message.clear();
 			if (turnOn == true)
 			{
 				if (mBluetoothAdapter.isEnabled() == false)
@@ -323,6 +496,16 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 				if (mBluetoothAdapter.isEnabled() == true)
 				{
 					mBluetoothAdapter.disable();
+					try
+					{
+						closeBluetooth();
+					}
+					catch (IOException e)
+					{
+						message.put("message", e.toString());
+						super.setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
+						super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_OFF);
+					}
 				}
 				else
 				{
@@ -355,10 +538,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		}
 	}
 
-	/*
-	 * public boolean isBluetoothOn() { if (null != mBluetoothAdapter) { return
-	 * mBluetoothAdapter.isEnabled(); } return false; }
-	 */
+	
 	public void startDiscovery()
 	{
 	/*	if(null == mBluetoothAdapter)
@@ -452,27 +632,12 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	}
 	
 
-	public void finish()
-	{
-		try
-		{
-			if (btSocket != null)
-			{
-				btSocket.close();
-			}
-		}
-		catch (IOException e)
-		{
-			Logs.showTrace(e.toString());
-		}
-		//BluetoothHandler.this.finish();  
-	}
+
 	
 
 	@Override
 	public void startListenAction()
 	{
-		// TODO Auto-generated method stub
 		//Logs.showTrace("startListenAction isRegister:"+ String.valueOf(isRegister));
 		if (isRegister == false)
 		{
@@ -486,7 +651,6 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	@Override
 	public void stopListenAction()
 	{
-		// TODO Auto-generated method stub
 		//Logs.showTrace("stopListenAction isRegister:"+ String.valueOf(isRegister));
 		if(isRegister == true)
 		{
