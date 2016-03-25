@@ -39,17 +39,16 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		mContext = context;
 		installingPackage = new ArrayList<AppData>();
 		uninstallingPackage = new ArrayList<AppData>();
-		
+
 		receiver = new PackageReceiver();
-		
+
 		filter = new IntentFilter();
 		filter.addAction(Intent.ACTION_PACKAGE_ADDED);
 		filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
 		filter.addDataScheme("package");
-		
+
 	}
-	
-	
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		Logs.showTrace("requestCode: " + String.valueOf(requestCode));
@@ -75,10 +74,10 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	/**
 	 * use thread to install
 	 */
-	public void installApplicationThread(String url,String savePath, String apkName, int appID)
+	public void installApplicationThread(String url, String savePath, String apkName, int appID)
 	{
 
-		Thread install = new Thread(new InstallAppRunnable(url,savePath, apkName, appID));
+		Thread install = new Thread(new InstallAppRunnable(url, savePath, apkName, appID));
 		install.start();
 	}
 
@@ -91,58 +90,61 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	 * @param apkName
 	 *            fileName
 	 */
-	public void installApplication(String url,String savePath, String apkName, int appID)
+	public void installApplication(String url, String savePath, String apkName, int appID)
 	{
-		if(null ==savePath)
+		if (null == savePath)
 			savePath = this.defaultDownloadApkSavePath;
 		else
 			this.defaultDownloadApkSavePath = savePath;
 		boolean anyError = true;
+		int errorType = 1;
+		String errorMessage = "";
 		HashMap<String, String> message = new HashMap<String, String>();
 		try
 		{
-			InstallApp.installApplicationWithDownload(mContext, url, savePath,
-					apkName, installingPackage, appID);
+			InstallApp.installApplicationWithDownload(mContext, url, savePath, apkName, installingPackage, appID);
 			anyError = false;
 		}
-		catch(SocketException e)
+		catch (SocketException e)
 		{
-			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION;
 		}
 		catch (MalformedURLException e)
 		{
-			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_MALFORMED_URL_EXCEPTION, message);
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_MALFORMED_URL_EXCEPTION;
 		}
 		catch (ProtocolException e)
 		{
-			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_PROTOCOL_EXCEPTION, message);
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_PROTOCOL_EXCEPTION;
 		}
 		catch (IOException e)
 		{
-			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_IO_EXCEPTION;
 		}
-		catch(NetworkOnMainThreadException e)
+		catch (NetworkOnMainThreadException e)
 		{
-			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_DOWNLOAD_ON_MAIN_THREAD, message);
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_DOWNLOAD_ON_MAIN_THREAD;
 		}
 		catch (Exception e)
 		{
-			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_UNKNOWN;
 		}
 		finally
 		{
 			if (anyError == true)
 			{
-				returnRespose( CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
+				message.put("message",errorMessage);
+				super.callBackMessage(errorType, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM, message);
+				message.clear();
 			}
-			
+
 		}
 
 	}
@@ -159,16 +161,15 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
 
-		uninstallingPackage.add(new AppData(packageName, "","", appID));
+		uninstallingPackage.add(new AppData(packageName, "", "", appID));
 
 		if (UninstallApp.unInstallApplication(mContext, packageName, appID) == false)
 		{
 			ArrayListUtility.findEqualAndRemoveForAppDataClass(uninstallingPackage, packageName);
 
 			message.put("message", "not find the package which need to uninstall");
-			setResponseMessage(ResponseCode.ERR_PACKAGE_NOT_FIND, message);
-			returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-					ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
+			super.callBackMessage(ResponseCode.ERR_PACKAGE_NOT_FIND, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+					ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM, message);
 		}
 		else
 		{
@@ -195,39 +196,35 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 					if (appAction.equals("android.intent.action.PACKAGE_ADDED"))
 					{
 						AppData installed = ArrayListUtility.findEqualForAppDataClass(installingPackage, packageName);
-						if (null != installed )
+						if (null != installed)
 						{
-							
-							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-									ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM);
+
+							callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM, message);
 
 							IOFileHandler.deleteFile(IOFileHandler.getExternalStorageDirectory() + "/"
 									+ defaultDownloadApkSavePath + installed.fileName);
-							
+
 							ArrayListUtility.findEqualAndRemoveForAppDataClass(installingPackage, packageName);
 
 						}
 						else
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-									ResponseCode.METHOD_APPLICATION_INSTALL_USER);
+							callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_INSTALL_USER, message);
 						}
 					}
 					else if (appAction.equals("android.intent.action.PACKAGE_REMOVED"))
 					{
 						if (ArrayListUtility.findEqualAndRemoveForAppDataClass(uninstallingPackage, packageName))
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-									ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM);
+							callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_UNINSTALL_SYSTEM, message);
 						}
 						else
 						{
-							setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-							returnRespose(CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-									ResponseCode.METHOD_APPLICATION_UNINSTALL_USER);
+							callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+									ResponseCode.METHOD_APPLICATION_UNINSTALL_USER, message);
 						}
 					}
 				}
@@ -255,10 +252,10 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		@Override
 		public void run()
 		{
-			installApplication(uRLPath, savePath ,fileName, appID);
+			installApplication(uRLPath, savePath, fileName, appID);
 		}
 
-		public InstallAppRunnable(String uRLPath,String savePath, String fileName, int appID)
+		public InstallAppRunnable(String uRLPath, String savePath, String fileName, int appID)
 		{
 			this.fileName = fileName;
 			this.uRLPath = uRLPath;
@@ -267,24 +264,15 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		}
 
 	}
-	
-/*
-	private static boolean isAppInstalled(Context mContext, String packageName)
-	{
-		PackageManager pm = mContext.getPackageManager();
-		boolean installed = false;
-		try
-		{
-			pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-			installed = true;
-		}
-		catch (PackageManager.NameNotFoundException e)
-		{
-			installed = false;
-		}
-		return installed;
-	}*/
 
+	/*
+	 * private static boolean isAppInstalled(Context mContext, String
+	 * packageName) { PackageManager pm = mContext.getPackageManager(); boolean
+	 * installed = false; try { pm.getPackageInfo(packageName,
+	 * PackageManager.GET_ACTIVITIES); installed = true; } catch
+	 * (PackageManager.NameNotFoundException e) { installed = false; } return
+	 * installed; }
+	 */
 
 	public static class AppData
 	{
@@ -293,7 +281,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		public int appID;
 		public String fileName = "";
 
-		public AppData(String packageName, String downloadPath,String fileName, int appID)
+		public AppData(String packageName, String downloadPath, String fileName, int appID)
 		{
 			this.downloadPath = downloadPath;
 			this.packageName = packageName;

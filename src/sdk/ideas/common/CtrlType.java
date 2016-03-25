@@ -10,6 +10,7 @@ public abstract class CtrlType
 	public final static int REQUEST_CODE_ENABLE_BLUETOOTH  = 3334;
 	public final static int REQUEST_CODE_DISCOVERABLE_BLUETOOTH  = 3335;
 	
+	public final static int MSG_RESPONSE_TRACKER_HANDLER = 1029;
 	public final static int MSG_RESPONSE_DEVICE_ADMIN_HANDLER = 1030;
 	public final static int MSG_RESPONSE_CAMERA_HANDLER = 1031;
 	public final static int MSG_RESPONSE_VOLUME_HANDLER = 1032;

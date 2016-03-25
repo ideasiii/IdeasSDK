@@ -43,7 +43,7 @@ public class MuteVolumeHandler extends BaseHandler
 		isMute = true;
 		ControlMuteVolume.muteDevice(isMute, mResponseMessage);
 
-		returnRespose(CtrlType.MSG_RESPONSE_VOLUME_HANDLER, ResponseCode.METHOLD_VOLUME_MUTE_ENABLE);
+		returnResponse(CtrlType.MSG_RESPONSE_VOLUME_HANDLER, ResponseCode.METHOLD_VOLUME_MUTE_ENABLE);
 	}
 
 	public void stopMute()
@@ -56,7 +56,7 @@ public class MuteVolumeHandler extends BaseHandler
 		// {
 		isMute = false;
 		ControlMuteVolume.muteDevice(isMute, mResponseMessage);
-		returnRespose(CtrlType.MSG_RESPONSE_VOLUME_HANDLER, ResponseCode.METHOLD_VOLUME_MUTE_DISABLE);
+		returnResponse(CtrlType.MSG_RESPONSE_VOLUME_HANDLER, ResponseCode.METHOLD_VOLUME_MUTE_DISABLE);
 
 		// isActive = false;
 		// }

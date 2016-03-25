@@ -259,7 +259,7 @@ public class DeviceHandler
 
 			updateLocation(location);
 
-			manager.requestLocationUpdates(provider, 5000, 10, locationListener);
+			manager.requestLocationUpdates(provider, 10000, 10, locationListener);
 		}
 	}
 

@@ -255,8 +255,8 @@ public abstract class CmpClient
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
 
 			// Body Field Name Size octets
-			// signUpType 1
-			// signUpDATA MAX 2000
+			// signUpType(nServiceType) 4
+			// signUpDATA         MAX 2000
 
 			buf.putInt(nServiceType);
 			respData.put("REQ_BODY_SIGN_UP_TYPE", String.valueOf(nServiceType));
@@ -368,7 +368,8 @@ public abstract class CmpClient
 
 			inSocket = msocket.getInputStream();
 
-			int nLength = Protocol.CMP_HEADER_SIZE + 1 + accessLogData.getBytes(CODE_TYPE).length + 1;
+							//			header +  nServiceType  +   accessLogData + endChar
+ 			int nLength = Protocol.CMP_HEADER_SIZE + 4 + accessLogData.getBytes(CODE_TYPE).length + 1+255;
 
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
 
@@ -383,25 +384,23 @@ public abstract class CmpClient
 			buf.putInt(0);
 			buf.putInt(nSequence);
 
-			Logs.showTrace("put success");
-
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "access_log_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
 
 			// Body Field Name Size octets
-			// accessLogType 1
+			// nServiceType 4
 			// accessLogData MAX 2000
 
 			buf.putInt(nServiceType);
-
 			respData.put("REQ_BODY_ACCESS_LOG_TYPE", String.valueOf(nServiceType));
 
 			buf.put(accessLogData.getBytes(CODE_TYPE));
-
-			buf.put((byte) 0);
 			respData.put("REQ_BODY_ACCESS_LOG_DATA", accessLogData);
+			
+			buf.put((byte) 0);
+			Logs.showTrace("put success");
 
 			buf.flip();
 			// Logs.showTrace("434");
@@ -794,6 +793,7 @@ public abstract class CmpClient
 			}
 			else
 			{
+				//Logs.showTrace(String.valueOf(cmpResp.nStatus));
 				nResult = ERR_REQUEST_FAIL;
 			}
 		}

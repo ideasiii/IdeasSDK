@@ -78,28 +78,23 @@ public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAc
 						message.put("message", "success");
 						message.put("availablememory", String.valueOf(externalMem));
 						message.put("totalmemory", String.valueOf(totalExternalMem));
-						
-						
-						
 						//message.put("externalMemory", String.valueOf((externalMem * 100) / totalExternalMem));
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY);
-
+						
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY, message);
+					
 						externalMemOLD = externalMem;
 					}
 					else
 					{
 						message.put("message", "the external memory not available");
-						setResponseMessage(ResponseCode.ERR_EXTERNAL_MEMORY_UNAVAILABLE, message);
-						returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY);
+						callBackMessage(ResponseCode.ERR_EXTERNAL_MEMORY_UNAVAILABLE,CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY, message);
 					}
 				}
 			}
 			catch (Exception e)
 			{
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_UNKNOWN,message);
-				returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY);
+				callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_EXTERNAL_MEMORY,message);
 			}
 			finally
 			{
@@ -123,9 +118,8 @@ public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAc
 						
 						//message.put("removableExternalMemory",
 						//		String.valueOf((removableExternalMem * 100) / totalRemovableExternalMem));
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER,
-								ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY);
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER,
+								ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY, message);
 
 						removableExternalMemOLD = removableExternalMem;
 					}
@@ -134,8 +128,7 @@ public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAc
 			catch (Exception e)
 			{
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				returnRespose(CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY);
+				callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_STORAGE_SPACE_HANDLER, ResponseCode.METHOD_REMOVABLE_EXTERNAL_MEMORY, message);
 			}
 			finally
 			{

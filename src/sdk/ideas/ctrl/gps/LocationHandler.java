@@ -32,7 +32,7 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		super(context);
 		message = new HashMap<String, String>();
 		manager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-		
+
 		criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_COARSE);
 		criteria.setAltitudeRequired(false);
@@ -65,30 +65,29 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 
 			manager.requestLocationUpdates(provider, millisecondTime, meterDistance, locationListener);
 		}
-		catch (SecurityException e )
+		catch (SecurityException e)
 		{
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
+					ResponseCode.METHOD_UPDATE_LOCATION, message);
 		}
-		catch(IllegalArgumentException e)
+		catch (IllegalArgumentException e)
 		{
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
+					ResponseCode.METHOD_UPDATE_LOCATION, message);
 		}
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
+					ResponseCode.METHOD_UPDATE_LOCATION, message);
 		}
 		finally
 		{
 			message.clear();
 		}
 	}
-	
 
 	private final LocationListener locationListener = new LocationListener()
 	{
@@ -116,13 +115,15 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		{
 			updateLocation(null);
 			Logs.showTrace("Location Provider now is disabled..");
-			
-			setResponseMessage(ResponseCode.ERR_GPS_INACTIVE, message);
-			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+
+			callBackMessage(ResponseCode.ERR_GPS_INACTIVE, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
+					ResponseCode.METHOD_UPDATE_LOCATION, message);
+
 			message.clear();
-			
-			//final Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-			//mContext.startActivity(intent);
+
+			// final Intent intent = new
+			// Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+			// mContext.startActivity(intent);
 		}
 
 	};
@@ -134,8 +135,8 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 			message.put("lat", String.valueOf(location.getLatitude()));
 			message.put("lng", String.valueOf(location.getLongitude()));
 			message.put("message", "success");
-			setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			returnRespose(CtrlType.MSG_RESPONSE_LOCATION_HANDLER, ResponseCode.METHOD_UPDATE_LOCATION);
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
+					ResponseCode.METHOD_UPDATE_LOCATION, message);
 			message.clear();
 		}
 		else

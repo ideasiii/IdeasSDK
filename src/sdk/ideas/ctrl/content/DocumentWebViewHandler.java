@@ -47,34 +47,26 @@ public class DocumentWebViewHandler extends BaseHandler
 				((Activity) mContext).startActivityForResult(intent, CtrlType.WEBVIEW_REQUEST_CODE);
 
 				message.put("message", "success");
-
-				setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
-
+				super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT, message);
+				
 			}
 			else
 			{
 				message.put("message", "url is not linkable  " + "http code is :" + String.valueOf(responseCode));
 				// Logs.showTrace("url is not linkable " + "code is :"+
 				// String.valueOf(responseCode));
-
-				setResponseMessage(ResponseCode.ERR_URL_UNLINKABLE, message);
-				returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
+				callBackMessage(ResponseCode.ERR_URL_UNLINKABLE,CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT, message);
 			}
 		}
 		catch (SocketException e)
 		{
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
-
+			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION,CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT, message);
 		}
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			returnRespose(CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT);
-
+			callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT, message);
 		}
 		finally
 		{

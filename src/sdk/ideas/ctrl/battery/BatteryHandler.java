@@ -15,24 +15,24 @@ public class BatteryHandler extends BaseHandler implements ListenReceiverAction
 	private static Context mContext = null;
 	private IntentFilter intentFilter = null;
 	private static boolean isReceiverOn = false;
-	
+
 	public BatteryHandler(Context mContext)
 	{
 		super(mContext);
 		BatteryHandler.mContext = mContext;
 		mBatteryReceiver = new BatteryReceiver();
-		
+
 		intentFilter = new IntentFilter();
 		intentFilter.addAction("android.intent.action.BATTERY_CHANGED");
-		//intentFilter.addAction("android.intent.action.BATTERY_LOW");
+		// intentFilter.addAction("android.intent.action.BATTERY_LOW");
 
 	}
-	
+
 	public void setDetailBatteryInfo(boolean isNeedDetailInfo)
 	{
 		mBatteryReceiver.setBatteryDetail(isNeedDetailInfo);
 	}
-	
+
 	public void setDiffBatteryLevel(int diff)
 	{
 		mBatteryReceiver.setBatteryDiff(diff);
@@ -51,8 +51,8 @@ public class BatteryHandler extends BaseHandler implements ListenReceiverAction
 					@Override
 					public void returnIntentAction(HashMap<String, String> action)
 					{
-						setResponseMessage(ResponseCode.ERR_SUCCESS, action);
-						returnRespose(CtrlType.MSG_RESPONSE_BATTERY_HANDLER, ResponseCode.METHOD_BATTERY);
+						callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_BATTERY_HANDLER,
+								ResponseCode.METHOD_BATTERY, action);
 					}
 				});
 				BatteryHandler.mContext.registerReceiver(mBatteryReceiver, intentFilter);
@@ -62,14 +62,13 @@ public class BatteryHandler extends BaseHandler implements ListenReceiverAction
 		{
 			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			returnRespose(CtrlType.MSG_RESPONSE_BATTERY_HANDLER, ResponseCode.METHOD_BATTERY);
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_BATTERY_HANDLER,
+					ResponseCode.METHOD_BATTERY, message);
 			message.clear();
 			message = null;
 
 		}
 	}
-
 
 	@Override
 	public void stopListenAction()
@@ -86,14 +85,13 @@ public class BatteryHandler extends BaseHandler implements ListenReceiverAction
 		{
 			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			returnRespose(CtrlType.MSG_RESPONSE_BATTERY_HANDLER, ResponseCode.METHOD_BATTERY);
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_BATTERY_HANDLER,
+					ResponseCode.METHOD_BATTERY, message);
+
 			message.clear();
 			message = null;
 
 		}
 	}
-
-	
 
 }

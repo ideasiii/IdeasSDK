@@ -9,12 +9,13 @@ import sdk.ideas.ctrl.admin.DeviceAdminHandler.PolicyData;
 public class LockHandler extends BaseHandler
 {
 	/*
-	 * private int mPasswordQuality; private int mPasswordLength; private int mPasswordMinUpperCase;
+	 * private int mPasswordQuality; private int mPasswordLength; private int
+	 * mPasswordMinUpperCase;
 	 */
 	// private boolean useDefaultQuality = true;
 
-	private String					lastPassword	= "";
-	private HashMap<String, String>	message			= null;
+	private String lastPassword = "";
+	private HashMap<String, String> message = null;
 
 	public LockHandler(PolicyData data)
 	{
@@ -31,14 +32,14 @@ public class LockHandler extends BaseHandler
 		{
 			ControlLockStatusBar.preventStatusBarExpansion();
 			message.put("message", "success");
-			super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_STATUS_BAR);
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+					ResponseCode.METHOD_LOCK_STATUS_BAR, message);
 		}
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_STATUS_BAR);
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+					ResponseCode.METHOD_LOCK_STATUS_BAR, message);
 
 		}
 		finally
@@ -55,14 +56,14 @@ public class LockHandler extends BaseHandler
 		{
 			ControlLockStatusBar.unLockStatusBarExpansion();
 			message.put("message", "success");
-			super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_UNLOCK_STATUS_BAR);
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+					ResponseCode.METHOD_UNLOCK_STATUS_BAR, message);
 		}
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_UNLOCK_STATUS_BAR);
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+					ResponseCode.METHOD_UNLOCK_STATUS_BAR, message);
 		}
 		finally
 		{
@@ -71,13 +72,16 @@ public class LockHandler extends BaseHandler
 	}
 
 	/*
-	 * public void lockFullSceen() { if (null != mContext) { ControlLockStatusBar.fullSceen(mContext); } }
+	 * public void lockFullSceen() { if (null != mContext) {
+	 * ControlLockStatusBar.fullSceen(mContext); } }
 	 */
 
 	public void setSceenLockPassword(String password)
 	{
 		/*
-		 * if (useDefaultQuality == true) { // passwordLocker.setLockPasswordPolicyConfigure(PasswordQualityValues.PASSWORD_QUALITY_NUMERIC, // 5, 0); }
+		 * if (useDefaultQuality == true) { //
+		 * passwordLocker.setLockPasswordPolicyConfigure(PasswordQualityValues.
+		 * PASSWORD_QUALITY_NUMERIC, // 5, 0); }
 		 */
 
 		try
@@ -93,14 +97,16 @@ public class LockHandler extends BaseHandler
 			if (ControlLockScreenPassword.resetPassword(password) == true)
 			{
 				message.put("message", "success");
-				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD);
+				callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+						ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD, message);
+
 			}
 			else
 			{
 				message.put("message", "fail cause device admin inactive");
-				super.setResponseMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD);
+				callBackMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+						ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD, message);
+
 			}
 
 			this.lastPassword = password;
@@ -109,8 +115,9 @@ public class LockHandler extends BaseHandler
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_POLICY, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD);
+			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_POLICY, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+					ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD, message);
+
 		}
 		finally
 		{
@@ -125,14 +132,14 @@ public class LockHandler extends BaseHandler
 			if (ControlLockScreenPassword.lockNow() == true)
 			{
 				message.put("message", "success");
-				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCREEN_NOW);
+				callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+						ResponseCode.METHOD_LOCK_SCREEN_NOW, message);
 			}
 			else
 			{
 				message.put("message", "fail cause device admin inactive");
-				super.setResponseMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCREEN_NOW);
+				callBackMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+						ResponseCode.METHOD_LOCK_SCREEN_NOW, message);
 			}
 
 		}
@@ -140,8 +147,8 @@ public class LockHandler extends BaseHandler
 		{
 			message.put("message",
 					"The calling device admin must have requested DeviceAdminInfo. USES_POLICY_FORCE_LOCK to be able to call this method; if it has not, a security exception will be thrown.");
-			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_LOCK_HANDLER, ResponseCode.METHOD_LOCK_SCREEN_NOW);
+			super.callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+					ResponseCode.METHOD_LOCK_SCREEN_NOW, message);
 		}
 		finally
 		{
@@ -150,8 +157,10 @@ public class LockHandler extends BaseHandler
 	}
 
 	/*
-	 * private void setLockPasswordPolicyConfigure(int passwordQuality, int passwordLength, int passwordMinUpperCase) { useDefaultQuality = false;
-	 * ControlLockScreenPassword.setLockPasswordPolicyConfigure(passwordQuality, passwordLength, passwordMinUpperCase); }
+	 * private void setLockPasswordPolicyConfigure(int passwordQuality, int
+	 * passwordLength, int passwordMinUpperCase) { useDefaultQuality = false;
+	 * ControlLockScreenPassword.setLockPasswordPolicyConfigure(passwordQuality,
+	 * passwordLength, passwordMinUpperCase); }
 	 */
 
 	private static boolean isNumeric(String str)

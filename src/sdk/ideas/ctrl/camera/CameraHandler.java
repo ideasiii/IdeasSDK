@@ -20,12 +20,12 @@ public class CameraHandler extends BaseHandler
 		camera.setCamera(disable, mResponseMessage);
 		if (disable == true)
 		{
-			returnRespose(CtrlType.MSG_RESPONSE_CAMERA_HANDLER,
+			returnResponse(CtrlType.MSG_RESPONSE_CAMERA_HANDLER,
 					ResponseCode.METHOLD_CAMERA_DISABLE);
 		}
 		else
 		{
-			returnRespose(CtrlType.MSG_RESPONSE_CAMERA_HANDLER,
+			returnResponse(CtrlType.MSG_RESPONSE_CAMERA_HANDLER,
 					ResponseCode.METHOLD_CAMERA_ENABLE);
 		}
 	}

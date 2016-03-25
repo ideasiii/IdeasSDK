@@ -135,9 +135,7 @@ public class RestoreHandler extends BaseHandler
 					{
 						// do not handle error message in restore handler, just
 						// push it out of restore handler
-						
-						setResponseMessage(result, message);
-						returnRespose(what, from);
+						callBackMessage(result, what, from, message);
 					}
 				}
 			});
@@ -165,8 +163,7 @@ public class RestoreHandler extends BaseHandler
 					if(result != ResponseCode.ERR_SUCCESS)
 					{
 						restoreAppError = true;
-						setResponseMessage(result, message);
-						returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+						callBackMessage(result, CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION, message);
 					}
 				}
 			});
@@ -230,30 +227,26 @@ public class RestoreHandler extends BaseHandler
 		{
 			restoreAppError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION, message);
 		}
 		catch (FileNotFoundException e)
 		{
 			restoreAppError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+			callBackMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION, message);
 			
 		}
 		catch (IOException e)
 		{
 			restoreAppError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+			callBackMessage(ResponseCode.ERR_IO_EXCEPTION,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION, message);
 		}
 		catch(Exception e)
 		{
 			restoreAppError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+			super.callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION, message);
 		}
 		finally
 		{
@@ -263,8 +256,7 @@ public class RestoreHandler extends BaseHandler
 		if(restoreAppError == false)
 		{
 			message.put("message","success");
-			setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION);
+			callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_APPLICATION, message);
 			message.clear();
 			
 			//close self create mApplicationHandler
@@ -330,29 +322,28 @@ public class RestoreHandler extends BaseHandler
 		{
 			restoreFileError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE);
+			super.callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE, message);
+		
 		}
 		catch (FileNotFoundException e)
 		{
 			restoreFileError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE);
+			super.callBackMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE, message);
+			
 		}
 		catch (IOException e)
 		{
 			restoreFileError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE);
+			super.callBackMessage(ResponseCode.ERR_IO_EXCEPTION,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE, message);
 		}
 		catch (Exception e)
 		{
 			restoreFileError = true;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE);
+			super.callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE, message);
+			
 		}
 		finally
 		{
@@ -361,8 +352,7 @@ public class RestoreHandler extends BaseHandler
 		if(restoreFileError ==false)
 		{
 			message.put("message", "success");
-			setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE);
+			super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_RESTORE_HANDLER, ResponseCode.METHOD_RESTORE_SDCARD_FILE, message);
 			message.clear();
 		}
 	}

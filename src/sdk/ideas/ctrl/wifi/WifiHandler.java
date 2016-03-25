@@ -84,8 +84,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 			if (null == lockName)
 			{
 				message.put("message", "input String null OR input type error");
-				super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK);
+				super.callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK, message);
 			}
 			else
 			{
@@ -93,22 +92,19 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 				mWifiAdmin.acquireWifiLock();
 
 				message.put("message", "success");
-				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK);
+				super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK, message);
 
 			}
 		}
 		catch (IllegalArgumentException e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK);
+			super.callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK, message);
 		}
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK);
+			super.callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_WIFI_LOCK,message);
 		}
 		finally
 		{
@@ -127,8 +123,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 		if (null == ssid || (type <= 0) || (type > 3))
 		{
 			message.put("message", "input String null OR input type error");
-			super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG);
+			super.callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG, message);
 			message.clear();
 		}
 		else
@@ -142,8 +137,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 					if(linkThisSSIDNow == false)
 					{
 					message.put("message", "success");
-					super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG);
+					super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG, message);
 					}
 					else
 					{
@@ -155,13 +149,12 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 					if(linkThisSSIDNow == false)
 					{
 						message.put("message", "save wificonfig operation fail to execute");
-						super.setResponseMessage(ResponseCode.ERR_WIFI_SAVE_WIFICONFIG_OPERATION_EXECUTE_FAIL, message);
-						super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG);
+						super.callBackMessage(ResponseCode.ERR_WIFI_SAVE_WIFICONFIG_OPERATION_EXECUTE_FAIL,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG, message);
 					}
 					else
 					{
 					//	message.put("message", "linl=k wificonfig operation fail to execute");
-					//	super.setResponseMessage(ResponseCode.ERR_WIFI_LINK_WIFICONFIG_OPERATION_EXECUTE_FAIL, message);
+					//	super.callBackMessage(ResponseCode.ERR_WIFI_LINK_WIFICONFIG_OPERATION_EXECUTE_FAIL, message);
 					//	super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG);
 					}
 					
@@ -171,8 +164,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 			catch (Exception e)
 			{
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG);
+				super.callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_SAVE_WIFI_CONFIG, message);
 			}
 			finally
 			{
@@ -187,8 +179,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 		if (null == ssid)
 		{
 			message.put("message", "input String null");
-			super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG);
+			super.callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG, message);
 			message.clear();
 		}
 		else
@@ -200,22 +191,19 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 				if (success == true)
 				{
 					message.put("message", "success");
-					super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG);
+					super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG, message);
 				}
 				else
 				{
 					message.put("message", "not found need to remove ssid");
-					super.setResponseMessage(ResponseCode.ERR_WIFI_SSID_NOT_FOUND, message);
-					super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG);
+					super.callBackMessage(ResponseCode.ERR_WIFI_SSID_NOT_FOUND,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG, message);
 					Logs.showTrace("removeWIFIConfig : false");
 				}
 			}
 			catch (Exception e)
 			{
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG);
+				super.callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_REMOVE_WIFI_CONFIG, message);
 			}
 			finally
 			{
@@ -229,8 +217,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 		if (null == ssid)
 		{
 			message.put("message", "input String null");
-			super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID);
+			super.callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID, message);
 			message.clear();
 			return;
 		}
@@ -244,8 +231,7 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 				if (success == true)
 				{
 					message.put("message", "success");
-					super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID);
+					super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID, message);
 				}
 				else
 				{
@@ -257,14 +243,12 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 			catch(NullPointerException e)
 			{
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_WIFI_SSID_NOT_FOUND, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID);
+				super.callBackMessage(ResponseCode.ERR_WIFI_SSID_NOT_FOUND,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID, message);
 			}
 			catch (Exception e)
 			{
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID);
+				super.callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_WIFI_HANDLER, ResponseCode.METHOD_DISCONNECT_SSID, message);
 			}
 			finally
 			{

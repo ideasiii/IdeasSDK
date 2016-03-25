@@ -101,8 +101,7 @@ public class RecordHandler extends BaseHandler
 			if (isFilePathRecordOK)
 			{
 				message.put("message", "success");
-				setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+				super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 				message.clear();
 			}
 		}
@@ -112,8 +111,7 @@ public class RecordHandler extends BaseHandler
 			if (isAppRecordOK)
 			{
 				message.put("message", "success");
-				setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION);
+				super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION, message);
 				message.clear();
 			}
 		}
@@ -165,23 +163,20 @@ public class RecordHandler extends BaseHandler
 			{
 				this.isAppRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION);
+				callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION, message);
 			}
 			catch (FileNotFoundException e)
 			{
 				this.isAppRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION);
+				callBackMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION, message);
 			}
 			// for incase
 			catch (Exception e)
 			{
 				this.isAppRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION);
+				callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_APPLICATION, message);
 			}
 			finally
 			{
@@ -216,8 +211,7 @@ public class RecordHandler extends BaseHandler
 		{
 			this.isFilePathRecordOK = false;
 			message.put("message", e.toString());
-			setResponseMessage(ResponseCode.ERR_INTERRUPTED_EXCEPTION, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+			callBackMessage(ResponseCode.ERR_INTERRUPTED_EXCEPTION,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			message.clear();
 		}
 	}
@@ -278,30 +272,26 @@ public class RecordHandler extends BaseHandler
 			{
 				isFilePathRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+				callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			}
 			catch (FileNotFoundException e)
 			{
 				isFilePathRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+				callBackMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			}
 			catch (IOException e)
 			{
 				isFilePathRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+				callBackMessage(ResponseCode.ERR_IO_EXCEPTION,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			}
 			// in case
 			catch (Exception e)
 			{
 				isFilePathRecordOK = false;
 				message.put("message", e.toString());
-				setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+				callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			}
 			finally
 			{
@@ -338,8 +328,7 @@ public class RecordHandler extends BaseHandler
 		{
 			isFilePathRecordOK = false;
 			message.put("message", "external storage is unavailable to read");
-			setResponseMessage(ResponseCode.ERR_UNREADABLE_EXTERNAL_STORAGE, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+			callBackMessage(ResponseCode.ERR_UNREADABLE_EXTERNAL_STORAGE,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			message.clear();
 		}
 		
@@ -361,8 +350,7 @@ public class RecordHandler extends BaseHandler
 		{
 			isFilePathRecordOK = false;
 			message.put("message", "external storage is unavailable to read");
-			setResponseMessage(ResponseCode.ERR_UNREADABLE_EXTERNAL_STORAGE, message);
-			returnRespose(CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE);
+			callBackMessage(ResponseCode.ERR_UNREADABLE_EXTERNAL_STORAGE,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			message.clear();
 		}
 		

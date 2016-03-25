@@ -17,7 +17,7 @@ public class DeviceAdminHandler extends BaseHandler
 	private Intent intent = null;
 	private static PolicyData policyData = null;
 	private HashMap<String, String> message = null;
-	
+
 	public DeviceAdminHandler(Context context)
 	{
 		super(context);
@@ -41,13 +41,13 @@ public class DeviceAdminHandler extends BaseHandler
 					intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, addAdminExtraAppText);
 				}
 				((Activity) mContext).startActivityForResult(intent, CtrlType.REQUEST_CODE_ENABLE_ADMIN);
-				
+
 			}
 			catch (Exception e)
 			{
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER, ResponseCode.METHOD_ADMIN_CREATE_POLICY);
+				super.callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER,
+						ResponseCode.METHOD_ADMIN_CREATE_POLICY, message);
 				message.clear();
 			}
 
@@ -60,17 +60,16 @@ public class DeviceAdminHandler extends BaseHandler
 		if (resultCode == Activity.RESULT_OK)
 		{
 			message.put("message", "success");
-			super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER, ResponseCode.METHOD_ADMIN_CREATE_POLICY);
-			message.clear();
+			super.callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER,
+					ResponseCode.METHOD_ADMIN_CREATE_POLICY, message);
 		}
 		else
 		{
 			message.put("message", "cancelled by user");
-			super.setResponseMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER, ResponseCode.METHOD_ADMIN_CREATE_POLICY);
-			message.clear();
+			super.callBackMessage(ResponseCode.ERR_ADMIN_POLICY_INACTIVE, CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER,
+					ResponseCode.METHOD_ADMIN_CREATE_POLICY, message);
 		}
+		message.clear();
 
 	}
 
@@ -97,8 +96,8 @@ public class DeviceAdminHandler extends BaseHandler
 				mDevicePolicyManager.removeActiveAdmin(mComponentAdmin);
 
 				message.put("message", "success");
-				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER, ResponseCode.METHOD_ADMIN_REMOVE_POLICY);
+				super.callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER,
+						ResponseCode.METHOD_ADMIN_REMOVE_POLICY, message);
 			}
 			else
 			{
@@ -108,8 +107,8 @@ public class DeviceAdminHandler extends BaseHandler
 		catch (Exception e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_UNKNOWN, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER, ResponseCode.METHOD_ADMIN_REMOVE_POLICY);
+			super.callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_DEVICE_ADMIN_HANDLER,
+					ResponseCode.METHOD_ADMIN_REMOVE_POLICY, message);
 		}
 		finally
 		{

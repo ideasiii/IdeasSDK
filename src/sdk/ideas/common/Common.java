@@ -14,11 +14,11 @@ public abstract class Common
 	public static String		HOST_SERVICE_INIT			= "54.199.198.94";
 	public static int			PORT_SERVICE_INIT			= 6607;
 
-	public static String		URL_APPSENSOR_STARTTRACKER	= "";
-	public static int			PORT_APPSENSOR_STARTTRACKER	= 0;
+	public static String		URL_TRACKER_STARTTRACKER	= "";
+	public static int			PORT_TRACKER_STARTTRACKER	= 0;
 
-	public static String		URL_APPSENSOR_TRACKER		= "";
-	public static int			PORT_APPSENSOR_TRACKER		= 0;
+	public static String		URL_TRACKER_TRACKER		= "";
+	public static int			PORT_TRACKER_TRACKER		= 0;
 
 	public static void postMessage(Handler handler, int nWhat, int nArg0, int nArg1, Object obj)
 	{

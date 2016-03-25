@@ -73,9 +73,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		if (checkDeviceBluetooth() == false)
 		{
 			message.put("message", "device not support bluetooth module");
-			super.setResponseMessage(ResponseCode.ERR_DEVICE_NOT_SUPPORT_BLUETOOTH, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SETUP_BLUETOOTH);
-
+			super.callBackMessage(ResponseCode.ERR_DEVICE_NOT_SUPPORT_BLUETOOTH,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SETUP_BLUETOOTH, message);
 			return;
 		}
 
@@ -116,19 +114,19 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 							connect();
 						}
 						
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+								ResponseCode.METHOD_BOND_STATE_CHANGE_BLUETOOTH, message);
 						
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
-								ResponseCode.METHOD_BOND_STATE_CHANGE_BLUETOOTH);
 					}
 					
 					else if(action.get("action").equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED))
 					{
 						message.put("message", "SCAN_MODE_CHANGED");
 						message.put("mode", action.get("mode"));
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
-								ResponseCode.METHOD_SCAN_MODE_CHANGE_BLUETOOTH);
+						
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+								ResponseCode.METHOD_SCAN_MODE_CHANGE_BLUETOOTH, message);
+						
 					}
 					else if (action.get("action").equals(BluetoothDevice.ACTION_FOUND))
 					{
@@ -136,11 +134,8 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 						message.put("deviceName", action.get("deviceName"));
 						message.put("deviceAddress", action.get("deviceAddress"));
 						
-
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
-								ResponseCode.METHOD_BLUETOOTH_DISCOVERING_NEW_DEVICE);
-
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+								ResponseCode.METHOD_BLUETOOTH_DISCOVERING_NEW_DEVICE, message);
 					}
 					else if (action.get("action").equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED))
 					{
@@ -150,22 +145,20 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 							stopDiscovery();
 							Logs.showTrace("stop success");
 						}
-
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_BLUETOOTH_DISCOVER_FINISHED);
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_BLUETOOTH_DISCOVER_FINISHED, message);
 
 					}
 					else if (action.get("action").equals(String.valueOf(BluetoothAdapter.STATE_OFF)))
 					{
 						message.put("message", "bluetooth is OFF");
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_OFF);
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_OFF, message);
+						
 					}
 					else if (action.get("action").equals(String.valueOf(BluetoothAdapter.STATE_ON)))
 					{
 						message.put("message", "bluetooth is ON");
-						setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-						returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_ON);
+						callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_ON, message);
+						
 					}
 					
 				}
@@ -254,10 +247,8 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 									readBufferPosition = 0;
 
 									message.put("message", returnMessage);
-									setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-									returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
-											ResponseCode.METHOD_RETURN_MESSAGE_BLUETOOTH);
-
+									callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+											ResponseCode.METHOD_RETURN_MESSAGE_BLUETOOTH, message);
 								}
 								else
 								{
@@ -288,8 +279,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		{
 			
 			message.put("message", "message is null");
-			super.setResponseMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
+			callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH, message);
 			return;
 		}
 		if (null != msg)
@@ -299,23 +289,19 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			{
 				mmOutputStream.write(msg.getBytes(codeType));
 				message.put("message", "success");
-				super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
+				callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH, message);
+				
 			}
 			catch (UnsupportedEncodingException e)
 			{
 
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_UNSUPPORTED_ENCODING_EXCEPTION, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
-				
+				callBackMessage(ResponseCode.ERR_UNSUPPORTED_ENCODING_EXCEPTION,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH, message);
 			}
 			catch (IOException e)
 			{
 				message.put("message", e.toString());
-				super.setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH);
-				
+				callBackMessage(ResponseCode.ERR_IO_EXCEPTION,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SEND_MESSAGE_BLUETOOTH, message);
 			}
 			finally
 			{
@@ -346,8 +332,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		catch (IOException e)
 		{
 			message.put("message", e.toString());
-			super.setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
-			super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_CLOSE_BLUETOOTH_LINK);
+			callBackMessage(ResponseCode.ERR_IO_EXCEPTION,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_CLOSE_BLUETOOTH_LINK, message);
 		}
 	}
 	
@@ -485,10 +470,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 				{
 					// Logs.showTrace("opened bluetooth");
 					message.put("message", "success");
-					super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_ON);
-
-					
+					callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_ON, message);
 				}
 			}
 			else if (turnOn == false)
@@ -503,15 +485,14 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 					catch (IOException e)
 					{
 						message.put("message", e.toString());
-						super.setResponseMessage(ResponseCode.ERR_IO_EXCEPTION, message);
-						super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_OFF);
+						super.callBackMessage(ResponseCode.ERR_IO_EXCEPTION, CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+								ResponseCode.BLUETOOTH_IS_OFF, message);
 					}
 				}
 				else
 				{
 					message.put("message", "success");
-					super.setResponseMessage(ResponseCode.ERR_SUCCESS, message);
-					super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_OFF);
+					super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.BLUETOOTH_IS_OFF, message);
 				}
 			}
 		}
@@ -604,8 +585,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 				// cancel by user
 				Logs.showTrace("can not open bluetooth cause user");
 				message.put("message", "can not open bluetooth cause user");
-				super.setResponseMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SETUP_BLUETOOTH);
+				super.callBackMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SETUP_BLUETOOTH, message);
 			}
 
 		}
@@ -617,8 +597,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 
 				Logs.showTrace("can not let device's bluetooth discoverable cause by user");
 				message.put("message", "can not let device's bluetooth discoverable cause by user");
-				super.setResponseMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER, message);
-				super.returnRespose(CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SETUP_BLUETOOTH);
+				super.callBackMessage(ResponseCode.ERR_BLUETOOTH_CANCELLED_BY_USER,CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER, ResponseCode.METHOD_SETUP_BLUETOOTH, message);
 			}
 			else
 			{
