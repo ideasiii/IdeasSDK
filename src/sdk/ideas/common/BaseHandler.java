@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 import sdk.ideas.common.ResponseCode.ResponseMessage;
+import sdk.ideas.module.DeviceHandler;
 
 public abstract class BaseHandler
 {
@@ -17,6 +19,8 @@ public abstract class BaseHandler
 
 	protected ResponseMessage mResponseMessage = null;
 
+	protected boolean permissonCheck = false;
+	
 	protected BaseHandler(Context context)
 	{
 		if (null != context)
@@ -25,11 +29,34 @@ public abstract class BaseHandler
 			mResponseMessage = new ResponseMessage();
 			listener = new ArrayList<OnCallbackResult> ();
 		}
+		else
+		{
+			Log.e("MORE SDK ERROR", "Context is NULL");
+		}
 	}
 
 	protected BaseHandler()
 	{
 
+	}
+	
+	protected boolean permissionCheck(String [] permissonList)
+	{
+		for (int i = 0; i < permissonList.length; i++)
+		{
+			Logs.showTrace("check this permisson: "+permissonList[i]);
+			if (DeviceHandler.hasPermission(mContext, permissonList[i]) == false)
+			{
+				Log.e("PERMISSION ERROR", "please add permission: "+permissonList[i]+" in manifest");
+				return false;
+			}
+			else
+			{
+				Logs.showTrace("this permisson: "+permissonList[i] +"is in manifest");
+			}
+		}
+		permissonCheck = true;
+		return true;
 	}
 
 	public void setHandler(Handler handler)

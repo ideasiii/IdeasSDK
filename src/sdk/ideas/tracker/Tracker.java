@@ -12,6 +12,7 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Common;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.PermissionTable;
 import sdk.ideas.common.Protocol;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.StringUtility;
@@ -21,11 +22,11 @@ import sdk.ideas.module.DeviceHandler.AccountData;
 
 public class Tracker extends BaseHandler
 {
-	//inside use handle message
+	// inside use handle message
 	private final int TAG_INIT = 1025;
 	private final int TAG_STARTTRACKER = 1027;
 	private final int TAG_TRACKER = 1028;
-	public static final int MSG_RESPONSE = 1026;
+	private static final int MSG_RESPONSE = 1026;
 
 	private DeviceHandler deviceHandler = null;
 	private boolean availableTracker = false;
@@ -34,7 +35,6 @@ public class Tracker extends BaseHandler
 	private String ID = "";
 	private HashMap<String, String> message = new HashMap<String, String>();
 	private HashMap<String, String> startTrackerParm = null;
-	private boolean permissonCheck = false;
 
 	private Handler privateHandler = new Handler()
 	{
@@ -87,11 +87,13 @@ public class Tracker extends BaseHandler
 						message.put("message", "error in transfer data to server ");
 						callBackMessage(ResponseCode.ERR_IO_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 								ResponseCode.METHOLD_TRACKER, message);
-						//debug use
-						//message.put("message", (String) msg.obj);
-						//callBackMessage(msg.arg1, CtrlType.MSG_RESPONSE_TRACKER_HANDLER, ResponseCode.METHOLD_TRACKER,
-						//		message);
-						
+						// debug use
+						// message.put("message", (String) msg.obj);
+						// callBackMessage(msg.arg1,
+						// CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						// ResponseCode.METHOLD_TRACKER,
+						// message);
+
 					}
 					else
 					{
@@ -112,7 +114,7 @@ public class Tracker extends BaseHandler
 	{
 		super(context);
 		message = new HashMap<String, String>();
-		permissonCheck = permissionCheck();
+		super.permissionCheck(PermissionTable.TRACKER);
 	}
 
 	/**
@@ -122,16 +124,29 @@ public class Tracker extends BaseHandler
 	 */
 	public void startTracker(final String app_id)
 	{
-		startTracker(app_id, null, null, null);
+		try
+		{
+			startTracker(app_id, null, null, null);
+
+		}
+		catch (Exception e)
+		{
+			message.put("message", e.toString());
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+					ResponseCode.METHOLD_START_TRACKER, message);
+		}
+		finally
+		{
+			message.clear();
+		}
 	}
 
-	
 	public void startTracker(final String app_id, final String fb_id, final String fb_name, final String fb_email)
 	{
 		if (permissonCheck == false)
 		{
-			message.clear();
-			message.put("message", "use android.Manifest.permission denied, check permisson is existed in android manifest");
+			message.put("message",
+					"use android.Manifest.permission denied, check permisson is existed in android manifest");
 			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 					ResponseCode.METHOLD_TRACKER, message);
 			return;
@@ -182,41 +197,55 @@ public class Tracker extends BaseHandler
 	public void track(HashMap<String, String> parm)
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
-		if (availableTracker == false)
+		try
 		{
-			message.put("message", "can not start tracker cause startTarcker fail or stopTracker run");
-			callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+
+			if (availableTracker == false)
+			{
+				message.put("message", "can not start tracker cause startTarcker fail or stopTracker run");
+				callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						ResponseCode.METHOLD_TRACKER, message);
+				return;
+			}
+			else if (null == parm)
+			{
+				message.put("message", "tracker parm is null");
+				callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						ResponseCode.METHOLD_TRACKER, message);
+				return;
+			}
+
+			parm.put("ID", this.ID);
+
+			if (DeviceHandler.lat != -1.0 && DeviceHandler.lng != -1.0)
+			{
+				parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng)));
+			}
+			if (!StringUtility.isValid(parm.get("TYPE")))
+			{
+				parm.put("TYPE", "0");
+			}
+
+			parm.values().removeAll(Collections.singleton(""));
+			parm.values().removeAll(Collections.singleton(null));
+
+			JSONObject jsonParm = new JSONObject(parm);
+
+			this.sendEvent(jsonParm.toString(), TAG_TRACKER);
+
+			parm.clear();
+			parm = null;
+		}
+		catch (Exception e)
+		{
+			message.put("message", e.toString());
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 					ResponseCode.METHOLD_TRACKER, message);
-			return;
 		}
-		else if (null == parm)
+		finally
 		{
-			message.put("message", "tracker parm is null");
-			callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-					ResponseCode.METHOLD_TRACKER, message);
-			return;
+			message.clear();
 		}
-
-		parm.put("ID", this.ID);
-
-		if (DeviceHandler.lat != -1.0 && DeviceHandler.lng != -1.0)
-		{
-			parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng)));
-		}
-		if (!StringUtility.isValid(parm.get("TYPE")))
-		{
-			parm.put("TYPE", "0");
-		}
-
-		parm.values().removeAll(Collections.singleton(""));
-		parm.values().removeAll(Collections.singleton(null));
-
-		JSONObject jsonParm = new JSONObject(parm);
-
-		this.sendEvent(jsonParm.toString(), TAG_TRACKER);
-
-		parm.clear();
-		parm = null;
 
 	}
 
@@ -227,38 +256,33 @@ public class Tracker extends BaseHandler
 		callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 				ResponseCode.METHOLD_STOP_TRACKER, message);
 	}
-	
-	private boolean permissionCheck()
-	{
-		if (!DeviceHandler.hasPermission(mContext, android.Manifest.permission.INTERNET)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.ACCESS_NETWORK_STATE)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.ACCESS_WIFI_STATE)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.READ_PHONE_STATE)
-				|| !DeviceHandler.hasPermission(mContext, android.Manifest.permission.GET_ACCOUNTS))
-		{
-			return false;
-		}
-		return true;
-
-	}
 
 	private void sendStartTrackerData()
 	{
-		getDeviceInfo();
+		try
+		{
+			getDeviceInfo();
 
-		startTrackerParm.values().removeAll(Collections.singleton(""));
-		startTrackerParm.values().removeAll(Collections.singleton(null));
+			startTrackerParm.values().removeAll(Collections.singleton(""));
+			startTrackerParm.values().removeAll(Collections.singleton(null));
 
-		JSONObject jsonParm = new JSONObject(startTrackerParm);
+			JSONObject jsonParm = new JSONObject(startTrackerParm);
 
-		this.sendEvent(jsonParm.toString(), TAG_STARTTRACKER);
+			this.sendEvent(jsonParm.toString(), TAG_STARTTRACKER);
 
-		startTrackerParm.clear();
-		startTrackerParm = null;
-
+			startTrackerParm.clear();
+			startTrackerParm = null;
+		}
+		catch (Exception e)
+		{
+			message.put("message", e.toString());
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+					ResponseCode.METHOLD_START_TRACKER, message);
+		}
+		finally
+		{
+			message.clear();
+		}
 	}
 
 	private void getDeviceInfo()
