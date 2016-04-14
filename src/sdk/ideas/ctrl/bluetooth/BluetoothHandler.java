@@ -337,24 +337,41 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	}
 	
 	
-	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
-	public void connectDevice(String address)
+	public void connectDeviceByName(String name)
 	{
+		connectDeviceByMacAddress(name);
+	}
+	
+	
+	
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+	public void connectDeviceByMacAddress(String address)
+	{
+		stopDiscovery();
 		boolean isDevicePaired = false;
-		boolean isDeviceExist = ArrayListUtility
+		BluetoothHandler.BluetoothDeviceLinkableDevice deviceExist = ArrayListUtility
 				.findEqualForBluetoothDeviceLinkableDeviceClass(mBluetoothDeviceLinkableDevice, address);
 
+		/*for debugging
 		for (int i = 0; i < mBluetoothDeviceLinkableDevice.size(); i++)
 		{
 			Logs.showTrace("address: " + mBluetoothDeviceLinkableDevice.get(i).address + " name: "
 					+ mBluetoothDeviceLinkableDevice.get(i).name);
-		}
+		}*/
 		
-		Logs.showTrace("this address device is exist: " + String.valueOf(isDeviceExist));
-
+		
+		
 		// Logs.showTrace(tmp.getAddress());
-		if (isDeviceExist == true)
+		if (null != deviceExist)
 		{
+			Logs.showTrace(
+					"this device is exist: name: " + deviceExist.name + " address: " + deviceExist.address);
+
+			if (deviceExist.address.equals(address) == false)
+			{
+				address = deviceExist.address;
+			}
+
 			mBluetoothDevice= null;
 			mBluetoothDevice = isPairedDevices(address);
 			

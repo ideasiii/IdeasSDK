@@ -11,7 +11,7 @@ public abstract class Common
 	public final static int		TYPE_INTERSTITIALAD			= 2;
 	public static String		Version						= "0.16.01.11";
 
-	public static String		HOST_SERVICE_INIT			= "54.199.198.94";
+	public static String		HOST_SERVICE_INIT			= "140.92.142.65";
 	public static int			PORT_SERVICE_INIT			= 6607;
 
 	public static String		URL_TRACKER_STARTTRACKER	= "";
@@ -19,6 +19,9 @@ public abstract class Common
 
 	public static String		URL_TRACKER_TRACKER		= "";
 	public static int			PORT_TRACKER_TRACKER		= 0;
+	
+	public static String        URL_SDK_TRACKER_INIT    = "54.199.198.94";
+	public static int 			PORT_SDK_TRACKER_INIT   = 6607;
 
 	public static void postMessage(Handler handler, int nWhat, int nArg0, int nArg1, Object obj)
 	{

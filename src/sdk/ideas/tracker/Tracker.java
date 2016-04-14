@@ -36,6 +36,8 @@ public class Tracker extends BaseHandler
 	private HashMap<String, String> message = new HashMap<String, String>();
 	private HashMap<String, String> startTrackerParm = null;
 
+	
+	
 	private Handler privateHandler = new Handler()
 	{
 		@Override
@@ -84,15 +86,15 @@ public class Tracker extends BaseHandler
 					// CMPClient ERROR
 					else if (msg.arg1 <= ResponseCode.ERR_MAX)
 					{
-						message.put("message", "error in transfer data to server ");
-						callBackMessage(ResponseCode.ERR_IO_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-								ResponseCode.METHOLD_TRACKER, message);
+						//message.put("message", "error in transfer data to server ");
+						//callBackMessage(ResponseCode.ERR_IO_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						//		ResponseCode.METHOLD_TRACKER, message);
 						// debug use
-						// message.put("message", (String) msg.obj);
-						// callBackMessage(msg.arg1,
-						// CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-						// ResponseCode.METHOLD_TRACKER,
-						// message);
+						 message.put("message", (String) msg.obj);
+						 callBackMessage(msg.arg1,
+						 CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						 ResponseCode.METHOLD_TRACKER,
+						 message);
 
 					}
 					else
@@ -143,6 +145,20 @@ public class Tracker extends BaseHandler
 
 	public void startTracker(final String app_id, final String fb_id, final String fb_name, final String fb_email)
 	{
+		if(super.getAppIDVaild() == false)
+		{
+			message.put("message", "app id is not vaild");
+			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+					ResponseCode.METHOLD_START_TRACKER, message);
+			return;
+		}
+		
+		//add in sdk tracker
+		sdkTrackerMessage("tracker","startTracker");
+		
+		
+		
+		
 		if (permissonCheck == false)
 		{
 			message.put("message",
@@ -197,6 +213,15 @@ public class Tracker extends BaseHandler
 	public void track(HashMap<String, String> parm)
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
+		
+		if(super.getAppIDVaild() == false)
+		{
+			message.put("message", "app id is not vaild");
+			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+					ResponseCode.METHOLD_TRACKER, message);
+			return;
+		}
+	
 		try
 		{
 
@@ -214,6 +239,13 @@ public class Tracker extends BaseHandler
 						ResponseCode.METHOLD_TRACKER, message);
 				return;
 			}
+			
+			
+			//add in sdk tracker
+			super.sdkTrackerMessage("tracker", "tracker");
+		
+			
+			
 
 			parm.put("ID", this.ID);
 
@@ -251,7 +283,22 @@ public class Tracker extends BaseHandler
 
 	public void stopTracker()
 	{
+		message.clear();
+		if(super.getAppIDVaild() == false)
+		{
+			message.put("message", "app id is not vaild");
+			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+					ResponseCode.METHOLD_STOP_TRACKER, message);
+			return;
+		}
+		
+		//add in sdk tracker
+		super.sdkTrackerMessage("tracker", "stopTracker");
+	
+		
+		
 		availableTracker = false;
+		
 		message.put("message", "success");
 		callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 				ResponseCode.METHOLD_STOP_TRACKER, message);

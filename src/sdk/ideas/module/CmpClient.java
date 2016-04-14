@@ -19,7 +19,7 @@ public abstract class CmpClient
 	public static final int		ERR_INVALID_PARAM	= -10 + ERR_CMP;
 	public static final int		ERR_LOG_DATA_LENGTH	= -11 + ERR_CMP;
 	private static final String	CODE_TYPE			= "UTF-8";
-
+	private static final int nConnectTimeOut = 3000; // 3 秒
 	private final String		VERSION				= "CMP Client Version 0.16.03.23";
 
 	public static class Response
@@ -67,11 +67,16 @@ public abstract class CmpClient
 		}
 
 		Socket msocket = null;
+		
 		response.mnCode = -1;
 
 		try
 		{
-			msocket = new Socket(strIP, nPort);
+			msocket = new Socket();
+			
+			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+			msocket.setSoTimeout(nConnectTimeOut);
+			
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -415,6 +420,7 @@ public abstract class CmpClient
 
 			buf.rewind();
 			// Logs.showTrace("445");
+			Logs.showTrace("socket Length:" + nLength);
 			if (Protocol.CMP_HEADER_SIZE == nLength)
 			{
 				response.mnCode = checkResponse(buf, nSequence);
@@ -682,6 +688,129 @@ public abstract class CmpClient
 		}
 
 	}
+	
+	
+	public static void authenticationRequest(final String strIP, final int nPort, final int nServiceType, String authenticationData,
+			HashMap<String, String> respData, Response response)
+	{
+		if (null == response)
+			return;
+
+		
+
+		Socket msocket = null;
+
+		response.mnCode = -1;
+		try
+		{
+
+			// Logs.showTrace("IP: " + strIP + " port: " + nPort);
+			msocket = new Socket();
+			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+			msocket.setSoTimeout(nConnectTimeOut);
+			
+			if (!validSocket(msocket))
+			{
+				response.mstrContent = "not validSocket";
+				response.mnCode = ERR_SOCKET_INVALID;
+				return;
+			}
+
+			final int nSequence = getSequence();
+			OutputStream outSocket = null;
+
+			outSocket = msocket.getOutputStream();
+
+			InputStream inSocket = null;
+
+			inSocket = msocket.getInputStream();
+
+			int nLength = Protocol.CMP_HEADER_SIZE + 4 + authenticationData.length() + 1;
+
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+			// Head Field Name |Size octets
+			// command length | 4
+			// command id | 4
+			// command status | 4
+			// sequence number | 4
+
+			buf.putInt(nLength);
+			buf.putInt(Protocol.AUTHENTICATION_REQUEST);
+			buf.putInt(0);
+
+			buf.putInt(nSequence);
+
+			respData.put("REQ_LENGTH", String.valueOf(nLength));
+			respData.put("REQ_ID", "signUp_request");
+			respData.put("REQ_STATUS", "0");
+			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
+
+			// Body Field Name Size octets
+			// authenticationType(nServiceType) 4
+			// appid         		MAX 2000
+
+			buf.putInt(nServiceType);
+			respData.put("REQ_BODY_AUTHENTICATION_TYPE", String.valueOf(nServiceType));
+
+			buf.put(authenticationData.getBytes("US-ASCII"));
+			respData.put("REQ_BODY_AUTHENTICATION_DATA", authenticationData);
+
+			buf.put((byte) 0);
+
+			buf.flip();
+
+			outSocket.write(buf.array());
+
+			buf.clear();
+
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+
+			nLength = inSocket.read(buf.array());
+
+			buf.rewind();
+			// Logs.showTrace("test in 298");
+			if (Protocol.CMP_HEADER_SIZE == nLength)
+			{
+				response.mnCode = checkResponse(buf, nSequence);
+				buf.order(ByteOrder.BIG_ENDIAN);
+				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
+				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
+				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
+				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
+
+				// debug
+				// Logs.showTrace(respData.get("REQ_BODY_SIGN_UP_DATA"));
+				// Logs.showTrace(respData.get("RESP_LENGTH"));
+				// Logs.showTrace(respData.get("RESP_ID"));
+				// Logs.showTrace(respData.get("RESP_STATUS"));
+				/// Logs.showTrace(respData.get("RESP_SEQUENCE"));
+
+			}
+			else
+			{
+				response.mnCode = ERR_PACKET_LENGTH;
+				response.mstrContent = "ERR_PACKET_LENGTH !";
+			}
+
+			buf.clear();
+			buf = null;
+			msocket.close();
+			// Logs.showTrace("final sign up");
+
+		}
+		catch (IOException e)
+		{
+			response.mnCode = -1;
+			response.mstrContent = "connected fail, IO exception";
+		}
+
+		// Logs.showTrace(String.valueOf(response.mnCode));
+		
+	
+		
+	}
+	
+	
 
 	public static void mdmRequest(final String strIP, final int nPort, String mdmType, String mdmData,
 			HashMap<String, String> respData, Response response)
@@ -701,7 +830,7 @@ public abstract class CmpClient
 			}
 
 			// Socket msocket = new Socket(strIP, nPort);
-			final int nConnectTimeOut = 3000; // 3 秒
+	
 
 			Socket msocket = new Socket();
 			// This limits the time allowed to establish a connection in the case
@@ -793,7 +922,7 @@ public abstract class CmpClient
 			}
 			else
 			{
-				//Logs.showTrace(String.valueOf(cmpResp.nStatus));
+				Logs.showTrace(String.valueOf(cmpResp.nStatus));
 				nResult = ERR_REQUEST_FAIL;
 			}
 		}

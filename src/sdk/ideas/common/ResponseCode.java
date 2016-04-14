@@ -46,6 +46,8 @@ public abstract class ResponseCode
 	public final static int ERR_DEVICE_NOT_SUPPORT_BLUETOOTH = -25;
 	public final static int ERR_BLUETOOTH_CANCELLED_BY_USER = -26;
 	
+	public final static int ERR_SDK_APP_ID_INVAILD = -27;
+	
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */

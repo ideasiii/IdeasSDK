@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.util.Log;
 import sdk.ideas.common.ResponseCode.ResponseMessage;
 import sdk.ideas.module.DeviceHandler;
+import sdk.ideas.module.SdkTracker;
 
 public abstract class BaseHandler
 {
@@ -21,6 +22,10 @@ public abstract class BaseHandler
 
 	protected boolean permissonCheck = false;
 	
+	private SdkTracker mSdkTracker = null;
+	
+	private HashMap<String,String> sdkTrackerMessage = new HashMap<String, String>();
+	
 	protected BaseHandler(Context context)
 	{
 		if (null != context)
@@ -28,12 +33,55 @@ public abstract class BaseHandler
 			mContext = context;
 			mResponseMessage = new ResponseMessage();
 			listener = new ArrayList<OnCallbackResult> ();
+			
+			//if Control Center ok 
+			//need to realese
+			//sdkTrackerInit();
+			
 		}
 		else
 		{
 			Log.e("MORE SDK ERROR", "Context is NULL");
 		}
 	}
+	
+	private void sdkTrackerInit()
+	{
+		
+		mSdkTracker = new SdkTracker(mContext);
+	}
+	
+	protected void sdkTrackerMessage(String SDKName,String SDKMethod)
+	{
+		sdkTrackerMessage.clear();
+		sdkTrackerMessage.put("SDK", SDKName);
+		sdkTrackerMessage.put("Method", SDKMethod);
+		
+		//if Control Center ok 
+		//need to realese
+		if(null != mSdkTracker)
+		{
+			mSdkTracker.track(sdkTrackerMessage);
+		}
+		else
+		{
+			Logs.showTrace("mSdkTracker is not init");
+		}
+	}
+	protected boolean getAppIDVaild()
+	{
+		if(null != mSdkTracker)
+		{
+			return mSdkTracker.getAppIDVaild();
+		}
+		
+		//if Control Center ok 
+		//need to realese
+		//return false;
+		return true;
+	}
+	
+	
 
 	protected BaseHandler()
 	{
@@ -44,7 +92,7 @@ public abstract class BaseHandler
 	{
 		for (int i = 0; i < permissonList.length; i++)
 		{
-			Logs.showTrace("check this permisson: "+permissonList[i]);
+			//Logs.showTrace("check this permisson: "+permissonList[i]);
 			if (DeviceHandler.hasPermission(mContext, permissonList[i]) == false)
 			{
 				Log.e("PERMISSION ERROR", "please add permission: "+permissonList[i]+" in manifest");
@@ -52,7 +100,7 @@ public abstract class BaseHandler
 			}
 			else
 			{
-				Logs.showTrace("this permisson: "+permissonList[i] +"is in manifest");
+				//Logs.showTrace("this permisson: "+permissonList[i] +"is in manifest");
 			}
 		}
 		permissonCheck = true;
