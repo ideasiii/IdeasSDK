@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import sdk.ideas.common.BaseReceiver;
+import sdk.ideas.common.CommonClass.BluetoothDeviceLinkableDevice;
 import sdk.ideas.common.Logs;
 import sdk.ideas.ctrl.bluetooth.BluetoothHandler;
 
@@ -100,7 +101,7 @@ public class BluetoothReceiver extends BaseReceiver
 				actionData.put("action", intent.getAction());
 
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-				BluetoothHandler.mBluetoothDeviceLinkableDevice.add(new BluetoothHandler.BluetoothDeviceLinkableDevice(device.getName(),device.getAddress()));
+				BluetoothHandler.mBluetoothDeviceLinkableDevice.add(new BluetoothDeviceLinkableDevice(device.getName(),device.getAddress()));
 				actionData.put("deviceName", device.getName());
 				actionData.put("deviceAddress", device.getAddress());
 				btDeviceList.add(device);

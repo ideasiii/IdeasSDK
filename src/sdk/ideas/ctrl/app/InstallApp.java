@@ -13,8 +13,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
+import sdk.ideas.common.CommonClass.AppData;
 import sdk.ideas.common.IOFileHandler;
-import sdk.ideas.ctrl.app.ApplicationHandler.AppData;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class InstallApp

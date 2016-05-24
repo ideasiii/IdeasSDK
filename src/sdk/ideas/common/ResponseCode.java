@@ -44,9 +44,14 @@ public abstract class ResponseCode
 	public final static int ERR_GET_POWER_STATE_FAIL    = -24;
 	
 	public final static int ERR_DEVICE_NOT_SUPPORT_BLUETOOTH = -25;
-	public final static int ERR_BLUETOOTH_CANCELLED_BY_USER = -26;
 	
-	public final static int ERR_SDK_APP_ID_INVAILD = -27;
+	public final static int ERR_BLUETOOTH_CANCELLED_BY_USER = -26;
+	public final static int ERR_BLUETOOTH_DISCOVERABLE_CANCELLED_BY_USER = -27;
+
+	public final static int ERR_BLUETOOTH_DEVICE_NOT_FOUND = -28;
+	public final static int ERR_BLUETOOTH_DEVICE_BOND_FAIL = -29;
+	
+	public final static int ERR_SDK_APP_ID_INVAILD = -31;
 	
 	public static final int ERR_MAX                            = -100;
 
@@ -112,17 +117,27 @@ public abstract class ResponseCode
 	
 	//ctrl bluetooth
 	public final static int METHOD_SETUP_BLUETOOTH = 0;
+	
 	public final static int METHOD_BLUETOOTH_DISCOVERING_NEW_DEVICE = 1;
 	public final static int METHOD_BLUETOOTH_DISCOVER_FINISHED = 2;
+	
 	public final static int BLUETOOTH_IS_ON = 3;
 	public final static int BLUETOOTH_IS_OFF = 4;
+	
 	public final static int METHOD_DISCOVERABLE_BLUETOOTH = 5;
 	public final static int METHOD_SCAN_MODE_CHANGE_BLUETOOTH = 6;
 	public final static int METHOD_BOND_STATE_CHANGE_BLUETOOTH = 7;
-	public final static int METHOD_RETURN_MESSAGE_BLUETOOTH = 8;
-	public final static int METHOD_CLOSE_BLUETOOTH_LINK = 9;
+	
+	public final static int METHOD_OPEN_BLUETOOTH_CONNECTED_LINK = 8;
+	public final static int METHOD_CLOSE_BLUETOOTH_CONNECTED_LINK = 9;
+	
 	public final static int METHOD_SEND_MESSAGE_BLUETOOTH = 10;
 	public final static int METHOD_GET_MESSAGE_BLUETOOTH = 11;
+	
+	
+	
+	
+	
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;

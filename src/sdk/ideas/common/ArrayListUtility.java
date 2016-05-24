@@ -3,14 +3,16 @@ package sdk.ideas.common;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import sdk.ideas.ctrl.app.ApplicationHandler.AppData;
-import sdk.ideas.ctrl.applist.ApplicationList.AppInfo;
-import sdk.ideas.ctrl.bluetooth.BluetoothHandler;
+import sdk.ideas.common.CommonClass.AppData;
+import sdk.ideas.common.CommonClass.AppInfo;
+import sdk.ideas.common.CommonClass.BluetoothDeviceLinkableDevice;
 
 public class ArrayListUtility
 {
 	public static boolean findContainAndRemove(ArrayList<String> data, String keyword)
 	{
+		if(null == data)
+			return false;
 		Iterator<String> iter = data.iterator();
 		while (iter.hasNext())
 		{
@@ -26,6 +28,8 @@ public class ArrayListUtility
 
 	public static boolean findContainAndRemoveForAppDataClass(ArrayList<AppData> data, String keyword)
 	{
+		if(null == data)
+			return false;
 		Iterator<AppData> iter = data.iterator();
 		while (iter.hasNext())
 		{
@@ -41,6 +45,8 @@ public class ArrayListUtility
 
 	public static boolean findContainForAppDataClass(ArrayList<AppData> data, String keyword)
 	{
+		if(null == data)
+			return false;
 		Iterator<AppData> iter = data.iterator();
 		while (iter.hasNext())
 		{
@@ -55,6 +61,8 @@ public class ArrayListUtility
 
 	public static boolean findEqualAndRemoveForAppDataClass(ArrayList<AppData> data, String keyword)
 	{
+		if(null == data)
+			return false;
 		Iterator<AppData> iter = data.iterator();
 		while (iter.hasNext())
 		{
@@ -70,6 +78,8 @@ public class ArrayListUtility
 
 	public static AppData findEqualForAppDataClass(ArrayList<AppData> data, String keyword)
 	{
+		if(null == data)
+			return null;
 		Iterator<AppData> iter = data.iterator();
 		while (iter.hasNext())
 		{
@@ -84,16 +94,20 @@ public class ArrayListUtility
 
 	}
 
-	public static BluetoothHandler.BluetoothDeviceLinkableDevice findEqualForBluetoothDeviceLinkableDeviceClass(
-			ArrayList<BluetoothHandler.BluetoothDeviceLinkableDevice> data, String source)
+	public static BluetoothDeviceLinkableDevice findEqualForBluetoothDeviceLinkableDeviceClass(
+			ArrayList<BluetoothDeviceLinkableDevice> data, String source)
 	{
 		if (null != data && null != source)
 		{
-			Iterator<BluetoothHandler.BluetoothDeviceLinkableDevice> iter = data.iterator();
+			Iterator<BluetoothDeviceLinkableDevice> iter = data.iterator();
 			while (iter.hasNext())
 			{
-				BluetoothHandler.BluetoothDeviceLinkableDevice tmp = iter.next();
-				if (tmp.address.equals(source) || tmp.name.equals(source))
+				BluetoothDeviceLinkableDevice tmp = iter.next();
+				if (null != tmp.address && tmp.address.equals(source))
+				{
+					return tmp;
+				}
+				else if(null != tmp.name && tmp.name.equals(source))
 				{
 					return tmp;
 				}
@@ -104,6 +118,8 @@ public class ArrayListUtility
 
 	public static AppData findEqualForAppDataClass(ArrayList<AppData> data, int appID)
 	{
+		if(null == data)
+			return null;
 		Iterator<AppData> iter = data.iterator();
 		while (iter.hasNext())
 		{
@@ -185,5 +201,7 @@ public class ArrayListUtility
 		}
 
 	}
+
+	
 
 }

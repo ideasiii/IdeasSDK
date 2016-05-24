@@ -351,7 +351,6 @@ public abstract class CmpClient
 			response.mnCode = ResponseCode.ERR_UNSUPPORTED_ENCODING_EXCEPTION;
 			return;
 		}
-		// Logs.showTrace("377");
 		try
 		{
 			// Logs.showTrace("strIP: " + strIP + " port: " + nPort);
@@ -375,7 +374,7 @@ public abstract class CmpClient
 
 							//			header +  nServiceType  +   accessLogData + endChar
  			int nLength = Protocol.CMP_HEADER_SIZE + 4 + accessLogData.getBytes(CODE_TYPE).length + 1+255;
-
+ 			//Logs.showTrace("socket length: "+ String.valueOf(nLength));
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
 
 			// Head Field Name Size octets

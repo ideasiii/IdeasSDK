@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.util.Log;
+import sdk.ideas.common.CommonClass.AppInfo;
 
 public class ApplicationList
 {
@@ -105,26 +105,6 @@ public class ApplicationList
 	}
 	
 
-	public static class AppInfo
-	{
-		public String appName = "";
-		public String appPackageName = "";
-		public String appVersionName = "";
-		public int appVersionCode = 0;
-
-		public AppInfo(String appName, String appPackageName, String appVersionName, int appVersionCode)
-		{
-			this.appName = appName;
-			this.appPackageName = appPackageName;
-			this.appVersionName = appVersionName;
-			this.appVersionCode = appVersionCode;
-		}
-
-		public void print()
-		{
-			Log.d("app info", " app: " + appName + " | package: " + appPackageName + " | version: " + appVersionName
-					+ " | version code:  " + appVersionCode);
-		}
-	}
+	
 
 }

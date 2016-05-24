@@ -9,12 +9,12 @@ import android.content.Context;
 import android.os.Environment;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CommonClass.AppInfo;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.ArrayListUtility.FileData;
 import sdk.ideas.ctrl.applist.ApplicationList;
-import sdk.ideas.ctrl.applist.ApplicationList.AppInfo;
 
 public class RecordHandler extends BaseHandler
 {

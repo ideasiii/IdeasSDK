@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.os.NetworkOnMainThreadException;
 import sdk.ideas.common.ArrayListUtility;
 import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CommonClass.AppData;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.ListenReceiverAction;
@@ -274,20 +275,6 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	 * installed; }
 	 */
 
-	public static class AppData
-	{
-		public String downloadPath = "";
-		public String packageName = "";
-		public int appID;
-		public String fileName = "";
-
-		public AppData(String packageName, String downloadPath, String fileName, int appID)
-		{
-			this.downloadPath = downloadPath;
-			this.packageName = packageName;
-			this.appID = appID;
-			this.fileName = fileName;
-		}
-	}
+	
 
 }
