@@ -120,7 +120,7 @@ public class MongoDBHandler
 		mongoCollection.updateOne(queryCondition, updateSetValue);
 	}
 
-	public void insert(String collectionName, String jsonData) throws MongoWriteException
+	public void insertToBackupDB(String collectionName, String jsonData) throws MongoWriteException
 	{
 		String backupDBName = "backup" + String.valueOf(Calendar.getInstance().get(Calendar.YEAR));// +String.valueOf(Calendar.getInstance().get(Calendar.MONTH));
 		System.out.println(backupDBName);
