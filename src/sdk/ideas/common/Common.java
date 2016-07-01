@@ -11,7 +11,7 @@ public abstract class Common
 	public final static int		TYPE_INTERSTITIALAD			= 2;
 	public static String		Version						= "0.16.01.11";
 
-	public static String		HOST_SERVICE_INIT			= "140.92.142.65";//"54.199.198.94";
+	public static String		HOST_SERVICE_INIT			= "54.199.198.94";//"140.92.142.65";//"54.199.198.94";//"140.92.142.65";//"140.92.142.158";////"54.199.198.94";
 	public static int			PORT_SERVICE_INIT			= 6607;
 
 	public static String		URL_TRACKER_STARTTRACKER	= "";
