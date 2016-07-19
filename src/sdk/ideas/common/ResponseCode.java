@@ -52,6 +52,8 @@ public abstract class ResponseCode
 	public final static int ERR_BLUETOOTH_DEVICE_BOND_FAIL = -29;
 	
 	public final static int ERR_SDK_APP_ID_INVAILD = -31;
+	public final static int ERR_ACTIVITY_NOT_FOUND = -32;
+	public final static int ERR_DEVICE_NOT_SUPPORT = -33;
 	
 	public static final int ERR_MAX                            = -100;
 
@@ -134,6 +136,9 @@ public abstract class ResponseCode
 	public final static int METHOD_SEND_MESSAGE_BLUETOOTH = 10;
 	public final static int METHOD_GET_MESSAGE_BLUETOOTH = 11;
 	
+	//tool google speech recognizer
+	public final static int METHOD_START_SPEECH_RECOGNIZER_SIMPLE = 0;
+	public final static int METHOD_RETURN_TEXT_SPEECH_RECOGNIZER_SIMPLE = 1;
 	
 	
 	
@@ -153,5 +158,9 @@ public abstract class ResponseCode
 		
 		
 	}
+
+
+
+
 
 }

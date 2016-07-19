@@ -10,6 +10,10 @@ public abstract class CtrlType
 	public final static int REQUEST_CODE_ENABLE_BLUETOOTH  = 3334;
 	public final static int REQUEST_CODE_DISCOVERABLE_BLUETOOTH  = 3335;
 	
+	/*Google 語音response code*/
+	public final static int REQUEST_CODE_GOOGLE_SPEECH_SIMPLE = 3336;
+	public final static int REQUEST_CODE_GOOGLE_SPEECH_CUSTOM = 3337;
+	
 	public final static int MSG_RESPONSE_TRACKER_HANDLER = 1029;
 	public final static int MSG_RESPONSE_DEVICE_ADMIN_HANDLER = 1030;
 	public final static int MSG_RESPONSE_CAMERA_HANDLER = 1031;
@@ -26,5 +30,6 @@ public abstract class CtrlType
 	public final static int MSG_RESPONSE_WIFI_HANDLER = 1041;
 	
 	public final static int MSG_RESPONSE_BLUETOOTH_HANDLER = 1042;
+	public final static int MSG_RESPONSE_SPEECH_RECOGNITION_HANDLER = 1043;
 
 }

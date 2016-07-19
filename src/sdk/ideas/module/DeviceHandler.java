@@ -3,7 +3,9 @@ package sdk.ideas.module;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.regex.Pattern;
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -76,7 +78,51 @@ public class DeviceHandler
 			return null;
 		WifiManager wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
 		WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+		if(wifiInfo.getMacAddress().equals("02:00:00:00:00:00"))
+		{
+			return getMacAddr();
+		}
 		return wifiInfo.getMacAddress();
+	}
+	
+	
+	/**
+	 * Prepare for Android 6.0 (M) or up version to get MAC Address
+	 * modify joe 2016/07/11
+	 * 
+	 * */
+	public static String getMacAddr()
+	{
+		try
+		{
+			List<NetworkInterface> all = Collections.list(NetworkInterface.getNetworkInterfaces());
+			for (NetworkInterface nif : all)
+			{
+				if (!nif.getName().equalsIgnoreCase("wlan0"))
+					continue;
+
+				byte[] macBytes = nif.getHardwareAddress();
+				if (macBytes == null)
+				{
+					return "";
+				}
+
+				StringBuilder res1 = new StringBuilder();
+				for (byte b : macBytes)
+				{
+					res1.append(Integer.toHexString(b & 0xFF) + ":");
+				}
+				if (res1.length() > 0)
+				{
+					res1.deleteCharAt(res1.length() - 1);
+				}
+				return res1.toString();
+			}
+		}
+		catch (Exception ex)
+		{
+		}
+		return "02:00:00:00:00:00";
 	}
 
 	public String getPhoneNumber()
