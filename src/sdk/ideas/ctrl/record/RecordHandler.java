@@ -20,7 +20,7 @@ public class RecordHandler extends BaseHandler
 {
 	private boolean isRecordSystemApp = false;
 
-	private HashMap<String, String> message = null;
+	//private HashMap<String, String> message = null;
 
 	private boolean isWriteFile = false;
 
@@ -45,7 +45,6 @@ public class RecordHandler extends BaseHandler
 	public RecordHandler(Context context)
 	{
 		super(context);
-		message = new HashMap<String, String>();
 	}
 
 	public void setWritePathAndFileName(boolean isWriteInternalMemory, String externalPath, String appFileName,
@@ -95,15 +94,17 @@ public class RecordHandler extends BaseHandler
 
 	public void record()
 	{
+		HashMap<String,String> message = new HashMap<String,String>();
+		
 		if (recordFileFlag == true)
 		{
-			recordFilePathInSDCard(true);
-			if (isFilePathRecordOK)
+			recordFilePathInSDCard(false);
+			/*if (isFilePathRecordOK)
 			{
 				message.put("message", "success");
-				super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
+				callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 				message.clear();
-			}
+			}*/
 		}
 		if (recordAppFlag == true)
 		{
@@ -138,6 +139,7 @@ public class RecordHandler extends BaseHandler
 	 */
 	private ArrayList<String> recordApplication()
 	{
+		HashMap<String,String> message = new HashMap<String,String>();
 		ArrayList<AppInfo> appList = ApplicationList.getInstalledApps(mContext, isRecordSystemApp);
 		ArrayList<String> appListString = ArrayListUtility.AppInfoConvertToArrayListString(appList);
 
@@ -190,6 +192,7 @@ public class RecordHandler extends BaseHandler
 
 	private void recordFilePathInSDCard(boolean isWaitForResult)
 	{
+		HashMap<String,String> message = new HashMap<String,String>();
 		Thread recordManager = null;
 		if (null == particularPathScan)
 		{
@@ -236,6 +239,7 @@ public class RecordHandler extends BaseHandler
 		@Override
 		public void run()
 		{
+			HashMap<String,String> message = new HashMap<String,String>();
 			try
 			{
 				if (scanParticularPath == true)
@@ -293,9 +297,13 @@ public class RecordHandler extends BaseHandler
 				message.put("message", e.toString());
 				callBackMessage(ResponseCode.ERR_UNKNOWN,CtrlType.MSG_RESPONSE_RECORD_HANDLER, ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
 			}
-			finally
+			
+			if (isFilePathRecordOK != false)
 			{
-				message.clear();
+				message.put("message", "success");
+				callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_RECORD_HANDLER,
+						ResponseCode.METHOD_RECORD_SDCARD_FILE, message);
+
 			}
 		}
 
@@ -314,7 +322,8 @@ public class RecordHandler extends BaseHandler
 	 */
 	private ArrayList<FileData> recordAllFilePath()
 	{
-
+		HashMap<String,String> message = new HashMap<String,String>();
+		
 		ArrayList<FileData> datas = new ArrayList<FileData>();
 		
 		if (IOFileHandler.isExternalStorageReadable())
@@ -337,6 +346,7 @@ public class RecordHandler extends BaseHandler
 
 	private ArrayList<FileData> recordFilePath(ArrayList<String> particularlyPath)
 	{
+		HashMap<String,String> message = new HashMap<String,String>();
 		ArrayList<FileData> datas = new ArrayList<FileData>();
 
 		if (IOFileHandler.isExternalStorageReadable())

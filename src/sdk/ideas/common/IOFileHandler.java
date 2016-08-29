@@ -380,9 +380,14 @@ public class IOFileHandler
 		if (externalMemoryAvailable())
 		{
 			String secondaryStorage = System.getenv("SECONDARY_STORAGE");
+			//joe fix bug 16/08/05
+			if(null == secondaryStorage)
+			{
+				return -1;
+			}
 			File f_secs = new File(secondaryStorage);
 			StatFs stat = new StatFs(f_secs.getPath());
-
+			
 			if (getTotalBlockSize(stat) == 0.0)
 			{
 				return -1;
@@ -407,7 +412,11 @@ public class IOFileHandler
 		if (externalMemoryAvailable())
 		{
 			String secondaryStorage = System.getenv("SECONDARY_STORAGE");
-			Logs.showTrace(secondaryStorage);
+			//joe fix bug 16/08/05
+			if(null == secondaryStorage)
+			{
+				return -1;
+			}
 			File f_secs = new File(secondaryStorage);
 			StatFs stat = new StatFs(f_secs.getPath());
 

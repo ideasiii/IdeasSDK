@@ -60,7 +60,14 @@ public abstract class Protocol
 
 	static public final int	MDM_OPERATE_REQUEST			= 0x00000017;
 	static public final int	MDM_OPERATE_RESPONSE		= 0x80000017;
-
+	
+	static public final int	MDM_LOGOUT_REQUEST			= 0x00000018;
+	static public final int	MDM_LOGOUT_RESPONSE			= 0x80000018;
+	
+	static public final int	MDM_STATE_REQUEST			= 0x00000019;
+	static public final int	MDM_STATE_RESPONSE			= 0x80000019;
+	
+	//despected
 	static public final int	SDK_TRACKER_REQUEST			= 0x00000018;
 	static public final int	SDK_TRACKER_RESPONSE		= 0x80000018;
 

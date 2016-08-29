@@ -20,6 +20,8 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 	private static boolean isListenReceiverOn = false;
 	private static boolean isWifiFlag = false;
 	
+	private boolean openWifiAuto = false;
+	
 	private HashMap<String, String> message = null;
 
 	public WifiHandler(Context context)
@@ -48,9 +50,12 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 					{
 						if (isWifiFlag == false)
 						{
-							Logs.showTrace("open wifi");
-							mWifiAdmin.setWifiEnable();
-							isWifiFlag = true;
+							if (openWifiAuto == true)
+							{
+								Logs.showTrace("open wifi");
+								mWifiAdmin.setWifiEnable();
+								isWifiFlag = true;
+							}
 						}
 					}
 					else
@@ -71,6 +76,15 @@ public class WifiHandler extends BaseHandler implements ListenReceiverAction
 		mWifiAdmin.startScan();
 		return mWifiAdmin.lookUpScanResult();
 	}
+	
+	public void setOpenWifiAuto(boolean openWifiAuto)
+	{
+		if(openWifiAuto == true)
+		{
+			this.openWifiAuto = openWifiAuto;
+		}
+	}
+	
 
 	/**
 	 * WifiLock Allows an application to keep the Wi-Fi radio awake lockType:

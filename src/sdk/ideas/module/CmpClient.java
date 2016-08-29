@@ -11,21 +11,21 @@ import sdk.ideas.common.ResponseCode;
 
 public abstract class CmpClient
 {
-	private static final int	ERR_CMP				= -1000;
-	public static final int		ERR_PACKET_LENGTH	= -6 + ERR_CMP;
-	public static final int		ERR_PACKET_SEQUENCE	= -7 + ERR_CMP;
-	public static final int		ERR_REQUEST_FAIL	= -8 + ERR_CMP;
-	public static final int		ERR_SOCKET_INVALID	= -9 + ERR_CMP;
-	public static final int		ERR_INVALID_PARAM	= -10 + ERR_CMP;
-	public static final int		ERR_LOG_DATA_LENGTH	= -11 + ERR_CMP;
-	private static final String	CODE_TYPE			= "UTF-8";
+	private static final int ERR_CMP = -1000;
+	public static final int ERR_PACKET_LENGTH = -6 + ERR_CMP;
+	public static final int ERR_PACKET_SEQUENCE = -7 + ERR_CMP;
+	public static final int ERR_REQUEST_FAIL = -8 + ERR_CMP;
+	public static final int ERR_SOCKET_INVALID = -9 + ERR_CMP;
+	public static final int ERR_INVALID_PARAM = -10 + ERR_CMP;
+	public static final int ERR_LOG_DATA_LENGTH = -11 + ERR_CMP;
+	private static final String CODE_TYPE = "UTF-8";
 	private static final int nConnectTimeOut = 3000; // 3 秒
-	private final String		VERSION				= "CMP Client Version 0.16.03.23";
+	private final String VERSION = "CMP Client Version 0.16.07.27";
 
 	public static class Response
 	{
-		public int		mnCode		= 0;
-		public String	mstrContent	= null;
+		public int mnCode = 0;
+		public String mstrContent = null;
 	}
 
 	@Override
@@ -67,16 +67,16 @@ public abstract class CmpClient
 		}
 
 		Socket msocket = null;
-		
+
 		response.mnCode = -1;
 
 		try
 		{
 			msocket = new Socket();
-			
+
 			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
 			msocket.setSoTimeout(nConnectTimeOut);
-			
+
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -157,11 +157,18 @@ public abstract class CmpClient
 				// debug
 
 				/*
-				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH")); Logs.showTrace("REQ_ID: " + respData.get("REQ_ID")); Logs.showTrace("REQ_STATUS: " +
-				 * respData.get("REQ_STATUS")); Logs.showTrace("REQ_SEQUENCE: " + respData.get("REQ_SEQUENCE")); Logs.showTrace( "REQ_BODY_INIT_TYPE: " +
-				 * respData.get("REQ_BODY_INIT_TYPE")); Logs.showTrace("RESP_LENGTH: " + respData.get("RESP_LENGTH")); Logs.showTrace("RESP_ID: " + respData.get("RESP_ID"));
-				 * Logs.showTrace("RESP_STATUS: " + respData.get("RESP_STATUS")); Logs.showTrace( "RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE")); Logs.showTrace("RESP_BODY: " +
-				 * respData.get("RESP_BODY"));
+				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				 * Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
+				 * Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
+				 * Logs.showTrace("REQ_SEQUENCE: " +
+				 * respData.get("REQ_SEQUENCE")); Logs.showTrace(
+				 * "REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
+				 * Logs.showTrace("RESP_LENGTH: " +
+				 * respData.get("RESP_LENGTH")); Logs.showTrace("RESP_ID: " +
+				 * respData.get("RESP_ID")); Logs.showTrace("RESP_STATUS: " +
+				 * respData.get("RESP_STATUS")); Logs.showTrace(
+				 * "RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
+				 * Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
 				 */
 
 			}
@@ -261,7 +268,7 @@ public abstract class CmpClient
 
 			// Body Field Name Size octets
 			// signUpType(nServiceType) 4
-			// signUpDATA         MAX 2000
+			// signUpDATA MAX 2000
 
 			buf.putInt(nServiceType);
 			respData.put("REQ_BODY_SIGN_UP_TYPE", String.valueOf(nServiceType));
@@ -372,9 +379,9 @@ public abstract class CmpClient
 
 			inSocket = msocket.getInputStream();
 
-							//			header +  nServiceType  +   accessLogData + endChar
- 			int nLength = Protocol.CMP_HEADER_SIZE + 4 + accessLogData.getBytes(CODE_TYPE).length + 1+255;
- 			//Logs.showTrace("socket length: "+ String.valueOf(nLength));
+			// header + nServiceType + accessLogData + endChar
+			int nLength = Protocol.CMP_HEADER_SIZE + 4 + accessLogData.getBytes(CODE_TYPE).length + 1 + 255;
+			// Logs.showTrace("socket length: "+ String.valueOf(nLength));
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
 
 			// Head Field Name Size octets
@@ -402,9 +409,9 @@ public abstract class CmpClient
 
 			buf.put(accessLogData.getBytes(CODE_TYPE));
 			respData.put("REQ_BODY_ACCESS_LOG_DATA", accessLogData);
-			
+
 			buf.put((byte) 0);
-			Logs.showTrace("put success");
+			//Logs.showTrace("put success");
 
 			buf.flip();
 			// Logs.showTrace("434");
@@ -454,7 +461,8 @@ public abstract class CmpClient
 			response.mstrContent = "IOException, network inconnect";
 		}
 		/*
-		 * catch(Exception e) { response.mnCode = 0; response.mstrContent = e.toString(); }
+		 * catch(Exception e) { response.mnCode = 0; response.mstrContent =
+		 * e.toString(); }
 		 */
 
 	}
@@ -687,15 +695,12 @@ public abstract class CmpClient
 		}
 
 	}
-	
-	
-	public static void authenticationRequest(final String strIP, final int nPort, final int nServiceType, String authenticationData,
-			HashMap<String, String> respData, Response response)
+
+	public static void authenticationRequest(final String strIP, final int nPort, final int nServiceType,
+			String authenticationData, HashMap<String, String> respData, Response response)
 	{
 		if (null == response)
 			return;
-
-		
 
 		Socket msocket = null;
 
@@ -707,7 +712,7 @@ public abstract class CmpClient
 			msocket = new Socket();
 			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
 			msocket.setSoTimeout(nConnectTimeOut);
-			
+
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -746,7 +751,7 @@ public abstract class CmpClient
 
 			// Body Field Name Size octets
 			// authenticationType(nServiceType) 4
-			// appid         		MAX 2000
+			// appid MAX 2000
 
 			buf.putInt(nServiceType);
 			respData.put("REQ_BODY_AUTHENTICATION_TYPE", String.valueOf(nServiceType));
@@ -804,18 +809,511 @@ public abstract class CmpClient
 		}
 
 		// Logs.showTrace(String.valueOf(response.mnCode));
-		
-	
-		
-	}
-	
-	
 
-	public static void mdmRequest(final String strIP, final int nPort, String mdmType, String mdmData,
+	}
+
+	/**
+	 * 取得MDM指令 get command request/operate request
+	 */
+	public static void mdmGetCommandRequest(final String strIP, final int nPort, String mdmData,
+			HashMap<String, String> respData, Response response,Socket msocket)
+	{
+		boolean isOutsideSocket = false;
+		
+		if (null == mdmData || null == respData || null == response)
+		{
+			return;
+		}
+		try
+		{
+			if (null == msocket)
+			{
+				msocket = new Socket();
+				msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+				msocket.setSoTimeout(nConnectTimeOut);
+			}
+			else
+			{
+				isOutsideSocket = true;
+			}
+			if (!validSocket(msocket))
+			{
+				response.mstrContent = "not validSocket";
+				response.mnCode = ERR_SOCKET_INVALID;
+				return;
+			}
+			final int nSequence = getSequence();
+
+			OutputStream outSocket = null;
+			outSocket = msocket.getOutputStream();
+
+			InputStream inSocket = null;
+			inSocket = msocket.getInputStream();
+
+			// header + mdmData + endChar
+			int nLength = Protocol.CMP_HEADER_SIZE + mdmData.getBytes(CODE_TYPE).length + 1;
+			// Logs.showTrace("socket length: "+ String.valueOf(nLength));
+
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+			// Head Field Name Size octets
+			// command length 4
+			// command id 4
+			// command status 4
+			// sequence number 4
+
+			buf.putInt(nLength);
+			buf.putInt(Protocol.MDM_OPERATE_REQUEST);
+			buf.putInt(0);
+			buf.putInt(nSequence);
+			
+			respData.put("REQ_LENGTH", String.valueOf(nLength));
+			respData.put("REQ_ID", "mdm_operate_request");
+			respData.put("REQ_STATUS", "0");
+			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
+			
+			// Body Field Name Size 
+			//mdmData string
+			buf.put(mdmData.getBytes(CODE_TYPE));
+			respData.put("REQ_BODY_MDM_DATA", mdmData);
+			//add endChar
+			buf.put((byte) 0);
+			//Logs.showTrace("end put socket");
+
+			buf.flip();
+			outSocket.write(buf.array());
+
+			buf.clear();
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+
+			nLength = inSocket.read(buf.array());
+			buf.rewind();
+			
+			if (Protocol.CMP_HEADER_SIZE <= nLength)
+			{
+				response.mnCode = checkResponse(buf, nSequence);
+				buf.order(ByteOrder.BIG_ENDIAN);
+
+				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
+				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
+
+				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
+				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
+
+				if (ResponseCode.ERR_SUCCESS == response.mnCode)
+				{
+					byte[] bytes = new byte[buf.getInt(0)];
+					// Logs.showTrace(String.valueOf("remaining " +
+					// buf.remaining()));
+					buf.get(bytes);
+					String strTemp = new String(bytes, Charset.forName(CODE_TYPE));
+					String strBody = strTemp.substring(16);
+					respData.put("RESP_BODY", strBody);
+
+					response.mstrContent = respData.get("RESP_BODY");
+				}
+
+				// debug
+				/*
+				Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
+				Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
+				Logs.showTrace("REQ_SEQUENCE: " + respData.get("REQ_SEQUENCE"));
+				Logs.showTrace("REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
+				Logs.showTrace("RESP_LENGTH: " + respData.get("RESP_LENGTH"));
+				Logs.showTrace("RESP_ID: " + respData.get("RESP_ID"));
+				Logs.showTrace("RESP_STATUS: " + respData.get("RESP_STATUS"));
+				Logs.showTrace("RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
+				Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
+				 */
+
+			}
+			else
+			{
+				response.mnCode = ERR_PACKET_LENGTH;
+				response.mstrContent = "ERR_PACKET_LENGTH !";
+			}
+
+			buf.clear();
+			buf = null;
+			if(isOutsideSocket == false)
+			{
+				msocket.close();
+			}
+
+		}
+		catch (IOException e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+		catch (Exception e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+
+	}
+
+	/**
+	 * 與Server做MDM Login
+	 */
+	public static void mdmLoginRequest(final String strIP, final int nPort, String mdmData,
 			HashMap<String, String> respData, Response response)
 	{
+		Socket msocket = null;
+		if (null == mdmData || null == respData || null == response)
+		{
+			return;
+		}
+		try
+		{
+			msocket = new Socket();
+			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+			msocket.setSoTimeout(nConnectTimeOut);
+			if (!validSocket(msocket))
+			{
+				response.mstrContent = "not validSocket";
+				response.mnCode = ERR_SOCKET_INVALID;
+				return;
+			}
+			final int nSequence = getSequence();
 
-		// ....
+			OutputStream outSocket = null;
+			outSocket = msocket.getOutputStream();
+
+			InputStream inSocket = null;
+			inSocket = msocket.getInputStream();
+
+			// header + mdmData + endChar
+			int nLength = Protocol.CMP_HEADER_SIZE + mdmData.getBytes(CODE_TYPE).length + 1;
+			// Logs.showTrace("socket length: "+ String.valueOf(nLength));
+
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+			// Head Field Name Size octets
+			// command length 4
+			// command id 4
+			// command status 4
+			// sequence number 4
+			buf.putInt(nLength);
+			buf.putInt(Protocol.MDM_LOGIN_REQUEST);
+			buf.putInt(0);
+			buf.putInt(nSequence);
+			
+			respData.put("REQ_LENGTH", String.valueOf(nLength));
+			respData.put("REQ_ID", "mdm_login_request");
+			respData.put("REQ_STATUS", "0");
+			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
+			
+			// Body Field Name Size
+			// mdmData string
+			buf.put(mdmData.getBytes(CODE_TYPE));
+			respData.put("REQ_BODY_MDM_DATA", mdmData);
+			//add endChar
+			buf.put((byte) 0);
+			//Logs.showTrace("end put socket");
+
+			buf.flip();
+			outSocket.write(buf.array());
+
+			buf.clear();
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+
+			nLength = inSocket.read(buf.array());
+			buf.rewind();
+
+			if (Protocol.CMP_HEADER_SIZE <= nLength)
+			{
+				response.mnCode = checkResponse(buf, nSequence);
+				buf.order(ByteOrder.BIG_ENDIAN);
+
+				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
+				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
+
+				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
+				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
+
+				if (ResponseCode.ERR_SUCCESS == response.mnCode)
+				{
+					byte[] bytes = new byte[buf.getInt(0)];
+					// Logs.showTrace(String.valueOf("remaining " +
+					// buf.remaining()));
+					buf.get(bytes);
+					String strTemp = new String(bytes, Charset.forName(CODE_TYPE));
+					String strBody = strTemp.substring(16);
+					respData.put("RESP_BODY", strBody);
+
+					response.mstrContent = respData.get("RESP_BODY");
+				}
+
+				// debug
+				/*
+				Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
+				Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
+				Logs.showTrace("REQ_SEQUENCE: " + respData.get("REQ_SEQUENCE"));
+				Logs.showTrace("REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
+				Logs.showTrace("RESP_LENGTH: " + respData.get("RESP_LENGTH"));
+				Logs.showTrace("RESP_ID: " + respData.get("RESP_ID"));
+				Logs.showTrace("RESP_STATUS: " + respData.get("RESP_STATUS"));
+				Logs.showTrace("RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
+				Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
+				 */
+
+			}
+			else
+			{
+				response.mnCode = ERR_PACKET_LENGTH;
+				response.mstrContent = "ERR_PACKET_LENGTH !";
+			}
+
+			buf.clear();
+			buf = null;
+			msocket.close();
+			
+		}
+		catch (IOException e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+		catch (Exception e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+	}
+
+	/**
+	 * 與Server做MDM Logout
+	 */
+	public static void mdmLogoutRequest(final String strIP, final int nPort, String mdmData,
+			HashMap<String, String> respData, Response response)
+	{
+		Socket msocket = null;
+		if (null == mdmData || null == respData || null == response)
+		{
+			return;
+		}
+		try
+		{
+			msocket = new Socket();
+			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+			msocket.setSoTimeout(nConnectTimeOut);
+			if (!validSocket(msocket))
+			{
+				response.mstrContent = "not validSocket";
+				response.mnCode = ERR_SOCKET_INVALID;
+				return;
+			}
+			final int nSequence = getSequence();
+
+			OutputStream outSocket = null;
+			outSocket = msocket.getOutputStream();
+
+			InputStream inSocket = null;
+			inSocket = msocket.getInputStream();
+
+			// header + mdmData + endChar
+			int nLength = Protocol.CMP_HEADER_SIZE + mdmData.getBytes(CODE_TYPE).length + 1;
+			// Logs.showTrace("socket length: "+ String.valueOf(nLength));
+
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+			// Head Field Name Size octets
+			// command length 4
+			// command id 4
+			// command status 4
+			// sequence number 4
+
+			buf.putInt(nLength);
+			buf.putInt(Protocol.MDM_LOGOUT_REQUEST);
+			buf.putInt(0);
+			buf.putInt(nSequence);
+			
+			respData.put("REQ_LENGTH", String.valueOf(nLength));
+			respData.put("REQ_ID", "mdm_logout_request");
+			respData.put("REQ_STATUS", "0");
+			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
+			
+			// Body Field Name Size
+			// mdmData string
+			buf.put(mdmData.getBytes(CODE_TYPE));
+			respData.put("REQ_BODY_MDM_DATA", mdmData);
+			//add endChar
+			buf.put((byte) 0);
+			//Logs.showTrace("end put socket");
+
+			buf.flip();
+			outSocket.write(buf.array());
+
+			buf.clear();
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+
+			nLength = inSocket.read(buf.array());
+			buf.rewind();
+			
+			if (Protocol.CMP_HEADER_SIZE == nLength)
+			{
+				response.mnCode = checkResponse(buf, nSequence);
+				buf.order(ByteOrder.BIG_ENDIAN);
+				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
+				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
+				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
+				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
+
+				// debug
+				// Logs.showTrace(respData.get("REQ_BODY_MDM_DATA"));
+				// Logs.showTrace(respData.get("RESP_LENGTH"));
+				// Logs.showTrace(respData.get("RESP_ID"));
+				// Logs.showTrace(respData.get("RESP_STATUS"));
+				/// Logs.showTrace(respData.get("RESP_SEQUENCE"));
+
+			}
+			else
+			{
+				response.mnCode = ERR_PACKET_LENGTH;
+				response.mstrContent = "ERR_PACKET_LENGTH !";
+			}
+
+			buf.clear();
+			buf = null;
+			msocket.close();
+			
+			
+			
+			
+		}
+		catch (IOException e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+		catch (Exception e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+	}
+
+	/**
+	 * 將狀態(電池電量、儲存空間、GPS等資訊)update給 MDM
+	 */
+	public static void mdmStateUpadateRequest(final String strIP, final int nPort, String mdmData,
+			HashMap<String, String> respData, Response response, Socket msocket)
+	{
+		boolean isOutsideSocket = false;
+		if (null == mdmData || null == respData || null == response)
+		{
+			return;
+		}
+		try
+		{
+			if (null == msocket)
+			{
+				msocket = new Socket();
+				msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+				msocket.setSoTimeout(nConnectTimeOut);
+			}
+			else
+			{
+				isOutsideSocket = true;
+			}
+			
+			if (!validSocket(msocket))
+			{
+				response.mstrContent = "not validSocket";
+				response.mnCode = ERR_SOCKET_INVALID;
+				return;
+			}
+			final int nSequence = getSequence();
+
+			OutputStream outSocket = null;
+			outSocket = msocket.getOutputStream();
+
+			InputStream inSocket = null;
+			inSocket = msocket.getInputStream();
+
+			// header + mdmData + endChar
+			int nLength = Protocol.CMP_HEADER_SIZE + mdmData.getBytes(CODE_TYPE).length + 1;
+			// Logs.showTrace("socket length: "+ String.valueOf(nLength));
+
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+			// Head Field Name Size octets
+			// command length 4
+			// command id 4
+			// command status 4
+			// sequence number 4
+
+			buf.putInt(nLength);
+			buf.putInt(Protocol.MDM_STATE_REQUEST);
+			buf.putInt(0);
+			buf.putInt(nSequence);
+			
+			respData.put("REQ_LENGTH", String.valueOf(nLength));
+			respData.put("REQ_ID", "mdm_state_request");
+			respData.put("REQ_STATUS", "0");
+			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
+			
+			// Body Field Name Size
+			// mdmData string
+			buf.put(mdmData.getBytes(CODE_TYPE));
+			respData.put("REQ_BODY_MDM_DATA", mdmData);
+			//add endChar
+			buf.put((byte) 0);
+			//Logs.showTrace("end put socket");
+
+			buf.flip();
+			outSocket.write(buf.array());
+
+			buf.clear();
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+
+			nLength = inSocket.read(buf.array());
+			buf.rewind();
+			
+			if (Protocol.CMP_HEADER_SIZE == nLength)
+			{
+				response.mnCode = checkResponse(buf, nSequence);
+				buf.order(ByteOrder.BIG_ENDIAN);
+				respData.put("RESP_LENGTH", String.valueOf(buf.getInt(0)));
+				respData.put("RESP_ID", String.valueOf(buf.getInt(4) & 0x00ffffff));
+				respData.put("RESP_STATUS", String.valueOf(buf.getInt(8)));
+				respData.put("RESP_SEQUENCE", String.valueOf(buf.getInt(12)));
+
+				// debug use
+				// Logs.showTrace(respData.get("REQ_BODY_MDM_DATA"));
+				// Logs.showTrace(respData.get("RESP_LENGTH"));
+				// Logs.showTrace(respData.get("RESP_ID"));
+				// Logs.showTrace(respData.get("RESP_STATUS"));
+				/// Logs.showTrace(respData.get("RESP_SEQUENCE"));
+
+			}
+			else
+			{
+				response.mnCode = ERR_PACKET_LENGTH;
+				response.mstrContent = "ERR_PACKET_LENGTH !";
+			}
+
+			buf.clear();
+			buf = null;
+			
+			if(isOutsideSocket == false)
+			{
+				msocket.close();
+			}
+			
+			
+
+		}
+		catch (IOException e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
+		catch (Exception e)
+		{
+			Logs.showTrace(e.toString());
+			response.mnCode = -1;
+		}
 
 	}
 
@@ -829,13 +1327,14 @@ public abstract class CmpClient
 			}
 
 			// Socket msocket = new Socket(strIP, nPort);
-	
 
 			Socket msocket = new Socket();
-			// This limits the time allowed to establish a connection in the case
+			// This limits the time allowed to establish a connection in the
+			// case
 			// that the connection is refused or server doesn't exist.
 			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
-			// This stops the request from dragging on after connection succeeds.
+			// This stops the request from dragging on after connection
+			// succeeds.
 			msocket.setSoTimeout(nConnectTimeOut);
 
 			if (!validSocket(msocket))

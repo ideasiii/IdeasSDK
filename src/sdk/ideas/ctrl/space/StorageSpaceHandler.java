@@ -8,6 +8,7 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.IOFileHandler;
 import sdk.ideas.common.ListenReceiverAction;
+import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAction
@@ -102,13 +103,17 @@ public class StorageSpaceHandler extends BaseHandler implements ListenReceiverAc
 			}
 			
 			// for removable external memory
+			
 			try
 			{
+				//Logs.showTrace("start get removableExternalMem");
 				double removableExternalMem = IOFileHandler.getAvailableRemovableExternalMemorySize(false);
-				
+				//Logs.showTrace("end get removableExternalMem : "+String.valueOf(removableExternalMem));
 				if (Math.abs(removableExternalMemOLD - removableExternalMem) >= diffStorageSpace)
 				{
+					
 					double totalRemovableExternalMem = IOFileHandler.getTotalRemovableExternalMemorySize(false);
+					
 					if (totalRemovableExternalMem != -1)
 					{
 						message.put("message", "success");

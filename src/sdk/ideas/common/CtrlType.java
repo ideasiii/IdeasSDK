@@ -3,16 +3,22 @@ package sdk.ideas.common;
 public abstract class CtrlType
 {
 	
-	public final static int WEBVIEW_REQUEST_CODE = 500;
+	public final static int REQUEST_CODE_WEBVIEW = 500;
 	public final static String URL_GOOGLE_DOC_VIEWER = "https://docs.google.com/gview?embedded=true&url=";
 	
 	public final static int REQUEST_CODE_ENABLE_ADMIN  = 3333;
 	public final static int REQUEST_CODE_ENABLE_BLUETOOTH  = 3334;
 	public final static int REQUEST_CODE_DISCOVERABLE_BLUETOOTH  = 3335;
 	
+	
 	/*Google 語音response code*/
 	public final static int REQUEST_CODE_GOOGLE_SPEECH_SIMPLE = 3336;
 	public final static int REQUEST_CODE_GOOGLE_SPEECH_CUSTOM = 3337;
+	
+	/*Android 6.0 以上  permission request code*/
+	public final static int REQUEST_CODE_RUNTIME_PERMISSIONS = 3338;
+	
+	
 	
 	public final static int MSG_RESPONSE_TRACKER_HANDLER = 1029;
 	public final static int MSG_RESPONSE_DEVICE_ADMIN_HANDLER = 1030;
@@ -31,5 +37,7 @@ public abstract class CtrlType
 	
 	public final static int MSG_RESPONSE_BLUETOOTH_HANDLER = 1042;
 	public final static int MSG_RESPONSE_SPEECH_RECOGNITION_HANDLER = 1043;
-
+	
+	public final static int MSG_RESPONSE_FUSED_LOCATION_HANDLER = 1044;
+	public final static int MSG_RESPONSE_PERMISSION_HANDLER = 1045;
 }

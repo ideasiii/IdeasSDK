@@ -54,7 +54,7 @@ public abstract class ResponseCode
 	public final static int ERR_SDK_APP_ID_INVAILD = -31;
 	public final static int ERR_ACTIVITY_NOT_FOUND = -32;
 	public final static int ERR_DEVICE_NOT_SUPPORT = -33;
-	
+	public final static int ERR_PASSWORD_FORMAT_NOT_SUPPORT = -34;
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */

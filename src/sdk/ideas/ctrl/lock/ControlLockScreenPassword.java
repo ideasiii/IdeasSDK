@@ -72,12 +72,20 @@ public class ControlLockScreenPassword
 	{
 		if (isAdminActive())
 		{
-			if (null == newPassword)
+			if (null == newPassword )
 			{
 				Logs.showTrace("is null password");
-				//Logs.showTrace("min length: " + devicePolicyManager.getPasswordMinimumLength(lockAdmin));
+				
 				devicePolicyManager.setPasswordMinimumLength(lockAdmin, "".length());
-				//Logs.showTrace("min length2: " + devicePolicyManager.getPasswordMinimumLength(lockAdmin));
+				devicePolicyManager.setPasswordQuality(lockAdmin, DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED);
+
+				return devicePolicyManager.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);
+			}
+			else if("" == newPassword)
+			{
+				Logs.showTrace("is empty password");
+
+				devicePolicyManager.setPasswordMinimumLength(lockAdmin, "".length());
 				devicePolicyManager.setPasswordQuality(lockAdmin, DevicePolicyManager.PASSWORD_QUALITY_UNSPECIFIED);
 
 				return devicePolicyManager.resetPassword("", DevicePolicyManager.RESET_PASSWORD_REQUIRE_ENTRY);

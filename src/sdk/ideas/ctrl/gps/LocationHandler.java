@@ -7,6 +7,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.ListenReceiverAction;
@@ -16,7 +17,6 @@ import sdk.ideas.common.ResponseCode;
 public class LocationHandler extends BaseHandler implements ListenReceiverAction
 {
 	private LocationManager manager = null;
-	private HashMap<String, String> message = null;
 
 	// milliseconds default 1 min check
 	private long millisecondTime = 60000;
@@ -30,7 +30,6 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 	public LocationHandler(Context context)
 	{
 		super(context);
-		message = new HashMap<String, String>();
 		manager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 
 		criteria = new Criteria();
@@ -40,6 +39,9 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		criteria.setCostAllowed(true);
 		criteria.setPowerRequirement(Criteria.POWER_LOW);
 	}
+	
+	
+	
 
 	public void setMinTimeUpdate(long millisecondTime)
 	{
@@ -55,15 +57,29 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 
 	private void getLocation()
 	{
+		HashMap<String, String> message = new HashMap<String, String>();
 		try
 		{
 			String provider = manager.getBestProvider(criteria, false);
 			Logs.showTrace("Location Provider:" + provider);
+			
+
+			//joe fix bug 2016/08/15
+		/*	if (Looper.myLooper() == null)
+			{
+				Logs.showTrace("Looper myLooper is null!");
+				Looper.prepare();
+			}*/
+			if(Looper.myLooper() == Looper.getMainLooper())
+			{
+				   // Current Thread is Main Thread.)
+				Logs.showTrace("Current Thread is Main Thread(UI)");
+			}
+			
+			manager.requestLocationUpdates(provider, millisecondTime, meterDistance, locationListener,Looper.getMainLooper());
+			
 			Location location = manager.getLastKnownLocation(provider);
-
 			updateLocation(location);
-
-			manager.requestLocationUpdates(provider, millisecondTime, meterDistance, locationListener);
 		}
 		catch (SecurityException e)
 		{
@@ -113,9 +129,11 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		@Override
 		public void onProviderDisabled(String provider)
 		{
+			HashMap<String, String> message = new HashMap<String, String>();
 			updateLocation(null);
-			Logs.showTrace("Location Provider now is disabled..");
 
+			Logs.showTrace("Location Provider now is disabled..");
+			message.put("message", "GPS is closed by user");
 			callBackMessage(ResponseCode.ERR_GPS_INACTIVE, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
 					ResponseCode.METHOD_UPDATE_LOCATION, message);
 
@@ -132,6 +150,7 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 	{
 		if (location != null)
 		{
+			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("lat", String.valueOf(location.getLatitude()));
 			message.put("lng", String.valueOf(location.getLongitude()));
 			message.put("message", "success");
@@ -141,7 +160,11 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		}
 		else
 		{
-			Logs.showTrace("Location: location have some problem about GPS");
+		//	HashMap<String, String> message = new HashMap<String, String>();
+			Logs.showTrace("location have some problem about GPS");
+		//	message.put("message", "location have some problem about GPS");
+		//	callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_LOCATION_HANDLER,
+			//		ResponseCode.METHOD_UPDATE_LOCATION, message);
 		}
 
 	}
@@ -164,6 +187,7 @@ public class LocationHandler extends BaseHandler implements ListenReceiverAction
 		{
 			isLocationOn = false;
 			manager.removeUpdates(locationListener);
+
 		}
 	}
 

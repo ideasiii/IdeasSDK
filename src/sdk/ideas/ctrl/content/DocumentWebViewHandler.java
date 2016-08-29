@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 
 public class DocumentWebViewHandler extends BaseHandler
@@ -44,7 +45,7 @@ public class DocumentWebViewHandler extends BaseHandler
 			{
 				// Logs.showTrace( "code is :"+ String.valueOf(responseCode));
 				intent.putExtra("linkURL", uRL);
-				((Activity) mContext).startActivityForResult(intent, CtrlType.WEBVIEW_REQUEST_CODE);
+				((Activity) mContext).startActivityForResult(intent, CtrlType.REQUEST_CODE_WEBVIEW);
 
 				message.put("message", "success");
 				super.callBackMessage(ResponseCode.ERR_SUCCESS,CtrlType.MSG_RESPONSE_DOCUMENT_WEBVIEW_HANDLER, ResponseCode.METHOD_START_WEBVIEW_INTENT, message);
@@ -82,7 +83,7 @@ public class DocumentWebViewHandler extends BaseHandler
 			intent.putExtra("zoomControls", zoomControls);
 		}
 	}
-/*
+
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
 	{
 		if (resultCode == Activity.RESULT_OK)
@@ -96,7 +97,7 @@ public class DocumentWebViewHandler extends BaseHandler
 			Logs.showTrace("ERROR!");
 		}
 
-	}*/
+	}
 
 	private int getResponseCode(String urlString) throws MalformedURLException, IOException
 	{

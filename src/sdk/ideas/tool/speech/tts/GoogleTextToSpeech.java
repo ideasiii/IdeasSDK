@@ -44,6 +44,7 @@ public class GoogleTextToSpeech
 					 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
 					 {
 						Logs.showTrace("This Language is not supported");
+						//連到google play做下載此國語音part
 						Intent installIntent = new Intent();
 						installIntent.setAction(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
 						((Activity)mContext).startActivity(installIntent);
@@ -78,16 +79,20 @@ public class GoogleTextToSpeech
 	@SuppressWarnings("deprecation")
 	private void ttsUnder20(String text)
 	{
-		Logs.showTrace("Device under 21!");
-		HashMap<String, String> map = new HashMap<String, String>();
-		map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MessageId");
-		tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+		Logs.showTrace("Device under API 21!");
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "MessageId");
+		tts.speak(text, TextToSpeech.QUEUE_FLUSH, params);
+
+		params.clear();
+		params = null;
+		
 	}
 
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	private void ttsGreater21(String text)
 	{
-		Logs.showTrace("Device greater 21!");
+		Logs.showTrace("Device greater API 21!");
 		String utteranceId = this.hashCode() + "";
 		tts.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId);
 	}

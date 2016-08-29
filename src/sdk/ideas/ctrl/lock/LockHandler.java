@@ -3,6 +3,7 @@ package sdk.ideas.ctrl.lock;
 import java.util.HashMap;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.ctrl.admin.DeviceAdminHandler.PolicyData;
 
@@ -86,14 +87,19 @@ public class LockHandler extends BaseHandler
 
 		try
 		{
-			if (isNumeric(lastPassword) == true)
+			
+			if (isNumeric(password) == true)
 			{
-				if (null == password || "" == password)
+				// number but not PIN(4 number)
+				if (password.length() != 4)
 				{
-					ControlLockScreenPassword.resetPassword("abcdef");
+					message.put("message", "PIN　must and only have 4 number");
+					callBackMessage(ResponseCode.ERR_PASSWORD_FORMAT_NOT_SUPPORT, CtrlType.MSG_RESPONSE_LOCK_HANDLER,
+							ResponseCode.METHOD_RESET_SCREEN_LOCK_PASSWORD, message);
+					return;
 				}
+				
 			}
-
 			if (ControlLockScreenPassword.resetPassword(password) == true)
 			{
 				message.put("message", "success");
@@ -129,6 +135,7 @@ public class LockHandler extends BaseHandler
 	{
 		try
 		{
+
 			if (ControlLockScreenPassword.lockNow() == true)
 			{
 				message.put("message", "success");
@@ -165,6 +172,10 @@ public class LockHandler extends BaseHandler
 
 	private static boolean isNumeric(String str)
 	{
+		if(null == str)
+			return false;
+		if(str.length() == 0)
+			return false;
 		try
 		{
 			Double.parseDouble(str);
