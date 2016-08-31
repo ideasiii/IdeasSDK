@@ -1,29 +1,16 @@
-/** 
- * @author Louis Ju
- * @date 2015/9/10
- * @note
- *         �NFacebookHandler.callbackManager.onActivityResult(requestCode,
- *         resultCode, data); �[�� Activity��onActivityResult
- *         
- *         1. 要使用facebook sdk 要先產生api key, 產生方式如下指令：
-
-keytool -exportcert -alias androiddebugkey -keystore ".android\debug.keystore" | openssl sha1 -binary | openssl base64
-
-注意：debug.keystore 是android sdk的
- */
 
 package sdk.ideas.facebook;
 
 import java.util.Arrays;
-import org.json.JSONObject;
 
+import org.json.JSONObject;
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.SparseArray;
 import sdk.ideas.common.Logs;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
+import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
@@ -34,24 +21,27 @@ import com.facebook.login.LoginResult;
 
 public class FacebookHandler
 {
-	private Activity							theActivity					= null;
-	public static CallbackManager				callbackManager				= CallbackManager.Factory.create();
-	private AccessToken							accessToken;
-	private LoginManager						loginManager;
-	private SparseArray<OnFacebookLoginResult>	listOnFacebookLoginResult	= null;
-	private OnFacebookLoginResult				onFacebookLoginResult		= null;
+	static public final int			ERR_SUCCESS				= 0;
+	static public final int			ERR_EXCEPTION			= -1;
+	static public final int			ERR_CANCEL				= -2;
+	static public final int			ERR_SIGNED				= -3;
+
+	private Activity				theActivity				= null;
+	public static CallbackManager	callbackManager			= CallbackManager.Factory.create();
+	private AccessToken				accessToken;
+	private LoginManager			loginManager;
+	private OnFacebookLoginResult	onFacebookLoginResult	= null;
+	private String					mstrToken				= null;
 
 	public FacebookHandler(Activity activity)
 	{
 		theActivity = activity;
-		listOnFacebookLoginResult = new SparseArray<OnFacebookLoginResult>();
 	}
 
 	@Override
 	protected void finalize() throws Throwable
 	{
-		listOnFacebookLoginResult.clear();
-		listOnFacebookLoginResult = null;
+		onFacebookLoginResult = null;
 		super.finalize();
 	}
 
@@ -67,31 +57,21 @@ public class FacebookHandler
 	 */
 	public static interface OnFacebookLoginResult
 	{
-		void onLoginResult(final String strFBID, final String strName, final String strError);
+		void onLoginResult(final String strFBID, final String strName, final String strEmail, final int nErrorCode,
+				final String strError);
 	}
 
 	public void setOnFacebookLoginResultListener(FacebookHandler.OnFacebookLoginResult listener)
 	{
 		onFacebookLoginResult = listener;
-
-		if (null != listener)
-		{
-			listOnFacebookLoginResult.put(listOnFacebookLoginResult.size(), listener);
-		}
 	}
 
-	private void callbackFacebookResult(final String strFBID, final String strName, final String strError)
+	private void callbackFacebookResult(final String strFBID, final String strName, final String strEmail,
+			final int nErrCode, final String strError)
 	{
 		if (null != onFacebookLoginResult)
 		{
-			onFacebookLoginResult.onLoginResult(strFBID, strName, strError);
-		}
-		for (int i = 0; i < listOnFacebookLoginResult.size(); ++i)
-		{
-			if (null != listOnFacebookLoginResult.get(i))
-			{
-				listOnFacebookLoginResult.get(i).onLoginResult(strFBID, strName, strError);
-			}
+			onFacebookLoginResult.onLoginResult(strFBID, strName, strEmail, nErrCode, strError);
 		}
 	}
 
@@ -102,8 +82,9 @@ public class FacebookHandler
 	{
 		if (null == theActivity || null == callbackManager || null == loginManager)
 			return;
+
 		loginManager.logInWithReadPermissions(theActivity,
-				Arrays.asList("email", "public_profile", "user_birthday", "user_likes", "user_location"));
+				Arrays.asList("email", "public_profile", "user_likes", "user_posts"));
 	}
 
 	private void callGraph(final AccessToken strToken)
@@ -116,17 +97,16 @@ public class FacebookHandler
 				@Override
 				public void onCompleted(JSONObject object, GraphResponse response)
 				{
-					Logs.showTrace("Facebook Token:" + strToken.getToken());
-					Logs.showTrace("Facebook ID:" + object.optString("id"));
-					Logs.showTrace("Facebook Name:" + object.optString("name"));
-					Logs.showTrace("Facebook Link:" + object.optString("link"));
-					Logs.showTrace("Facebook Email:" + object.optString("email"));
-					Logs.showTrace("Facebook Birthday:" + object.optString("birthday"));
-					Logs.showTrace("Facebook Gender:" + object.optString("gender"));
-					Logs.showTrace("Facebook Locale:" + object.optString("locale"));
-					Logs.showTrace("Facebook Timezone:" + object.optString("timezone"));
-					Logs.showTrace("Facebook Update Time:" + object.optString("updated_time"));
-					callbackFacebookResult(object.optString("id"), object.optString("name"), null);
+					//					Logs.showTrace("Facebook Token:" + strToken.getToken());
+					//					Logs.showTrace("Facebook ID:" + object.optString("id"));
+					//					Logs.showTrace("Facebook Name:" + object.optString("name"));
+					//					Logs.showTrace("Facebook Email:" + object.optString("email"));
+					//					Logs.showTrace("Facebook Gender:" + object.optString("gender"));
+					//					Logs.showTrace("Facebook Locale:" + object.optString("locale"));
+					//					Logs.showTrace("Facebook Timezone:" + object.optString("timezone"));
+					//					Logs.showTrace("Facebook Update Time:" + object.optString("updated_time"));
+					callbackFacebookResult(object.optString("id"), object.optString("name"), object.optString("email"),
+							ERR_SUCCESS, null);
 				}
 
 			});
@@ -146,23 +126,45 @@ public class FacebookHandler
 		{
 			Logs.showTrace("Facebook Login Success");
 			accessToken = loginResult.getAccessToken();
+			mstrToken = accessToken.getToken();
 			callGraph(accessToken);
 		}
 
 		@Override
 		public void onCancel()
 		{
-			Logs.showTrace("Facebook Login Cancel");
-			callbackFacebookResult(null, null, "Facebook Login Cancel");
+			Logs.showTrace("Facebook Login Cancel Relogin");
+			LoginManager.getInstance().logOut();
+			callbackFacebookResult(null, null, null, ERR_CANCEL, "Facebook Login Cancel");
 		}
 
 		@Override
 		public void onError(FacebookException error)
 		{
 			Logs.showTrace("Facebook Exception:" + error.toString());
-			callbackFacebookResult(null, null, error.toString());
+			if (error instanceof FacebookAuthorizationException)
+			{
+				if (AccessToken.getCurrentAccessToken() != null)
+				{
+					callbackFacebookResult(null, null, null, ERR_SIGNED, "Already Signed");
+				}
+			}
+			else
+			{
+				callbackFacebookResult(null, null, null, ERR_EXCEPTION, error.toString());
+			}
 		}
 
 	};
 
+	public void logout()
+	{
+		if (null != LoginManager.getInstance())
+			LoginManager.getInstance().logOut();
+	}
+
+	public String getToken()
+	{
+		return mstrToken;
+	}
 }
