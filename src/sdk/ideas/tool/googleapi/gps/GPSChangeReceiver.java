@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import sdk.ideas.common.BaseReceiver;
-import sdk.ideas.common.Logs;
 
 public class GPSChangeReceiver extends BaseReceiver
 {

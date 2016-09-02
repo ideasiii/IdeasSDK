@@ -1,6 +1,6 @@
 package sdk.ideas.tool.googleapi.gps;
 
-public abstract class GPSAccuraySet
+public abstract class GPSAccuracySet
 {
 
 	

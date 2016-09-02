@@ -40,4 +40,5 @@ public abstract class CtrlType
 	
 	public final static int MSG_RESPONSE_FUSED_LOCATION_HANDLER = 1044;
 	public final static int MSG_RESPONSE_PERMISSION_HANDLER = 1045;
+	public final static int MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER = 1046;
 }

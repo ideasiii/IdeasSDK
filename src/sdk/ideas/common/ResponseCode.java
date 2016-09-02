@@ -140,7 +140,9 @@ public abstract class ResponseCode
 	public final static int METHOD_START_SPEECH_RECOGNIZER_SIMPLE = 0;
 	public final static int METHOD_RETURN_TEXT_SPEECH_RECOGNIZER_SIMPLE = 1;
 	
-	
+	//tool google text to speech 
+	public final static int METHOD_TEXT_TO_SPEECH_INIT = 0;
+	public final static int METHOD_TEXT_TO_SPEECH_SPEECHING = 1;
 	
 	
 	public static class ResponseMessage
