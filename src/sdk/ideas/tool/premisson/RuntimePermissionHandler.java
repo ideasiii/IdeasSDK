@@ -2,10 +2,7 @@ package sdk.ideas.tool.premisson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -18,9 +15,8 @@ public class RuntimePermissionHandler extends BaseHandler
 {
 	private Activity mActivity = null;
 
-	// key: permission | value: permission explain
+	// key: permission
 	// ex: key:Manifest.permission.GET_ACCOUNTS
-	// value: we want to get your account!
 
 	private ArrayList<PremissionParameter> permissionData = null;
 

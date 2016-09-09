@@ -12,7 +12,6 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Common;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
-import sdk.ideas.common.PermissionTable;
 import sdk.ideas.common.Protocol;
 import sdk.ideas.common.ResponseCode;
 import sdk.ideas.common.StringUtility;
@@ -33,7 +32,7 @@ public class Tracker extends BaseHandler
 
 	// MAC + Phone + APP ID +Email(facebook first)
 	private String ID = "";
-	private HashMap<String, String> message = new HashMap<String, String>();
+	//private 
 	private HashMap<String, String> startTrackerParm = null;
 
 	
@@ -43,7 +42,7 @@ public class Tracker extends BaseHandler
 		@Override
 		public void handleMessage(Message msg)
 		{
-			message.clear();
+			HashMap<String, String> message = new HashMap<String, String>();
 			if (MSG_RESPONSE == msg.what)
 			{
 				switch (msg.arg2)
@@ -115,8 +114,7 @@ public class Tracker extends BaseHandler
 	public Tracker(Context context)
 	{
 		super(context);
-		message = new HashMap<String, String>();
-		super.permissionCheck(PermissionTable.TRACKER);
+		
 	}
 
 	/**
@@ -126,6 +124,7 @@ public class Tracker extends BaseHandler
 	 */
 	public void startTracker(final String app_id)
 	{
+		HashMap<String, String> message = new HashMap<String, String>();
 		try
 		{
 			startTracker(app_id, null, null, null);
@@ -144,21 +143,21 @@ public class Tracker extends BaseHandler
 	}
 
 	public void startTracker(final String app_id, final String fb_id, final String fb_name, final String fb_email)
-	{
+	{/*
 		if(super.getAppIDVaild() == false)
 		{
 			message.put("message", "app id is not vaild");
 			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 					ResponseCode.METHOLD_START_TRACKER, message);
 			return;
-		}
+		}*/
 		
 		//add in sdk tracker
-		sdkTrackerMessage("tracker","startTracker");
+		//sdkTrackerMessage("tracker","startTracker");
 		
 		
 		
-		
+		/*
 		if (permissonCheck == false)
 		{
 			message.put("message",
@@ -166,7 +165,8 @@ public class Tracker extends BaseHandler
 			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 					ResponseCode.METHOLD_TRACKER, message);
 			return;
-		}
+		}*/
+		
 		/*
 		 * if(availableTracker == true) { message.clear();
 		 * message.put("message", "already call this method ");
@@ -214,13 +214,14 @@ public class Tracker extends BaseHandler
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
 		
+		/*
 		if(super.getAppIDVaild() == false)
 		{
 			message.put("message", "app id is not vaild");
 			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 					ResponseCode.METHOLD_TRACKER, message);
 			return;
-		}
+		}*/
 	
 		try
 		{
@@ -242,7 +243,7 @@ public class Tracker extends BaseHandler
 			
 			
 			//add in sdk tracker
-			super.sdkTrackerMessage("tracker", "tracker");
+			//super.sdkTrackerMessage("tracker", "tracker");
 		
 			
 			
@@ -283,17 +284,17 @@ public class Tracker extends BaseHandler
 
 	public void stopTracker()
 	{
-		message.clear();
-		if(super.getAppIDVaild() == false)
+		HashMap<String, String> message = new HashMap<String, String>();
+		/*if(super.getAppIDVaild() == false)
 		{
 			message.put("message", "app id is not vaild");
 			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 					ResponseCode.METHOLD_STOP_TRACKER, message);
 			return;
-		}
+		}*/
 		
 		//add in sdk tracker
-		super.sdkTrackerMessage("tracker", "stopTracker");
+		//super.sdkTrackerMessage("tracker", "stopTracker");
 	
 		
 		
@@ -306,6 +307,7 @@ public class Tracker extends BaseHandler
 
 	private void sendStartTrackerData()
 	{
+		HashMap<String, String> message = new HashMap<String, String>();
 		try
 		{
 			getDeviceInfo();
@@ -413,8 +415,7 @@ public class Tracker extends BaseHandler
 
 	private void setTrackerIPAndPort(final int nReturnCode, final String strContent)
 	{
-		message.clear();
-
+		HashMap<String, String> message = new HashMap<String, String>();
 		if (ResponseCode.ERR_SUCCESS == nReturnCode && strContent.length() > 0)
 		{
 			try

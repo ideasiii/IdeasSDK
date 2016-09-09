@@ -20,11 +20,11 @@ public abstract class BaseHandler
 
 	protected ResponseMessage mResponseMessage = null;
 
-	protected boolean permissonCheck = false;
+	//protected boolean permissonCheck = false;
 	
-	private SdkTracker mSdkTracker = null;
+	//private SdkTracker mSdkTracker = null;
 	
-	private HashMap<String,String> sdkTrackerMessage = new HashMap<String, String>();
+	//private HashMap<String,String> sdkTrackerMessage = new HashMap<String, String>();
 	
 	protected BaseHandler(Context context)
 	{
@@ -45,13 +45,14 @@ public abstract class BaseHandler
 		}
 	}
 	
+	/*
 	private void sdkTrackerInit()
 	{
 		
 		mSdkTracker = new SdkTracker(mContext);
-	}
+	}*/
 	
-	protected void sdkTrackerMessage(String SDKName,String SDKMethod)
+	/*protected void sdkTrackerMessage(String SDKName,String SDKMethod)
 	{
 		sdkTrackerMessage.clear();
 		sdkTrackerMessage.put("SDK", SDKName);
@@ -67,8 +68,8 @@ public abstract class BaseHandler
 		{
 			Logs.showTrace("mSdkTracker is not init");
 		}
-	}
-	protected boolean getAppIDVaild()
+	}*/
+	/*protected boolean getAppIDVaild()
 	{
 		if(null != mSdkTracker)
 		{
@@ -79,7 +80,7 @@ public abstract class BaseHandler
 		//need to realese
 		//return false;
 		return true;
-	}
+	}*/
 	
 	
 
@@ -87,25 +88,25 @@ public abstract class BaseHandler
 	{
 
 	}
-	
+	/*
 	protected boolean permissionCheck(String [] permissonList)
 	{
 		for (int i = 0; i < permissonList.length; i++)
 		{
-			//Logs.showTrace("check this permisson: "+permissonList[i]);
+			Logs.showTrace("check this permisson: "+permissonList[i]);
 			if (DeviceHandler.hasPermission(mContext, permissonList[i]) == false)
 			{
-				Log.e("PERMISSION ERROR", "please add permission: "+permissonList[i]+" in manifest");
+				Logs.showTrace("PERMISSION ERROR: please add permission: "+permissonList[i]+" in manifest");
 				return false;
 			}
 			else
 			{
-				//Logs.showTrace("this permisson: "+permissonList[i] +"is in manifest");
+				Logs.showTrace("this permisson: "+permissonList[i] +"is in manifest");
 			}
 		}
 		permissonCheck = true;
 		return true;
-	}
+	}*/
 
 	public void setHandler(Handler handler)
 	{
