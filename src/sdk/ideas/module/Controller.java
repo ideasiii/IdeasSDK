@@ -1,30 +1,41 @@
 package sdk.ideas.module;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 
 public abstract class Controller
 {
+	/**
+	 * 
+	 */
+	static private String	mstrLastError	= null;
 	/*
 	 * CMP body data length
 	 */
-	static public final int MAX_DATA_LEN = 2048;
+	static public final int	MAX_DATA_LEN	= 2048;
 
 	/*
 	 * this define socket packet for CMP
 	 */
-	class CMP_HEADER
+	static public class CMP_HEADER
 	{
-		int	command_length;
-		int	command_id;
-		int	command_status;
-		int	sequence_number;
+		public int	command_length;
+		public int	command_id;
+		public int	command_status;
+		public int	sequence_number;
 	};
 
-	class CMP_PACKET
+	static private int CMP_HEADER_SIZE = 16;
+
+	static public class CMP_PACKET
 	{
-		CMP_HEADER	cmpHeader;
-		String		cmpBody;
+		public CMP_HEADER	cmpHeader	= new CMP_HEADER();
+		public String		cmpBody;
 	};
 
 	/*
@@ -98,6 +109,8 @@ public abstract class Controller
 	public static final int		ERR_LOG_DATA_LENGTH			= -11 + ERR_CMP;
 	public static final int		ERR_EXCEPTION				= -12 + ERR_CMP;
 
+	private static final String	CODE_TYPE					= "UTF-8";		// CMP Body data type
+
 	private static boolean validSocket(Socket msocket)
 	{
 		if (null == msocket || msocket.isClosed())
@@ -114,6 +127,11 @@ public abstract class Controller
 		return msnSequence;
 	}
 
+	public static String getLastError()
+	{
+		return mstrLastError;
+	}
+
 	/**
 	 * Controller Message Request Protocol
 	 * @param strIP : Socket Connect IP.
@@ -126,24 +144,105 @@ public abstract class Controller
 	public static int cmpRequest(final String strIP, final int nPort, final int nCommand, final String strBody,
 			CMP_PACKET respPacket)
 	{
+		if (null == respPacket)
+		{
+			System.out.println("Parameter CMP_PACKET invalid");
+			return ERR_INVALID_PARAM;
+		}
 		int nCmpStatus = STATUS_ROK;
+		Socket msocket = new Socket();
 
 		try
 		{
-			Socket msocket = new Socket();
 			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
 			msocket.setSoTimeout(nReceiveTimeOut);
 			if (!validSocket(msocket))
 			{
 				return ERR_SOCKET_INVALID;
 			}
+
 			final int nSequence = getSequence();
-			
+
+			OutputStream outSocket = msocket.getOutputStream();
+			InputStream inSocket = msocket.getInputStream();
+			// header + body + endChar
+			int nLength = CMP_HEADER_SIZE;
+			if (null != strBody && 0 < strBody.length())
+			{
+				nLength += strBody.getBytes(CODE_TYPE).length + 1;
+			}
+			ByteBuffer buf = ByteBuffer.allocate(nLength);
+			buf.putInt(nLength);
+			buf.putInt(nCommand);
+			buf.putInt(STATUS_ROK);
+			buf.putInt(nSequence);
+
+			if (null != strBody && 0 < strBody.length())
+			{
+				buf.put(strBody.getBytes(CODE_TYPE));
+				//add endChar
+				buf.put((byte) 0);
+			}
+
+			buf.flip();
+			// Send Request
+			outSocket.write(buf.array());
+
+			buf.clear();
+			buf = ByteBuffer.allocate(CMP_HEADER_SIZE);
+
+			// Receive Response
+			nLength = inSocket.read(buf.array(), 0, CMP_HEADER_SIZE);
+			buf.rewind();
+
+			if (CMP_HEADER_SIZE == nLength)
+			{
+				buf.order(ByteOrder.BIG_ENDIAN);
+
+				respPacket.cmpHeader.command_length = buf.getInt(0); // offset
+				respPacket.cmpHeader.command_id = buf.getInt(4) & 0x00ffffff;
+				respPacket.cmpHeader.command_status = buf.getInt(8);
+				respPacket.cmpHeader.sequence_number = buf.getInt(12);
+
+				if (nSequence != respPacket.cmpHeader.sequence_number)
+				{
+					nCmpStatus = ERR_PACKET_SEQUENCE;
+				}
+				else
+				{
+
+					nCmpStatus = respPacket.cmpHeader.sequence_number;
+					int nBodySize = respPacket.cmpHeader.command_length - CMP_HEADER_SIZE;
+
+					if (0 < nBodySize)
+					{
+						buf.clear();
+						buf = ByteBuffer.allocate(nBodySize);
+						nLength = inSocket.read(buf.array(), 0, --nBodySize); // not read end-char
+
+						if (nLength == nBodySize)
+						{
+							byte[] bytes = new byte[nBodySize];
+							buf.get(bytes);
+							respPacket.cmpBody = new String(bytes, Charset.forName(CODE_TYPE));
+						}
+					}
+				}
+			}
+			else
+			{
+				nCmpStatus = ERR_PACKET_LENGTH;
+			}
+			msocket.close();
+			msocket = null;
 		}
 		catch (Exception e)
 		{
-			return ERR_EXCEPTION;
+			mstrLastError = e.toString();
+			System.out.println("CMP Request Exception: " + e.toString());
+			nCmpStatus = ERR_EXCEPTION;
 		}
+
 		return nCmpStatus;
 	}
 
