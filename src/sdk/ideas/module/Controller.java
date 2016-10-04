@@ -10,9 +10,6 @@ import java.nio.charset.Charset;
 
 public abstract class Controller
 {
-	/**
-	 * 
-	 */
 	static private String	mstrLastError	= null;
 	/*
 	 * CMP body data length
