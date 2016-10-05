@@ -208,7 +208,7 @@ public abstract class Controller
 				else
 				{
 
-					nCmpStatus = respPacket.cmpHeader.sequence_number;
+					nCmpStatus = respPacket.cmpHeader.command_status;
 					int nBodySize = respPacket.cmpHeader.command_length - CMP_HEADER_SIZE;
 
 					if (0 < nBodySize)
