@@ -34,6 +34,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	private String defaultDownloadApkSavePath = "Download/";
 	private boolean isRegisterReceiver = false;
 
+	
 	public ApplicationHandler(Context context)
 	{
 		super(context);
@@ -48,6 +49,43 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
 		filter.addDataScheme("package");
 
+	}
+
+	public void downloadApplicationFile(String uRLPath, String savePath, String fileName, int appID)
+	{
+		if (null == savePath)
+		{
+			savePath = this.defaultDownloadApkSavePath;
+		}
+		else
+		{
+			this.defaultDownloadApkSavePath = savePath;
+		}
+		Thread t = new Thread(new DownloadRunnable(uRLPath, savePath, fileName, appID));
+		t.start();
+	}
+
+	public void installApplication(String savePath, String fileName, int appID)
+	{
+		if (null == savePath)
+		{
+			savePath = this.defaultDownloadApkSavePath;
+		}
+		else
+		{
+			this.defaultDownloadApkSavePath = savePath;
+		}
+		HashMap<String, String> message = new HashMap<String, String>();
+		try
+		{
+			InstallApp.installApplication(mContext, savePath, fileName, installingPackage, appID);
+		}
+		catch (Exception e)
+		{
+			message.put("message", e.toString());
+			super.callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+					ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM, message);
+		}
 	}
 
 	public void onActivityResult(int requestCode, int resultCode, Intent data)
@@ -73,7 +111,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 	}
 
 	/**
-	 * use thread to install
+	 * use thread to download and install
 	 */
 	public void installApplicationThread(String url, String savePath, String apkName, int appID)
 	{
@@ -84,70 +122,18 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 
 	/**
 	 * Installs an application to the device this method need use Thread run or
-	 * will cause block main thread error
+	 * will cause block main thread error because of downloading App File
 	 * 
 	 * @param url
 	 *            download
 	 * @param apkName
 	 *            fileName
 	 */
-	public void installApplication(String url, String savePath, String apkName, int appID)
+	private void installApplicationWithDownload(String url, String savePath, String apkName, int appID)
 	{
-		if (null == savePath)
-			savePath = this.defaultDownloadApkSavePath;
-		else
-			this.defaultDownloadApkSavePath = savePath;
-		boolean anyError = true;
-		int errorType = 1;
-		String errorMessage = "";
-		HashMap<String, String> message = new HashMap<String, String>();
-		try
-		{
-			InstallApp.installApplicationWithDownload(mContext, url, savePath, apkName, installingPackage, appID);
-			anyError = false;
-		}
-		catch (SocketException e)
-		{
-			errorMessage = e.toString();
-			errorType = ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION;
-		}
-		catch (MalformedURLException e)
-		{
-			errorMessage = e.toString();
-			errorType = ResponseCode.ERR_MALFORMED_URL_EXCEPTION;
-		}
-		catch (ProtocolException e)
-		{
-			errorMessage = e.toString();
-			errorType = ResponseCode.ERR_PROTOCOL_EXCEPTION;
-		}
-		catch (IOException e)
-		{
-			errorMessage = e.toString();
-			errorType = ResponseCode.ERR_IO_EXCEPTION;
-		}
-		catch (NetworkOnMainThreadException e)
-		{
-			errorMessage = e.toString();
-			errorType = ResponseCode.ERR_DOWNLOAD_ON_MAIN_THREAD;
-		}
-		catch (Exception e)
-		{
-			errorMessage = e.toString();
-			errorType = ResponseCode.ERR_UNKNOWN;
-		}
-		finally
-		{
-			if (anyError == true)
-			{
-				message.put("message",errorMessage);
-				super.callBackMessage(errorType, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
-						ResponseCode.METHOD_APPLICATION_INSTALL_SYSTEM, message);
-				message.clear();
-			}
 
-		}
-
+		downloadApp(url, savePath, apkName, appID);
+		installApplication(savePath, apkName, appID);
 	}
 
 	/**
@@ -253,7 +239,7 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 		@Override
 		public void run()
 		{
-			installApplication(uRLPath, savePath, fileName, appID);
+			installApplicationWithDownload(uRLPath, savePath, fileName, appID);
 		}
 
 		public InstallAppRunnable(String uRLPath, String savePath, String fileName, int appID)
@@ -266,15 +252,93 @@ public class ApplicationHandler extends BaseHandler implements ListenReceiverAct
 
 	}
 
-	/*
-	 * private static boolean isAppInstalled(Context mContext, String
-	 * packageName) { PackageManager pm = mContext.getPackageManager(); boolean
-	 * installed = false; try { pm.getPackageInfo(packageName,
-	 * PackageManager.GET_ACTIVITIES); installed = true; } catch
-	 * (PackageManager.NameNotFoundException e) { installed = false; } return
-	 * installed; }
-	 */
+	private void downloadApp(String uRLPath, String savePath, String fileName, int appID)
+	{
+		int errorType = ResponseCode.ERR_SUCCESS;
+		boolean anyError = true;
+		HashMap<String, String> message = new HashMap<String, String>();
+		String errorMessage = "";
 
-	
+		try
+		{
+			// start to download! state = 0;
+			message.put("downloadState", String.valueOf(0));
+			message.put("message", "success!");
+			message.put("uRLPath", uRLPath);
+			message.put("savePath", savePath);
+			message.put("fileName", fileName);
+			message.put("appID", String.valueOf(appID));
+			callBackMessage(errorType, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+					ResponseCode.METHOD_APPLICATION_DOWNLOAD_APP, message);
+			message.clear();
+			// downloading apk
+			IOFileHandler.urlDownloader(uRLPath, savePath, fileName);
+
+			anyError = false;
+			// finish download! state = 1;
+			message.put("message", "success!");
+			message.put("uRLPath", uRLPath);
+			message.put("savePath", savePath);
+			message.put("fileName", fileName);
+			message.put("appID", String.valueOf(appID));
+			message.put("downloadState", String.valueOf(1));
+			callBackMessage(errorType, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+					ResponseCode.METHOD_APPLICATION_DOWNLOAD_APP, message);
+		}
+		catch (MalformedURLException e)
+		{
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_MALFORMED_URL_EXCEPTION;
+		}
+		catch (ProtocolException e)
+		{
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_PROTOCOL_EXCEPTION;
+		}
+		catch (IOException e)
+		{
+			errorMessage = e.toString();
+			errorType = ResponseCode.ERR_IO_EXCEPTION;
+		}
+		finally
+		{
+			if (anyError)
+			{
+				message.put("message", errorMessage);
+				// error while downloading state = -1
+				message.put("downloadState", "-1");
+				message.put("uRLPath", uRLPath);
+				message.put("savePath", savePath);
+				message.put("fileName", fileName);
+				message.put("appID", String.valueOf(appID));
+				callBackMessage(errorType, CtrlType.MSG_RESPONSE_APPLICATION_HANDLER,
+						ResponseCode.METHOD_APPLICATION_DOWNLOAD_APP, message);
+			}
+		}
+
+	}
+
+	private class DownloadRunnable implements Runnable
+	{
+		private String uRLPath = null;
+		private String savePath = null;
+		private String fileName = null;
+		private int appID = -1;
+
+		@Override
+		public void run()
+		{
+			downloadApp(uRLPath, savePath, fileName, appID);
+		}
+
+		public DownloadRunnable(String uRLPath, String savePath, String fileName, int appID)
+		{
+			this.uRLPath = uRLPath;
+			this.savePath = savePath;
+			this.fileName = fileName;
+			this.appID = appID;
+		}
+
+	}
 
 }

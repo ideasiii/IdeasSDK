@@ -81,6 +81,8 @@ public abstract class ResponseCode
 	public static final int METHOD_APPLICATION_UNINSTALL_SYSTEM = 0;
 	public static final int METHOD_APPLICATION_INSTALL_USER     = 2;
 	public static final int METHOD_APPLICATION_UNINSTALL_USER   = 3;
+	public static final int METHOD_APPLICATION_DOWNLOAD_APP     = 4;
+	
 	
 	// ctrl record
 	public static final int METHOD_RECORD_APPLICATION = 0;
@@ -103,7 +105,7 @@ public abstract class ResponseCode
 
 	//ctrl documentWebViewer
 	public final static int METHOD_START_WEBVIEW_INTENT = 0;
-	
+	public final static int METHOD_FINISH_WEBVIEW_INTENT = 1;
 	//ctrl locker
 	public final static int METHOD_RESET_SCREEN_LOCK_PASSWORD = 0;
 	public final static int METHOD_LOCK_SCREEN_NOW            = 1;

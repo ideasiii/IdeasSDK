@@ -22,6 +22,7 @@ public class InstallApp
 
 	public static void installApplication(Context mContext, String dataSavePath, int appID)
 	{
+
 		Intent installIntent = new Intent(Intent.ACTION_VIEW);
 
 		installIntent.setDataAndType(Uri.fromFile(new File(dataSavePath)), "application/vnd.android.package-archive");
@@ -29,19 +30,14 @@ public class InstallApp
 		installIntent.putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true);
 		installIntent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
 		installIntent.putExtra("packageName", dataSavePath);
-		installIntent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME,
-				((Activity) mContext).getApplicationInfo().packageName);
+		installIntent.putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, (mContext).getApplicationInfo().packageName);
 		((Activity) mContext).startActivityForResult(installIntent, appID);
 
 	}
 
-	public static void installApplicationWithDownload(Context mContext, String uRLPath, String savePath,
-			String fileName, ArrayList<AppData> installpackage, int appID)
-					throws MalformedURLException, ProtocolException, IOException
+	public static void installApplication(Context mContext, String savePath, String fileName,
+			ArrayList<AppData> installpackage, int appID)
 	{
-
-		IOFileHandler.urlDownloader(uRLPath, savePath, fileName);
-
 		// to get install package name, file name is not really package name
 		String installPackageName = InstallApp.getPackageName(mContext, savePath, fileName);
 		installpackage.add(new AppData(installPackageName,
@@ -53,8 +49,18 @@ public class InstallApp
 
 		InstallApp.installApplication(mContext, IOFileHandler.getExternalStorageDirectory() + "/" + savePath + fileName,
 				appID);
-
 	}
+
+/*	public static void installApplicationWithDownload(Context mContext, String uRLPath, String savePath,
+			String fileName, ArrayList<AppData> installpackage, int appID)
+			throws MalformedURLException, ProtocolException, IOException
+	{
+
+		IOFileHandler.urlDownloader(uRLPath, savePath, fileName);
+		
+		installApplication(mContext, savePath, fileName, installpackage, appID);
+
+	}*/
 
 	public static String getPackageName(Context mContext, String savePath, String fileName)
 	{

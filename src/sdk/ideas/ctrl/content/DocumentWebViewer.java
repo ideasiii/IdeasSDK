@@ -1,9 +1,12 @@
 package sdk.ideas.ctrl.content;
 
-
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.ResultReceiver;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.WebChromeClient;
@@ -17,16 +20,23 @@ public class DocumentWebViewer extends Activity
 	private Intent intent = null;
 	private WebView mWebView = null;
 	private boolean anyError = false;
+	private CloseReceiver mCloseReceiver = null;
 	
+	private static boolean isStartActivity = false;
 	
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
+
+		DocumentWebViewer.setIsStartActivity(true);
+		IntentFilter filter = new IntentFilter(DocumentWebViewHandler.ACTION_CLOSE);
+		mCloseReceiver = new CloseReceiver();
+		registerReceiver(mCloseReceiver, filter);
+
 		intent = getIntent();
 		String linkURL = intent.getStringExtra("linkURL");
-		
+
 		boolean zoomControls = intent.getBooleanExtra("zoomControls", true);
 		mWebView = new WebView(DocumentWebViewer.this);
 
@@ -44,11 +54,10 @@ public class DocumentWebViewer extends Activity
 		{
 			mWebView.loadUrl(linkURL);
 		}
-		
+
 		setContentView(mWebView);
 	}
 	
-
 	
 
 	private WebViewClient mWebViewClient = new WebViewClient()
@@ -66,7 +75,6 @@ public class DocumentWebViewer extends Activity
 			finish();
 		}
 
-
 	};
 	private WebChromeClient mWebChromeClient = new WebChromeClient()
 	{
@@ -76,8 +84,7 @@ public class DocumentWebViewer extends Activity
 			DocumentWebViewer.this.getWindow().setFeatureInt(Window.FEATURE_PROGRESS, newProgress * 100);
 			super.onProgressChanged(view, newProgress);
 		}
-		
-		
+
 	};
 
 	public boolean isDocument(String linkURL)
@@ -94,15 +101,59 @@ public class DocumentWebViewer extends Activity
 	@Override
 	public void finish()
 	{
-		if(null!=(ViewGroup) getWindow().getDecorView())
+		setIsStartActivity(false);
+		
+		ResultReceiver receiver =
+                getIntent().getParcelableExtra(DocumentWebViewHandler.SELF_CLOSE_RECEIVER);
+		
+        Bundle resultData = new Bundle();
+        
+		if (null != (ViewGroup) getWindow().getDecorView())
 		{
 			((ViewGroup) getWindow().getDecorView()).removeAllViews();
 		}
-		if(anyError == true)
-			setResult(Activity.RESULT_CANCELED, intent);
+		if (anyError == true)
+		{
+			resultData.putInt(DocumentWebViewHandler.SELF_CLOSE_MESSAGE, Activity.RESULT_CANCELED);
+		}
 		else
-			setResult(Activity.RESULT_OK, intent);
+		{
+			resultData.putInt(DocumentWebViewHandler.SELF_CLOSE_MESSAGE, Activity.RESULT_OK);
+		}
+
+        receiver.send(DocumentWebViewHandler.SELF_RESULT_CODE, resultData);
+		
+
 		super.finish();
+	}
+	private static synchronized void setIsStartActivity(boolean isStart)
+	{
+		isStartActivity = isStart;
+	}
+	public static synchronized boolean getActivityState()
+	{
+		return isStartActivity;
+	}
+
+	class CloseReceiver extends BroadcastReceiver
+	{
+		@Override
+		public void onReceive(Context context, Intent intent)
+		{
+
+			if (intent.getAction().equals(DocumentWebViewHandler.ACTION_CLOSE))
+			{
+				DocumentWebViewer.this.finish();
+			}
+		}
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+
+		unregisterReceiver(mCloseReceiver);
+		super.onDestroy();
 	}
 
 }
