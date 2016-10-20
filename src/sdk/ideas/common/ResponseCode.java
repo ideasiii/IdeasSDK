@@ -146,6 +146,8 @@ public abstract class ResponseCode
 	public final static int METHOD_TEXT_TO_SPEECH_INIT = 0;
 	public final static int METHOD_TEXT_TO_SPEECH_SPEECHING = 1;
 	
+	public final static int METHOD_COTROL_COMMAND_AMX = 0;
+	public final static int METHOD_STATUS_COMMAND_AMX = 1;
 	
 	public static class ResponseMessage
 	{
