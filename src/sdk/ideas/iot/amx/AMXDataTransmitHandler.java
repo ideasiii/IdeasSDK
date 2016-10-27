@@ -1,6 +1,5 @@
 package sdk.ideas.iot.amx;
 
-import java.net.Socket;
 import java.util.HashMap;
 import org.json.JSONObject;
 import android.content.Context;
@@ -33,17 +32,22 @@ public class AMXDataTransmitHandler extends BaseHandler
 
 	}
 
-
 	public void sendControlCommand(JSONObject command)
 	{
-		Thread t = new Thread(new SocketRunnable(Controller.amx_control_command_request, command.toString()));
-		t.start();
+		if (null != command)
+		{
+			Thread t = new Thread(new SocketRunnable(Controller.amx_control_command_request, command.toString()));
+			t.start();
+		}
 	}
 
 	public void sendStatusCommand(JSONObject command)
 	{
-		Thread t = new Thread(new SocketRunnable(Controller.amx_status_command_request, command.toString()));
-		t.start();
+		if (null != command)
+		{
+			Thread t = new Thread(new SocketRunnable(Controller.amx_status_command_request, command.toString()));
+			t.start();
+		}
 	}
 
 	private void analyzeResponseData(int returnstate, Controller.CMP_PACKET respPacket)
@@ -73,7 +77,6 @@ public class AMXDataTransmitHandler extends BaseHandler
 		{
 			whichFunction = ResponseCode.METHOD_STATUS_COMMAND_AMX;
 		}
-
 
 		callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
 				whichFunction, message);

@@ -2,8 +2,8 @@ package sdk.ideas.iot.amx;
 
 public interface LiftingBehavior
 {
-	void upBehavior();
+	void upBehavior(int index);
 
-	void downBehavior();
+	void downBehavior(int index);
 
 }
