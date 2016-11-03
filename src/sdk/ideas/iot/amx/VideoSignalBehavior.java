@@ -2,8 +2,8 @@ package sdk.ideas.iot.amx;
 
 public interface VideoSignalBehavior
 {
-	void hdmiBehavior();
+	void hdmiBehavior(int index);
 
-	void vgaBehavior();
+	void vgaBehavior(int index);
 
 }

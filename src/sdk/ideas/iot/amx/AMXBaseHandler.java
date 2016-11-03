@@ -6,19 +6,32 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 
 public abstract class AMXBaseHandler extends BaseHandler
 {
-	public abstract void handleMessage(Message msg);
+	public abstract void handleControlMessage(Message msg);
+
+	public abstract void handleStatusMessage(Message msg);
 
 	protected Handler privateHandler = new Handler()
 	{
-
 		@Override
 		public void handleMessage(Message msg)
 		{
-			AMXBaseHandler.this.handleMessage(msg);
+			if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
+			{
+				if (msg.arg2 == ResponseCode.METHOD_COTROL_COMMAND_AMX)
+				{
+					handleControlMessage(msg);
+				}
+				else if (msg.arg2 == ResponseCode.METHOD_STATUS_COMMAND_AMX)
+				{
+					handleStatusMessage(msg);
+				}
+			}
 		}
 
 	};
@@ -33,7 +46,6 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	}
 
-	
 	protected JSONObject trasferToJsonCommand(int commandType, int function, int device, int command)
 
 	{

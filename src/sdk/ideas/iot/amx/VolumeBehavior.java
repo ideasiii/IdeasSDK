@@ -2,8 +2,8 @@ package sdk.ideas.iot.amx;
 
 public interface VolumeBehavior
 {
-	void muteBehavior();
+	void muteBehavior(int index);
 
-	void unMuteBehavior();
+	void unMuteBehavior(int index);
 
 }

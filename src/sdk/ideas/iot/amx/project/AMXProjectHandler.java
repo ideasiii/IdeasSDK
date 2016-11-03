@@ -14,10 +14,17 @@ public class AMXProjectHandler extends AMXBaseHandler
 {
 
 	@Override
-	public void handleMessage(Message msg)
+	public void handleControlMessage(Message msg)
 	{
-
+		
 	}
+
+	@Override
+	public void handleStatusMessage(Message msg)
+	{
+		
+	}
+
 
 	public AMXProjectHandler(Context mContext, String strIP, int nPort)
 	{
@@ -27,7 +34,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 	@Override
 	public void onBehavior(int index)
 	{
-
+		
 	}
 
 	@Override
@@ -49,25 +56,25 @@ public class AMXProjectHandler extends AMXBaseHandler
 	}
 
 	@Override
-	public void hdmiBehavior()
+	public void hdmiBehavior(int index)
 	{
 
 	}
 
 	@Override
-	public void vgaBehavior()
+	public void vgaBehavior(int index)
 	{
 
 	}
 
 	@Override
-	public void muteBehavior()
+	public void muteBehavior(int index)
 	{
 
 	}
 
 	@Override
-	public void unMuteBehavior()
+	public void unMuteBehavior(int index)
 	{
 
 	}
@@ -77,5 +84,6 @@ public class AMXProjectHandler extends AMXBaseHandler
 	{
 
 	}
+
 
 }

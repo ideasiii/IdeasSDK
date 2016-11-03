@@ -4,6 +4,7 @@ package sdk.ideas.iot.amx;
 
 public abstract class AMXParameterSetting
 {
+	/*區別命令TYPE*/
 	public final static int TYPE_CONTROL_COMMAND = 0;
 	public final static int TYPE_STATUS_COMMAND = 1;
 
@@ -36,13 +37,13 @@ public abstract class AMXParameterSetting
 	public final static int DEVICE_VOLUME_INPUT_5 = 5;
 	public final static int DEVICE_VOLUME_INPUT_6 = 6;
 	public final static int DEVICE_VOLUME_INPUT_7 = 7;
-	public final static int DEVICE_VOLUME_INPUT_9 = 9;
-	public final static int DEVICE_VOLUME_INPUT_10 = 10;
+	public final static int DEVICE_VOLUME_INPUT_9 = 8;
+	public final static int DEVICE_VOLUME_INPUT_10 = 9;
 
-	public final static int DEVICE_VOLUME_OUTPUT_1 = 1;
-	public final static int DEVICE_VOLUME_OUTPUT_2 = 2;
-	public final static int DEVICE_VOLUME_OUTPUT_3 = 3;
-	public final static int DEVICE_VOLUME_OUTPUT_6 = 6;
+	public final static int DEVICE_VOLUME_OUTPUT_1 = 10;
+	public final static int DEVICE_VOLUME_OUTPUT_2 = 11;
+	public final static int DEVICE_VOLUME_OUTPUT_3 = 12;
+	public final static int DEVICE_VOLUME_OUTPUT_6 = 13;
 
 	public final static int DEVICE_LIGHT_1 = 1;
 	public final static int DEVICE_LIGHT_2 = 2;
@@ -92,11 +93,13 @@ public abstract class AMXParameterSetting
 	public final static int CONTROL_BD_HOME = 34;
 	public final static int CONTROL_BD_SUBTITLE = 35;
 
+	/*智慧裝置端要求 AMX request status*/
 	public final static int REQUEST_STATUS_POWER = 1;
 	public final static int REQUEST_STATUS_SIGNAL = 2;
 	public final static int REQUEST_STATUS_MUTE = 3;
 	public final static int REQUEST_STATUS_MATRIX = 4;
 
+	/*Server端回覆 AMX status*/
 	public final static int STATUS_ON = 1;
 	public final static int STATUS_OFF = 2;
 	public final static int STATUS_MUTE = 3;

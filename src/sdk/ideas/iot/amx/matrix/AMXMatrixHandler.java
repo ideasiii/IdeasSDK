@@ -9,9 +9,17 @@ import sdk.ideas.iot.amx.StatusQueryBehavior;
 public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, StatusQueryBehavior
 {
 	@Override
-	public void handleMessage(Message msg)
+	public void handleControlMessage(Message msg)
 	{
+		// TODO Auto-generated method stub
+		
+	}
 
+	@Override
+	public void handleStatusMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 	public AMXMatrixHandler(Context mContext, String strIP, int nPort)
@@ -30,5 +38,7 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 	{
 		
 	}
+
+
 
 }

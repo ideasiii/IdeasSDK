@@ -8,11 +8,7 @@ import sdk.ideas.iot.amx.StatusQueryBehavior;
 
 public class AMXModeHandler extends AMXBaseHandler implements ModeBehavior, StatusQueryBehavior
 {
-	@Override
-	public void handleMessage(Message msg)
-	{
-		
-	}
+	
 	
 	
 	
@@ -35,6 +31,26 @@ public class AMXModeHandler extends AMXBaseHandler implements ModeBehavior, Stat
 	@Override
 	public void changeModeBehavior(int index)
 	{
+		
+	}
+
+
+
+
+	@Override
+	public void handleControlMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+
+
+
+	@Override
+	public void handleStatusMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
 		
 	}
 

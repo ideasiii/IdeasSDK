@@ -9,8 +9,16 @@ import sdk.ideas.iot.amx.StatusQueryBehavior;
 public class AMXSystemPowerHandler extends AMXBaseHandler implements PowerBehavior,StatusQueryBehavior
 {	
 	@Override
-	public void handleMessage(Message msg)
+	public void handleControlMessage(Message msg)
 	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleStatusMessage(Message msg)
+	{
+		// TODO Auto-generated method stub
 		
 	}
 
@@ -31,12 +39,12 @@ public class AMXSystemPowerHandler extends AMXBaseHandler implements PowerBehavi
 		
 	}
 
-
-
 	@Override
 	public void statusQuery(int index, int requestState)
 	{
 		
 	}
+
+
 
 }

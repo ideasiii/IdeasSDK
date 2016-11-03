@@ -92,6 +92,16 @@ public class AMXDataTransmitHandler extends BaseHandler
 		@Override
 		public void run()
 		{
+			
+			// for debugging Start
+			Logs.showTrace("AMX Request: ");
+			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
+			if (null != strBody)
+			{
+				Logs.showTrace("Request Message: " + strBody);
+			}
+			// for debugging End
+			
 			int status = Controller.cmpRequest(nCommand, strBody, respPacket, mSocketHandler);
 
 			analyzeResponseData(status, respPacket);
