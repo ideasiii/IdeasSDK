@@ -46,6 +46,15 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	}
 
+	protected boolean isInInterval(int num, int smallestNum, int biggestNum)
+	{
+		if(num<=biggestNum && num>= smallestNum)
+		{
+			return true;
+		}
+		return false;
+	}
+
 	protected JSONObject trasferToJsonCommand(int commandType, int function, int device, int command)
 
 	{

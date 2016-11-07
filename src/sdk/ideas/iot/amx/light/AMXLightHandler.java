@@ -38,32 +38,49 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 	@Override
 	public void onBehavior(int index)
 	{
-		if ((index >= AMXParameterSetting.DEVICE_LIGHT_1 && index <= AMXParameterSetting.DEVICE_LIGHT_8)
+		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_8)
 				|| index == AMXParameterSetting.DEVICE_LIGHT_ALL)
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
 							AMXParameterSetting.FUCTION_LIGHT, index, AMXParameterSetting.CONTROL_ON));
 		}
+		else
+		{
+			// callback ERROR: invalid value
+		}
 	}
 
 	@Override
 	public void offBehavior(int index)
 	{
-		super.mAMXDataTransmitHandler
-				.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-						AMXParameterSetting.FUCTION_LIGHT, index, AMXParameterSetting.CONTROL_OFF));
+		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_8)
+				|| index == AMXParameterSetting.DEVICE_LIGHT_ALL)
+		{
+			super.mAMXDataTransmitHandler
+					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
+							AMXParameterSetting.FUCTION_LIGHT, index, AMXParameterSetting.CONTROL_OFF));
+		}
+		else
+		{
+			// callback ERROR: invalid value
+		}
 	}
 
 	@Override
 	public void statusQuery(int index, int requestState)
 	{
-		
-		
-		
-		
+		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_7) && isInInterval(
+				requestState, AMXParameterSetting.REQUEST_STATUS_POWER, AMXParameterSetting.REQUEST_STATUS_POWER))
+		{
+			super.mAMXDataTransmitHandler.sendStatusCommand(super.trasferToJsonCommand(
+					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUCTION_LIGHT, index, requestState));
+		}
+		else
+		{
+			// callback ERROR: invalid value
+			
+		}
 	}
-
-	
 
 }

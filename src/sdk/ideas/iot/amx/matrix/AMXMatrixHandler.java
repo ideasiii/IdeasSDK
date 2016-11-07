@@ -3,6 +3,7 @@ package sdk.ideas.iot.amx.matrix;
 import android.content.Context;
 import android.os.Message;
 import sdk.ideas.iot.amx.AMXBaseHandler;
+import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.MatrixBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
 
@@ -11,14 +12,12 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 	@Override
 	public void handleControlMessage(Message msg)
 	{
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void handleStatusMessage(Message msg)
 	{
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -30,15 +29,35 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 	@Override
 	public void changeMatrixBehavior(int index)
 	{
-
+		if (super.isInInterval(index, AMXParameterSetting.CONTROL_MATRIX_INPUT_1,
+				AMXParameterSetting.CONTROL_MATRIX_INPUT_8))
+		{
+			super.mAMXDataTransmitHandler.sendControlCommand(super.trasferToJsonCommand(
+					AMXParameterSetting.TYPE_CONTROL_COMMAND, AMXParameterSetting.FUCTION_MATRIX_SWITCH, 0, index));
+		}
+		else
+		{
+			// callback ERROR: invalid value
+			
+			
+		}
 	}
 
 	@Override
 	public void statusQuery(int index, int requestState)
 	{
-		
+		if (isInInterval(requestState, AMXParameterSetting.REQUEST_STATUS_MATRIX,
+				AMXParameterSetting.REQUEST_STATUS_MATRIX))
+		{
+			super.mAMXDataTransmitHandler.sendStatusCommand(super.trasferToJsonCommand(
+					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUCTION_MATRIX_SWITCH, 0, requestState));
+		}
+		else
+		{
+			// callback ERROR: invalid value
+			
+			
+		}
 	}
-
-
 
 }

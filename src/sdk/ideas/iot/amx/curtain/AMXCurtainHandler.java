@@ -33,7 +33,6 @@ public class AMXCurtainHandler extends AMXBaseHandler implements LiftingBehavior
 	@Override
 	public void upBehavior(int index)
 	{
-
 		mAMXDataTransmitHandler.sendControlCommand(trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
 				AMXParameterSetting.FUCTION_CURTAIN, 0, AMXParameterSetting.CONTROL_UP));
 	}

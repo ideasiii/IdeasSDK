@@ -249,8 +249,6 @@ public abstract class Controller
 			{
 				nCmpStatus = ERR_PACKET_LENGTH;
 			}
-			// msocket.close();
-			// msocket = null;
 		}
 		catch (Exception e)
 		{
