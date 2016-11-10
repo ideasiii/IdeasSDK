@@ -1,7 +1,10 @@
 package sdk.ideas.iot.amx.project;
 
+import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
+import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.LiftingBehavior;
@@ -9,6 +12,7 @@ import sdk.ideas.iot.amx.PowerBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
 import sdk.ideas.iot.amx.VideoSignalBehavior;
 import sdk.ideas.iot.amx.VolumeBehavior;
+import sdk.ideas.module.Controller;
 
 public class AMXProjectHandler extends AMXBaseHandler
 		implements VolumeBehavior, VideoSignalBehavior, LiftingBehavior, PowerBehavior, StatusQueryBehavior
@@ -18,6 +22,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 	public void handleControlMessage(Message msg)
 	{
 		
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_PROJECT_HANDLER, msg, null);
 	}
 
 	@Override
@@ -175,6 +180,13 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			// callback ERROR: invalid value
 		}
+	}
+
+	@Override
+	public void allStatusQuery()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 
 }

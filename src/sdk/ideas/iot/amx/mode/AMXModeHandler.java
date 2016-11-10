@@ -1,22 +1,26 @@
 package sdk.ideas.iot.amx.mode;
 
+import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
+import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.ModeBehavior;
+import sdk.ideas.module.Controller;
 
 public class AMXModeHandler extends AMXBaseHandler implements ModeBehavior
 {
 
 	@Override
-	public void handleControlMessage(Message msg)
+	protected void handleControlMessage(Message msg)
 	{
-
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_MODE_HANDLER, msg, null);
 	}
 
 	@Override
-	public void handleStatusMessage(Message msg)
+	protected void handleStatusMessage(Message msg)
 	{
 		return;
 	}

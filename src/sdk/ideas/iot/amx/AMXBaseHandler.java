@@ -1,5 +1,6 @@
 package sdk.ideas.iot.amx;
 
+import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.content.Context;
@@ -9,12 +10,13 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
+import sdk.ideas.module.Controller;
 
 public abstract class AMXBaseHandler extends BaseHandler
 {
-	public abstract void handleControlMessage(Message msg);
+	protected abstract void handleControlMessage(Message msg);
 
-	public abstract void handleStatusMessage(Message msg);
+	protected abstract void handleStatusMessage(Message msg);
 
 	protected Handler privateHandler = new Handler()
 	{
@@ -48,15 +50,60 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	protected boolean isInInterval(int num, int smallestNum, int biggestNum)
 	{
-		if(num<=biggestNum && num>= smallestNum)
+		if (num <= biggestNum && num >= smallestNum)
 		{
 			return true;
 		}
 		return false;
 	}
 
-	protected JSONObject trasferToJsonCommand(int commandType, int function, int device, int command)
+	protected boolean handleControlResponseMessage(int what, Message msg, HashMap<String, String> message)
+	{
+		if (null == message)
+		{
+			message = new HashMap<String, String>();
+		}
+		if (msg.arg1 == Controller.STATUS_ROK)
+		{
+			message.put("message", "Command Success");
+			super.callBackMessage(ResponseCode.ERR_SUCCESS, what, ResponseCode.METHOD_COTROL_COMMAND_AMX, message);
+			return true;
+		}
+		else if(msg.arg1 )
+		
+		
 
+	}
+
+	protected JSONObject handleStatusResponseMessage(int what, Message msg)
+	{
+		HashMap<String, String> message = new HashMap<String, String>();
+
+		if (msg.arg1 == Controller.STATUS_ROK)
+		{
+			
+			try
+			{
+				JSONObject data = new JSONObject((String) msg.obj);
+				
+				return data;
+				//super.callBackMessage(ResponseCode.ERR_SUCCESS, what, ResponseCode.METHOD_STATUS_COMMAND_AMX, message);
+				//return true;
+
+			}
+			catch (JSONException e)
+			{
+				
+				
+				
+				
+			}
+		}
+		
+
+	}
+
+	protected JSONObject trasferToJsonCommand(int commandType, int function, int device, int command)
 	{
 		JSONObject obj = new JSONObject();
 		try

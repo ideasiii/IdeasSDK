@@ -1,33 +1,50 @@
 package sdk.ideas.iot.amx.light;
 
+import java.util.HashMap;
+import org.json.JSONException;
+import org.json.JSONObject;
 import android.content.Context;
 import android.os.Message;
+import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.PowerBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
+import sdk.ideas.module.Controller;
 
 public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, StatusQueryBehavior
 {
 	@Override
-	public void handleControlMessage(Message msg)
+	protected void handleControlMessage(Message msg)
 	{
-		if(msg.arg1 == )
-		{
-			
-		}
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER, msg, null);
 	}
 
 	@Override
-	public void handleStatusMessage(Message msg)
+	protected void handleStatusMessage(Message msg)
 	{
-		if(msg.arg1 == )
+		HashMap<String, String> message = new HashMap<String, String>();
+
+		if (msg.arg1 == Controller.STATUS_ROK)
 		{
-			
+			JSONObject data = null;
+			try
+			{
+				data = new JSONObject((String) msg.obj);
+			}
+			catch (JSONException e)
+			{
+				Logs.showError(e.toString());
+			}
+
 		}
-		
-		
-		
+		else
+		{
+
+		}
+
 	}
 
 	public AMXLightHandler(Context mContext, String strIP, int port)
@@ -79,8 +96,14 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 		else
 		{
 			// callback ERROR: invalid value
-			
+
 		}
+	}
+
+	@Override
+	public void allStatusQuery()
+	{
+
 	}
 
 }

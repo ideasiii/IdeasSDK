@@ -1,19 +1,23 @@
 package sdk.ideas.iot.amx.volume;
 
+import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
+import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.LiftingBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
 import sdk.ideas.iot.amx.VolumeBehavior;
+import sdk.ideas.module.Controller;
 
 public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior, VolumeBehavior, StatusQueryBehavior
 {
 	@Override
 	public void handleControlMessage(Message msg)
 	{
-
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_VOLUME_HANDLER, msg, null);
 	}
 
 	@Override
@@ -110,6 +114,12 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 			// callback ERROR: invalid value
 
 		}
+
+	}
+
+	@Override
+	public void allStatusQuery()
+	{
 
 	}
 

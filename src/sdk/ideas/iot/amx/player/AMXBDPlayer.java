@@ -1,12 +1,16 @@
 package sdk.ideas.iot.amx.player;
 
+import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
+import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.PlayerBehavior;
 import sdk.ideas.iot.amx.PowerBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
+import sdk.ideas.module.Controller;
 
 public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, PowerBehavior, PlayerBehavior
 {
@@ -14,7 +18,7 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 	@Override
 	public void handleControlMessage(Message msg)
 	{
-
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_BDPLAYER_HANDLER, msg, null);
 	}
 
 	@Override
@@ -27,8 +31,6 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 	{
 		super(mContext, strIP, nPort);
 	}
-
-
 
 	@Override
 	public void BDPlayerBehavior(int index)
@@ -49,15 +51,15 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 	@Override
 	public void onBehavior(int index)
 	{
-		//not yet define
+		// not yet define
 	}
 
 	@Override
 	public void offBehavior(int index)
 	{
-		//not yet define
+		// not yet define
 	}
-	
+
 	@Override
 	public void statusQuery(int index, int requestState)
 	{
@@ -70,7 +72,14 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 		else
 		{
 			// callback ERROR: invalid value
+
 		}
+	}
+
+	@Override
+	public void allStatusQuery()
+	{
+
 	}
 
 }
