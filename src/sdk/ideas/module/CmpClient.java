@@ -883,7 +883,7 @@ public abstract class CmpClient
 			outSocket.write(buf.array());
 
 			buf.clear();
-			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE);
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE+2048);
 
 			nLength = inSocket.read(buf.array());
 			buf.rewind();

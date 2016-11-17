@@ -7,7 +7,6 @@ import android.content.Context;
 import android.os.Message;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
-import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.PowerBehavior;
@@ -19,7 +18,7 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 	@Override
 	protected void handleControlMessage(Message msg)
 	{
-		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER, msg, null);
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER, msg);
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_LIGHT, index, AMXParameterSetting.CONTROL_ON));
+							AMXParameterSetting.FUNCTION_LIGHT, index, AMXParameterSetting.CONTROL_ON));
 		}
 		else
 		{
@@ -76,7 +75,7 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_LIGHT, index, AMXParameterSetting.CONTROL_OFF));
+							AMXParameterSetting.FUNCTION_LIGHT, index, AMXParameterSetting.CONTROL_OFF));
 		}
 		else
 		{
@@ -91,7 +90,7 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 				requestState, AMXParameterSetting.REQUEST_STATUS_POWER, AMXParameterSetting.REQUEST_STATUS_POWER))
 		{
 			super.mAMXDataTransmitHandler.sendStatusCommand(super.trasferToJsonCommand(
-					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUCTION_LIGHT, index, requestState));
+					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUNCTION_LIGHT, index, requestState));
 		}
 		else
 		{

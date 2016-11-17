@@ -9,6 +9,8 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import sdk.ideas.common.Logs;
+import sdk.ideas.common.Protocol;
 
 public abstract class Controller
 {
@@ -191,6 +193,15 @@ public abstract class Controller
 			buf.putInt(STATUS_ROK);
 			buf.putInt(nSequence);
 
+			// debug using start
+			Logs.showTrace("@@Request Command@@ ");
+			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
+			Logs.showTrace("Command Length: " + String.valueOf(nLength));
+			Logs.showTrace("Command Status: " + String.valueOf(STATUS_ROK));
+			Logs.showTrace("Command Sequence: " + String.valueOf(nSequence));
+			Logs.showTrace("Command Body: " + strBody);
+			// debug using end
+
 			if (null != strBody && 0 < strBody.length())
 			{
 				buf.put(strBody.getBytes(CODE_TYPE));
@@ -209,7 +220,7 @@ public abstract class Controller
 			nLength = inSocket.read(buf.array(), 0, CMP_HEADER_SIZE);
 			buf.rewind();
 
-			if (CMP_HEADER_SIZE == nLength)
+			if (CMP_HEADER_SIZE <= nLength)
 			{
 				buf.order(ByteOrder.BIG_ENDIAN);
 
@@ -235,7 +246,6 @@ public abstract class Controller
 						nLength = inSocket.read(buf.array(), 0, --nBodySize); // not
 																				// read
 																				// end-char
-
 						if (nLength == nBodySize)
 						{
 							byte[] bytes = new byte[nBodySize];
@@ -250,12 +260,31 @@ public abstract class Controller
 				nCmpStatus = ERR_PACKET_LENGTH;
 			}
 		}
+		catch(SocketException e)
+		{
+			mstrLastError = e.toString();
+			Logs.showError("CMP Request Exception:"+ e.toString());
+			nCmpStatus = ERR_IOEXCEPTION;
+			
+		}
 		catch (Exception e)
 		{
 			mstrLastError = e.toString();
-			System.out.println("CMP Request Exception: " + e.toString());
+			Logs.showError("CMP Request Exception:"+ e.toString());
 			nCmpStatus = ERR_EXCEPTION;
 		}
+
+		// for debugging use Start
+		Logs.showTrace("@@Response Command@@ ");
+		Logs.showTrace("Command ID: " + String.valueOf(respPacket.cmpHeader.command_id));
+		Logs.showTrace("Command Length: " + String.valueOf(respPacket.cmpHeader.command_length));
+		Logs.showTrace("Command Status: " + String.valueOf(respPacket.cmpHeader.command_status));
+		Logs.showTrace("Sequence Number: " + String.valueOf(respPacket.cmpHeader.sequence_number));
+		if (null != respPacket.cmpBody)
+		{
+			Logs.showTrace("Response Message: " + respPacket.cmpBody);
+		}
+		// for debugging use End
 
 		return nCmpStatus;
 	}
@@ -288,7 +317,7 @@ public abstract class Controller
 			returnStatus = cmpRequest(nCommand, strBody, respPacket, msocket);
 			msocket.close();
 			msocket = null;
-			
+
 			return returnStatus;
 		}
 		catch (SocketException e)

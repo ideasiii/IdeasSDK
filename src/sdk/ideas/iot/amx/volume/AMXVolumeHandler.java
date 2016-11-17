@@ -1,23 +1,20 @@
 package sdk.ideas.iot.amx.volume;
 
-import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
 import sdk.ideas.common.CtrlType;
-import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.LiftingBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
 import sdk.ideas.iot.amx.VolumeBehavior;
-import sdk.ideas.module.Controller;
 
 public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior, VolumeBehavior, StatusQueryBehavior
 {
 	@Override
 	public void handleControlMessage(Message msg)
 	{
-		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_VOLUME_HANDLER, msg, null);
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_VOLUME_HANDLER, msg);
 	}
 
 	@Override
@@ -40,7 +37,7 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_VOLUME, index, AMXParameterSetting.CONTROL_UP));
+							AMXParameterSetting.FUNCTION_VOLUME, index, AMXParameterSetting.CONTROL_UP));
 
 		}
 		else
@@ -57,7 +54,7 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_VOLUME, index, AMXParameterSetting.CONTROL_DOWN));
+							AMXParameterSetting.FUNCTION_VOLUME, index, AMXParameterSetting.CONTROL_DOWN));
 		}
 		else
 		{
@@ -73,7 +70,7 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_VOLUME, index, AMXParameterSetting.CONTROL_MUTE));
+							AMXParameterSetting.FUNCTION_VOLUME, index, AMXParameterSetting.CONTROL_MUTE));
 		}
 		else
 		{
@@ -89,7 +86,7 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_VOLUME, index, AMXParameterSetting.CONTROL_UNMUTE));
+							AMXParameterSetting.FUNCTION_VOLUME, index, AMXParameterSetting.CONTROL_UNMUTE));
 		}
 		else
 		{
@@ -107,7 +104,7 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 		{
 			super.mAMXDataTransmitHandler
 					.sendStatusCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_STATUS_COMMAND,
-							AMXParameterSetting.FUCTION_VOLUME, index, AMXParameterSetting.REQUEST_STATUS_MUTE));
+							AMXParameterSetting.FUNCTION_VOLUME, index, AMXParameterSetting.REQUEST_STATUS_MUTE));
 		}
 		else
 		{

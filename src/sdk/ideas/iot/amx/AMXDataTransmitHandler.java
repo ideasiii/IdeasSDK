@@ -1,5 +1,7 @@
 package sdk.ideas.iot.amx;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import org.json.JSONObject;
 import android.content.Context;
@@ -12,17 +14,22 @@ import sdk.ideas.module.socket.SocketHandler;
 
 public class AMXDataTransmitHandler extends BaseHandler
 {
-	protected static SocketHandler mSocketHandler = null;
+	private static SocketHandler mSocketHandler = null;
+	private String strIP = null;
+	private int port = 0;
 
 	public AMXDataTransmitHandler(Context mContext, String strIP, int nPort)
 	{
 		super(mContext);
 
+		this.strIP = strIP;
+		this.port = nPort;
+
 		try
 		{
 			if (null == mSocketHandler)
 			{
-				mSocketHandler = SocketHandler.getInstance(strIP, nPort);
+				mSocketHandler = SocketHandler.getInstance();
 			}
 		}
 		catch (Exception e)
@@ -52,34 +59,36 @@ public class AMXDataTransmitHandler extends BaseHandler
 
 	private void analyzeResponseData(int returnstate, Controller.CMP_PACKET respPacket)
 	{
-		// for debugging Start
-		Logs.showTrace("AMX Response: ");
-		Logs.showTrace("Command ID: " + String.valueOf(respPacket.cmpHeader.command_id));
-		Logs.showTrace("Command Length: " + String.valueOf(respPacket.cmpHeader.command_length));
-		Logs.showTrace("Command Status: " + String.valueOf(respPacket.cmpHeader.command_status));
-		Logs.showTrace("Sequence Number: " + String.valueOf(respPacket.cmpHeader.sequence_number));
-		if (null != respPacket.cmpBody)
-		{
-			Logs.showTrace("Response Message: " + respPacket.cmpBody);
-		}
-		// for debugging End
-
 		HashMap<String, String> message = new HashMap<String, String>();
-		message.put("message", respPacket.cmpBody);
 
 		int whichFunction = 0;
 
-		if (respPacket.cmpHeader.command_id == Controller.amx_control_command_response)
+		if (respPacket.cmpHeader.command_id == (Controller.amx_control_command_response & 0x00ffffff))
 		{
 			whichFunction = ResponseCode.METHOD_COTROL_COMMAND_AMX;
 		}
-		else if (respPacket.cmpHeader.command_id == Controller.amx_status_command_response)
+		else if (respPacket.cmpHeader.command_id == (Controller.amx_status_command_response& 0x00ffffff))
 		{
 			whichFunction = ResponseCode.METHOD_STATUS_COMMAND_AMX;
+
+			Logs.showTrace("Status Message" + respPacket.cmpBody);
+
+			message.put("message", respPacket.cmpBody);
+		}
+		else
+		{
+			Logs.showError("@@UNKnown Command ID@@");
 		}
 
-		callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
-				whichFunction, message);
+		if (returnstate != respPacket.cmpHeader.command_status)
+		{
+			Logs.showTrace("Return State: "+ String.valueOf(returnstate));
+		}
+		else
+		{
+			callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
+					whichFunction, message);
+		}
 	}
 
 	private class SocketRunnable implements Runnable
@@ -92,7 +101,19 @@ public class AMXDataTransmitHandler extends BaseHandler
 		@Override
 		public void run()
 		{
-			
+			if (!mSocketHandler.isConnected())
+			{
+				try
+				{
+					mSocketHandler.connect(
+							new InetSocketAddress(AMXDataTransmitHandler.this.strIP, AMXDataTransmitHandler.this.port));
+				}
+				catch (IOException e)
+				{
+					Logs.showError(e.toString());
+				}
+			}
+
 			// for debugging Start
 			Logs.showTrace("AMX Request: ");
 			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
@@ -101,7 +122,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 				Logs.showTrace("Request Message: " + strBody);
 			}
 			// for debugging End
-			
+
 			int status = Controller.cmpRequest(nCommand, strBody, respPacket, mSocketHandler);
 
 			analyzeResponseData(status, respPacket);

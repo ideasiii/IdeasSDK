@@ -1,10 +1,8 @@
 package sdk.ideas.iot.amx.project;
 
-import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
 import sdk.ideas.common.CtrlType;
-import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.LiftingBehavior;
@@ -12,7 +10,6 @@ import sdk.ideas.iot.amx.PowerBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
 import sdk.ideas.iot.amx.VideoSignalBehavior;
 import sdk.ideas.iot.amx.VolumeBehavior;
-import sdk.ideas.module.Controller;
 
 public class AMXProjectHandler extends AMXBaseHandler
 		implements VolumeBehavior, VideoSignalBehavior, LiftingBehavior, PowerBehavior, StatusQueryBehavior
@@ -22,7 +19,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 	public void handleControlMessage(Message msg)
 	{
 		
-		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_PROJECT_HANDLER, msg, null);
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_PROJECT_HANDLER, msg);
 	}
 
 	@Override
@@ -44,7 +41,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_ON));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_ON));
 		}
 		else
 		{
@@ -60,7 +57,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_OFF));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_OFF));
 		}
 		else
 		{
@@ -76,7 +73,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_UP));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_UP));
 		}
 		else
 		{
@@ -92,7 +89,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_DOWN));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_DOWN));
 		}
 		else
 		{
@@ -108,7 +105,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_PROJECT_HDMI));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_PROJECT_HDMI));
 		}
 		else
 		{
@@ -124,7 +121,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_PROJECT_VGA));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_PROJECT_VGA));
 		}
 		else
 		{
@@ -140,7 +137,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_MUTE));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_MUTE));
 		}
 		else
 		{
@@ -156,7 +153,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 		{
 			super.mAMXDataTransmitHandler
 					.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
-							AMXParameterSetting.FUCTION_PROJECT, index, AMXParameterSetting.CONTROL_UNMUTE));
+							AMXParameterSetting.FUNCTION_PROJECT, index, AMXParameterSetting.CONTROL_UNMUTE));
 		}
 		else
 		{
@@ -173,7 +170,7 @@ public class AMXProjectHandler extends AMXBaseHandler
 						AMXParameterSetting.REQUEST_STATUS_MUTE))
 		{
 			super.mAMXDataTransmitHandler.sendStatusCommand(super.trasferToJsonCommand(
-					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUCTION_PROJECT, index, requestState));
+					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUNCTION_PROJECT, index, requestState));
 
 		}
 		else

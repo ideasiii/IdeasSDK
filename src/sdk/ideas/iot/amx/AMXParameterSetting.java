@@ -9,14 +9,14 @@ public abstract class AMXParameterSetting
 	public final static int TYPE_STATUS_COMMAND = 1;
 
 	/* Define AMX Function */
-	public final static int FUCTION_SYSTEM_POWER = 1;
-	public final static int FUCNTON_MODE_SWITCH = 2;
-	public final static int FUCTION_MATRIX_SWITCH = 3;
-	public final static int FUCTION_PROJECT = 4;
-	public final static int FUCTION_VOLUME = 5;
-	public final static int FUCTION_CURTAIN = 6;
-	public final static int FUCTION_LIGHT = 7;
-	public final static int FUCTION_BD_PLAYER = 8;
+	public final static int FUNCTION_SYSTEM_POWER = 1;
+	public final static int FUNCTION_MODE_SWITCH = 2;
+	public final static int FUNCTION_MATRIX_SWITCH = 3;
+	public final static int FUNCTION_PROJECT = 4;
+	public final static int FUNCTION_VOLUME = 5;
+	public final static int FUNCTION_CURTAIN = 6;
+	public final static int FUNCTION_LIGHT = 7;
+	public final static int FUNCTION_BD_PLAYER = 8;
 
 	/* Define AMX Device */
 	// 演講模式

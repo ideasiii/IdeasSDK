@@ -1,16 +1,13 @@
 package sdk.ideas.iot.amx.player;
 
-import java.util.HashMap;
 import android.content.Context;
 import android.os.Message;
 import sdk.ideas.common.CtrlType;
-import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.PlayerBehavior;
 import sdk.ideas.iot.amx.PowerBehavior;
 import sdk.ideas.iot.amx.StatusQueryBehavior;
-import sdk.ideas.module.Controller;
 
 public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, PowerBehavior, PlayerBehavior
 {
@@ -18,7 +15,7 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 	@Override
 	public void handleControlMessage(Message msg)
 	{
-		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_BDPLAYER_HANDLER, msg, null);
+		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_BDPLAYER_HANDLER, msg);
 	}
 
 	@Override
@@ -38,7 +35,7 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 		if (super.isInInterval(index, AMXParameterSetting.CONTROL_BD_OPEN, AMXParameterSetting.CONTROL_BD_SUBTITLE))
 		{
 			super.mAMXDataTransmitHandler.sendControlCommand(super.trasferToJsonCommand(
-					AMXParameterSetting.TYPE_CONTROL_COMMAND, AMXParameterSetting.FUCTION_BD_PLAYER, 0, index));
+					AMXParameterSetting.TYPE_CONTROL_COMMAND, AMXParameterSetting.FUNCTION_BD_PLAYER, 0, index));
 		}
 		else
 		{
@@ -67,7 +64,7 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 				AMXParameterSetting.REQUEST_STATUS_POWER))
 		{
 			super.mAMXDataTransmitHandler.sendStatusCommand(super.trasferToJsonCommand(
-					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUCTION_BD_PLAYER, 0, requestState));
+					AMXParameterSetting.TYPE_STATUS_COMMAND, AMXParameterSetting.FUNCTION_BD_PLAYER, 0, requestState));
 		}
 		else
 		{
