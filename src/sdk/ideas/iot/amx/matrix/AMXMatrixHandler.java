@@ -26,7 +26,7 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 
 	public AMXMatrixHandler(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort);
+		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_MATRIX_SWITCH));
 	}
 
 	@Override

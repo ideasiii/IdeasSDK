@@ -25,7 +25,7 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 
 	public AMXVolumeHandler(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort);
+		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_VOLUME));
 
 	}
 

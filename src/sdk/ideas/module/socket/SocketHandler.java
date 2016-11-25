@@ -3,104 +3,137 @@ package sdk.ideas.module.socket;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.SocketException;
+import java.util.ArrayList;
 
-public class SocketHandler extends Socket
+public class SocketHandler
 {
-	private static SocketHandler mSocketHandler = null;
-
-	private SocketHandler(String strIP, int port) throws UnknownHostException, IOException
-	{
-		super(strIP, port);
-	}
+	private static ArrayList<SocketData> mSocketHandler = null;
 
 	private SocketHandler()
 	{
-		super();
+
 	}
 
-	public static SocketHandler getInstance()
+	public static SocketData getInstance(String strIP, int port)
 	{
 		if (null == mSocketHandler)
 		{
-			mSocketHandler = new SocketHandler();
+			mSocketHandler = new ArrayList<SocketData>();
 		}
-		return mSocketHandler;
-	}
+		mSocketHandler.add(new SocketData(strIP, port));
 
-	public static SocketHandler getInstance(String strIP, int port) throws UnknownHostException, IOException
-	{
-
-		if (null == mSocketHandler)
-		{
-			mSocketHandler = new SocketHandler();
-			mSocketHandler.connect(new InetSocketAddress(strIP, port));
-		}
-		return mSocketHandler;
+		return mSocketHandler.get(mSocketHandler.size() - 1);
 
 	}
 
-	public static SocketHandler getInstance(String strIP, int port, int nConnectTimeOut) throws IOException
-	{
-
-		if (null == mSocketHandler)
-		{
-			mSocketHandler = new SocketHandler();
-			mSocketHandler.connect(new InetSocketAddress(strIP, port), nConnectTimeOut);
-		}
-		return mSocketHandler;
-
-	}
-
-	public static SocketHandler getInstance(String strIP, int port, int nConnectTimeOut, int nReceiveTimeOut)
+	public static SocketData getInstance(String strIP, int port, int nConnectTimeOut, int nReceiveTimeOut)
 			throws IOException
 	{
 
 		if (null == mSocketHandler)
 		{
-			mSocketHandler = new SocketHandler();
-			mSocketHandler.setSoTimeout(nReceiveTimeOut);
-			mSocketHandler.connect(new InetSocketAddress(strIP, port), nConnectTimeOut);
+			mSocketHandler = new ArrayList<SocketData>();
 		}
-		return mSocketHandler;
+		mSocketHandler.add(new SocketData(strIP, port, nConnectTimeOut, nReceiveTimeOut));
+
+		return mSocketHandler.get(mSocketHandler.size() - 1);
 
 	}
 
-	/*
-	 * public static class SocketRunable implements Runnable { private String
-	 * strIP = null; private int port = 0; private int nConnectTimeOut = 0;
-	 * private int nReceiveTimeOut = 0; private int type = -1;
-	 * 
-	 * @Override public void run() { try { switch (type) { case 0:
-	 * mSocketHandler = new SocketHandler(strIP, port); break; case 1:
-	 * mSocketHandler = new SocketHandler(); mSocketHandler.connect(new
-	 * InetSocketAddress(strIP, port), nConnectTimeOut); break; case 2:
-	 * mSocketHandler = new SocketHandler();
-	 * mSocketHandler.setSoTimeout(nReceiveTimeOut); mSocketHandler.connect(new
-	 * InetSocketAddress(strIP, port), nConnectTimeOut); break;
-	 * 
-	 * } } catch (Exception e) { throw new RuntimeException("Socket Exception",
-	 * e); }
-	 * 
-	 * }
-	 * 
-	 * public SocketRunable(String strIP, int port) { type = 0; this.strIP =
-	 * strIP; this.port = port;
-	 * 
-	 * }
-	 * 
-	 * public SocketRunable(String strIP, int port, int nConnectTimeOut) { type
-	 * = 1; this.strIP = strIP; this.port = port; this.nConnectTimeOut =
-	 * nConnectTimeOut;
-	 * 
-	 * }
-	 * 
-	 * public SocketRunable(String strIP, int port, int nConnectTimeOut, int
-	 * nReceiveTimeOut) { type = 2; this.strIP = strIP; this.port = port;
-	 * this.nConnectTimeOut = nConnectTimeOut; this.nReceiveTimeOut =
-	 * nReceiveTimeOut; }
-	 * 
-	 * }
-	 */
+	public static SocketData getInstance(int socketID)
+	{
+
+		if (null != mSocketHandler)
+		{
+			for (int i = 0; i < mSocketHandler.size(); i++)
+			{
+				if (mSocketHandler.get(i).getSocketID() == socketID)
+				{
+					return mSocketHandler.get(i);
+				}
+			}
+		}
+
+		return null;
+
+	}
+
+	public static class SocketData
+	{
+		private Socket mSocket = null;
+
+		private static int socketCountID = 1;
+		private int socketID = -1;
+		private boolean isLinkable = false;
+
+		private String strIP = null;
+		private int nPort = -1;
+		private int nReceiveTimeOut = -1;
+		private int nConnectTimeOut = -1;
+
+		public SocketData(String strIP, int nPort, int nReceiveTimeOut, int nConnectTimeOut)
+		{
+			mSocket = new Socket();
+			this.strIP = strIP;
+			this.nPort = nPort;
+			this.nReceiveTimeOut = nReceiveTimeOut;
+			this.nConnectTimeOut = nConnectTimeOut;
+			socketID = socketCountID++;
+		}
+
+		public SocketData(String strIP, int nPort)
+		{
+			mSocket = new Socket();
+			this.strIP = strIP;
+			this.nPort = nPort;
+			socketID = socketCountID++;
+		}
+
+		public void setIsLinkable(boolean isLinkable)
+		{
+			this.isLinkable = isLinkable;
+		}
+
+		public boolean getIsLinkable()
+		{
+			return this.isLinkable;
+		}
+
+		public void connect() throws SocketException, IOException
+		{
+			if (nReceiveTimeOut > 0)
+			{
+				mSocket.setSoTimeout(nReceiveTimeOut);
+			}
+
+			if (nConnectTimeOut > 0)
+			{
+				mSocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
+			}
+			else
+			{
+				mSocket.connect(new InetSocketAddress(strIP, nPort));
+			}
+			this.isLinkable = true;
+
+		}
+
+		public boolean isConnected()
+		{
+			return mSocket.isConnected();
+		}
+
+		public Socket getSocket()
+		{
+			return mSocket;
+		}
+
+		public int getSocketID()
+		{
+			return socketID;
+		}
+
+	}
 
 }

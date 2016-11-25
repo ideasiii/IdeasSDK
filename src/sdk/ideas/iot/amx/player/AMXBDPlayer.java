@@ -26,7 +26,7 @@ public class AMXBDPlayer extends AMXBaseHandler implements StatusQueryBehavior, 
 
 	public AMXBDPlayer(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort);
+		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_BD_PLAYER));
 	}
 
 	@Override

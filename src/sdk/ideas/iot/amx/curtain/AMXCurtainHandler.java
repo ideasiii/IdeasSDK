@@ -23,7 +23,7 @@ public class AMXCurtainHandler extends AMXBaseHandler implements LiftingBehavior
 
 	public AMXCurtainHandler(Context mContext, String strIP, int port)
 	{
-		super(mContext, strIP, port);
+		super(mContext, strIP, port,String.valueOf(AMXParameterSetting.FUNCTION_CURTAIN));
 	}
 
 	@Override

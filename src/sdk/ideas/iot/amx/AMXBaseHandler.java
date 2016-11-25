@@ -18,8 +18,6 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	protected abstract void handleStatusMessage(Message msg);
 
-	private static Thread recieveBroadCastStatusMessage = null;
-
 	protected Handler privateHandler = new Handler()
 	{
 		@Override
@@ -40,23 +38,17 @@ public abstract class AMXBaseHandler extends BaseHandler
 		}
 
 	};
-	protected AMXDataTransmitHandler mAMXDataTransmitHandler = null;
+	protected static AMXDataTransmitHandler mAMXDataTransmitHandler = null;
 
-	public AMXBaseHandler(Context mContext, String strIP, int nPort)
+	public AMXBaseHandler(Context mContext, String strIP, int nPort, String moduleID)
 	{
 		super(mContext);
 
-		mAMXDataTransmitHandler = new AMXDataTransmitHandler(mContext, strIP, nPort);
-		mAMXDataTransmitHandler.setHandler(privateHandler);
-		if (null != recieveBroadCastStatusMessage && recieveBroadCastStatusMessage.isAlive())
+		if (null == mAMXDataTransmitHandler)
 		{
-			Logs.showTrace("recieveStatusMessage is Running");
+			mAMXDataTransmitHandler = new AMXDataTransmitHandler(mContext, strIP, nPort);
 		}
-		else
-		{
-			recieveBroadCastStatusMessage = new Thread();
-
-		}
+		mAMXDataTransmitHandler.setHandler(privateHandler, moduleID);
 
 	}
 
@@ -104,6 +96,7 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	protected void handleStatusResponseMessage(int what, Message msg)
 	{
+		// 做彈性化處理 有可能會收到status ok或是有 body的data
 		HashMap<String, String> message = (HashMap<String, String>) msg.obj;
 		JSONObject data = null;
 		switch (msg.arg1)
@@ -125,6 +118,11 @@ public abstract class AMXBaseHandler extends BaseHandler
 			break;
 
 		}
+
+	}
+
+	protected void handleBroadCastStatusMessage(int what, Message msg)
+	{
 
 	}
 

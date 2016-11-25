@@ -24,7 +24,7 @@ public class AMXModeHandler extends AMXBaseHandler implements ModeBehavior
 
 	public AMXModeHandler(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort);
+		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_MODE_SWITCH));
 	}
 
 	@Override

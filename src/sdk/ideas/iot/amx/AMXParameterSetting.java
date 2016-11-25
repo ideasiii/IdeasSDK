@@ -8,6 +8,8 @@ public abstract class AMXParameterSetting
 	public final static int TYPE_CONTROL_COMMAND = 0;
 	public final static int TYPE_STATUS_COMMAND = 1;
 
+	
+	
 	/* Define AMX Function */
 	public final static int FUNCTION_SYSTEM_POWER = 1;
 	public final static int FUNCTION_MODE_SWITCH = 2;

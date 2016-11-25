@@ -48,7 +48,7 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 
 	public AMXLightHandler(Context mContext, String strIP, int port)
 	{
-		super(mContext, strIP, port);
+		super(mContext, strIP, port,String.valueOf(AMXParameterSetting.FUNCTION_LIGHT));
 	}
 
 	@Override
