@@ -157,6 +157,35 @@ public abstract class BaseHandler
 		{
 			Common.postMessage(theHandler, mWhat, mResponseMessage.mnCode, mFrom, mResponseMessage.mStrContent);
 		}
+		if (isHashMapListenerEnable)
+		{
+			for (String callbackID : hashMapListener.keySet())
+			{
+				if (null != this.hashMapListener.get(callbackID))
+				{
+					this.hashMapListener.get(callbackID).onCallbackResult(mResponseMessage.mnCode, mWhat, mFrom,
+							mResponseMessage.mStrContent);
+				}
+			}
+
+		}
+		if (isHashMapHandlerEnable)
+		{
+			for (String callbackID : theHashMapHandler.keySet())
+			{
+				if (null != this.theHashMapHandler.get(callbackID))
+				{
+					Common.postMessage(this.theHashMapHandler.get(callbackID), mWhat, mResponseMessage.mnCode, mFrom,
+							mResponseMessage.mStrContent);
+				}
+				else
+				{
+					Logs.showError("this.theHashMapHandler.get(callbackID) is null");
+				}
+			}
+
+		}
+
 	}
 
 	private void returnResponse(int mWhat, int mFrom, String callbackID)

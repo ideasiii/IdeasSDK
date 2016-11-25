@@ -84,6 +84,9 @@ public abstract class Controller
 	static public final int amx_control_command_response = 0x80000040;
 	static public final int amx_status_command_request = 0x00000041;
 	static public final int amx_status_command_response = 0x80000041;
+	static public final int amx_broadcast_status_command_request = 0x00000042;
+	static public final int amx_broadcast_status_command_response = 0x80000042;
+	
 
 	/*
 	 * CMP status set
@@ -344,12 +347,12 @@ public abstract class Controller
 	 * 
 	 * }
 	 */
-
-	public static int cmpSend(final int nCommand, final String strBody, CMP_PACKET sendPacket, Socket msocket)
+	
+	public static int cmpSend(final int nCommand, final String strBody, CMP_PACKET sendPacket, Socket msocket,final int nSequence)
 	{
 		int nCmpStatus = STATUS_ROK;
 		int nLength = 0;
-		final int nSequence = getSequence();
+		cmpSend(nCommand,  strBody,  sendPacket,  msocket, nSequence);
 		try
 		{
 			if (!validSocket(msocket))
@@ -415,6 +418,14 @@ public abstract class Controller
 		}
 
 		return nCmpStatus;
+	}
+
+	public static int cmpSend(final int nCommand, final String strBody, CMP_PACKET sendPacket, Socket msocket)
+	{
+		
+		final int nSequence = getSequence();
+		return cmpSend(nCommand,  strBody,  sendPacket,  msocket, nSequence);
+		
 
 	}
 

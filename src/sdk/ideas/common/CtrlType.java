@@ -40,7 +40,7 @@ public abstract class CtrlType
 	public final static int MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER = 1046;
 
 	public final static int MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER = 1050;
-
+	public final static int MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER = 1049;
 	
 	public final static int MSG_RESPONSE_AMX_SYSTEMPOWER_HANDLER = 1051;
 	public final static int MSG_RESPONSE_AMX_MODE_HANDLER = 1052;

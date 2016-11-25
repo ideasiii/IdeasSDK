@@ -23,9 +23,10 @@ public abstract class AMXBaseHandler extends BaseHandler
 		@Override
 		public void handleMessage(Message msg)
 		{
+			Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: " + String.valueOf(msg.what) + " From: "
+					+ String.valueOf(msg.arg2) + " message: " + msg.obj);
 			if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
 			{
-				Logs.showTrace("NOW COMMAND: " + msg.arg2);
 				if (msg.arg2 == ResponseCode.METHOD_COTROL_COMMAND_AMX)
 				{
 					handleControlMessage(msg);

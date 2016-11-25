@@ -3,12 +3,16 @@ package sdk.ideas.iot.amx;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.content.Context;
 import sdk.ideas.common.BaseHandler;
+import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.module.Controller;
+import sdk.ideas.module.Controller.CMP_PACKET;
 import sdk.ideas.module.socket.SocketHandler;
 import sdk.ideas.module.socket.SocketHandler.SocketData;
 
@@ -17,7 +21,18 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 	private static Thread recieveBroadCastReceiveThread = null;
 	private static SocketData mSocketData = null;
 
+	private String strIP = null;
+	private int nPort = -1;
+
 	public AMXBroadCastReceiveHandler(Context mContext, String strIP, int nPort)
+	{
+		super(mContext);
+		this.strIP = strIP;
+		this.nPort = nPort;
+
+	}
+
+	public void runBroadCastReceiveThread()
 	{
 		if (null != recieveBroadCastReceiveThread && recieveBroadCastReceiveThread.isAlive())
 		{
@@ -34,6 +49,7 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 	class SocketListenRunnable implements Runnable
 	{
 		private Controller.CMP_PACKET respPacket = null;
+
 		@Override
 		public void run()
 		{
@@ -65,29 +81,30 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 			{
 				while (true)
 				{
-					//socket 持續收訊息
-					try
+
+					CMP_PACKET receivePacket = new CMP_PACKET();
+
+					int boardcastStatus = Controller.cmpReceive(receivePacket, mSocketData.getSocket(), -1);
+
+					if (boardcastStatus == Controller.STATUS_ROK)
 					{
-						InputStream inSocket = null;
-						inSocket = mSocketData.getSocket().getInputStream();
-						
-						
-						
-						
-						
-						
-						
+						HashMap<String, String> message = new HashMap<String, String>();
+						message.put("message", receivePacket.cmpBody);
+
+						callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER,
+								0, message);
+
+						// response message
+						CMP_PACKET sendPacket = new CMP_PACKET();
+						int sendStatus = Controller.cmpSend(Controller.amx_broadcast_status_command_response, null,
+								sendPacket, mSocketData.getSocket(), receivePacket.cmpHeader.sequence_number);
+						if (sendStatus == Controller.STATUS_ROK)
+						{
+
+						}
+
 					}
-					catch (IOException e)
-					{
-						
-						
-						
-					}
-					
-					
-					
-					
+
 				}
 			}
 			else
