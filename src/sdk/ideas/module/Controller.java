@@ -352,7 +352,6 @@ public abstract class Controller
 	{
 		int nCmpStatus = STATUS_ROK;
 		int nLength = 0;
-		cmpSend(nCommand,  strBody,  sendPacket,  msocket, nSequence);
 		try
 		{
 			if (!validSocket(msocket))
@@ -495,6 +494,7 @@ public abstract class Controller
 				Logs.showTrace("Command Length: " + String.valueOf(receivePacket.cmpHeader.command_length));
 				Logs.showTrace("Command Status: " + String.valueOf(receivePacket.cmpHeader.command_status));
 				Logs.showTrace("Sequence Number: " + String.valueOf(receivePacket.cmpHeader.sequence_number));
+				
 				if (null != receivePacket.cmpBody)
 				{
 					Logs.showTrace("Response Message: " + receivePacket.cmpBody);

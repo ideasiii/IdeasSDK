@@ -31,9 +31,19 @@ public class AMXDataTransmitHandler extends BaseHandler
 		@Override
 		public void handleMessage(Message msg)
 		{
-			HashMap<String,String> message = new HashMap<String,String>();
-			message.put("message", (String) msg.obj);
-			
+			HashMap<String, String> message = new HashMap<String, String>();
+			try
+			{
+				message = (HashMap<String, String>) msg.obj;
+			}
+			catch (ClassCastException e)
+			{
+				Logs.showError(e.toString());
+			}
+			// debug using
+			Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " what: " + String.valueOf(msg.what) + " From: "
+					+ String.valueOf(msg.arg2) + " message: " + message);
+
 			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER, 0, message);
 
 		}
@@ -44,10 +54,13 @@ public class AMXDataTransmitHandler extends BaseHandler
 	{
 		super(mContext);
 
-		mAMXBroadCastReceiveHandler = new AMXBroadCastReceiveHandler(mContext, strIP, nPort);
-		mAMXBroadCastReceiveHandler.setHandler(privateHandler);
-		
-		
+		if (null == mAMXBroadCastReceiveHandler)
+		{
+			mAMXBroadCastReceiveHandler = new AMXBroadCastReceiveHandler(mContext, strIP, nPort);
+			mAMXBroadCastReceiveHandler.setHandler(privateHandler);
+			mAMXBroadCastReceiveHandler.runBroadCastReceiveThread();
+		}
+
 		if (null == callbackIDSequence)
 		{
 			callbackIDSequence = new HashMap<String, ArrayList<Integer>>();
@@ -134,6 +147,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 		}
 		else
 		{
+			
 			if (respPacket.cmpHeader.command_id == (Controller.amx_control_command_response & 0x00ffffff))
 			{
 				whichFunction = ResponseCode.METHOD_COTROL_COMMAND_AMX;
@@ -180,6 +194,8 @@ public class AMXDataTransmitHandler extends BaseHandler
 
 				int status = Controller.cmpReceive(receivePacket, commandSendSockectData.getSocket(), -1);
 
+				
+				//例外事件
 				if (status == Controller.ERR_IOEXCEPTION || status == Controller.ERR_SOCKET_INVALID)
 				{
 					commandSendSockectData.setIsLinkable(false);
@@ -193,6 +209,11 @@ public class AMXDataTransmitHandler extends BaseHandler
 							message);
 					break;
 				}
+				
+				
+				
+				
+				
 
 				int sequence = receivePacket.cmpHeader.sequence_number;
 				boolean isFind = false;
@@ -267,7 +288,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 			}
 
 			mAMXBroadCastReceiveHandler.runBroadCastReceiveThread();
-			
+
 			// handler cmp receive thread
 			if (null != socketReceiveThread && socketReceiveThread.isAlive())
 			{

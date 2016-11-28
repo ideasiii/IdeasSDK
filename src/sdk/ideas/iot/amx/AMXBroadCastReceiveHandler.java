@@ -74,23 +74,32 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 			{
 				Logs.showError(e.toString());
 			}
-			int status = Controller.cmpRequest(Controller.bind_request, tmp.toString(), respPacket,
-					mSocketData.getSocket());
+			int bindStatus = Controller.ERR_EXCEPTION;
+			try
+			{
+				bindStatus = Controller.cmpRequest(Controller.bind_request, tmp.toString(), respPacket,
+						mSocketData.getSocket());
+			}
+			catch (Exception e)
+			{
+				Logs.showError("[AMXBroadCastReceiveHandler] send bind request ERROR: ");
+				Logs.showError(e.toString());
+			}
 
-			if (status == Controller.STATUS_ROK)
+			if (bindStatus == Controller.STATUS_ROK)
 			{
 				while (true)
 				{
 
 					CMP_PACKET receivePacket = new CMP_PACKET();
-
+					Logs.showTrace("Now Start to Receive BroadCast Message!");
 					int boardcastStatus = Controller.cmpReceive(receivePacket, mSocketData.getSocket(), -1);
-
+					Logs.showTrace("End to Receive BroadCast Message!");
 					if (boardcastStatus == Controller.STATUS_ROK)
 					{
 						HashMap<String, String> message = new HashMap<String, String>();
 						message.put("message", receivePacket.cmpBody);
-
+						Logs.showTrace("[AMXBroadCastReceiveHandler] Receive Message: " + receivePacket.cmpBody);
 						callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER,
 								0, message);
 
@@ -104,11 +113,20 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 						}
 
 					}
+					else if (boardcastStatus == Controller.ERR_IOEXCEPTION
+							|| boardcastStatus == Controller.ERR_SOCKET_INVALID)
+					{
+						Logs.showError("[AMXBroadCastReceiveHandler] Broken Socket IO Exception! while Receiving");
+
+						break;
+					}
 
 				}
 			}
 			else
 			{
+				// bind failed
+				Logs.showError("[AMXBroadCastReceiveHandler] Broken Socket IO Exception while Binding");
 
 			}
 
