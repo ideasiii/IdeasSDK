@@ -197,13 +197,13 @@ public abstract class Controller
 			buf.putInt(nSequence);
 
 			// debug using start
-			Logs.showTrace("@@Request Command@@ ");
+			/*Logs.showTrace("@@Request Command@@ ");
 			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
 			Logs.showTrace("Command Length: " + String.valueOf(nLength));
 			Logs.showTrace("Command Status: " + String.valueOf(STATUS_ROK));
 			Logs.showTrace("Command Sequence: " + String.valueOf(nSequence));
 			Logs.showTrace("Command Body: " + strBody);
-			// debug using end
+			*/// debug using end
 
 			if (null != strBody && 0 < strBody.length())
 			{
@@ -278,11 +278,11 @@ public abstract class Controller
 		}
 
 		// for debugging use Start
-		Logs.showTrace("@@Response Command@@ ");
+		/*Logs.showTrace("@@Response Command@@ ");
 		Logs.showTrace("Command ID: " + String.valueOf(respPacket.cmpHeader.command_id));
 		Logs.showTrace("Command Length: " + String.valueOf(respPacket.cmpHeader.command_length));
 		Logs.showTrace("Command Status: " + String.valueOf(respPacket.cmpHeader.command_status));
-		Logs.showTrace("Sequence Number: " + String.valueOf(respPacket.cmpHeader.sequence_number));
+		Logs.showTrace("Sequence Number: " + String.valueOf(respPacket.cmpHeader.sequence_number));*/
 		if (null != respPacket.cmpBody)
 		{
 			Logs.showTrace("Response Message: " + respPacket.cmpBody);
@@ -489,7 +489,7 @@ public abstract class Controller
 				}
 
 				// for debugging use Start
-				Logs.showTrace("@@Response Command@@ ");
+				/*Logs.showTrace("@@Response Command@@ ");
 				Logs.showTrace("Command ID: " + String.valueOf(receivePacket.cmpHeader.command_id));
 				Logs.showTrace("Command Length: " + String.valueOf(receivePacket.cmpHeader.command_length));
 				Logs.showTrace("Command Status: " + String.valueOf(receivePacket.cmpHeader.command_status));
@@ -498,7 +498,7 @@ public abstract class Controller
 				if (null != receivePacket.cmpBody)
 				{
 					Logs.showTrace("Response Message: " + receivePacket.cmpBody);
-				}
+				}*/
 				// for debugging use End
 			}
 			else

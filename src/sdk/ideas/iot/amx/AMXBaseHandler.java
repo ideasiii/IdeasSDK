@@ -23,24 +23,24 @@ public abstract class AMXBaseHandler extends BaseHandler
 		@Override
 		public void handleMessage(Message msg)
 		{
-			//Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: " + String.valueOf(msg.what) + " From: "
-				//	+ String.valueOf(msg.arg2) + " message: " + msg.obj);
+			// debug using
+			// Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: "
+			// + String.valueOf(msg.what) + " From: "
+			// + String.valueOf(msg.arg2) + " message: " + msg.obj);
 			if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
 			{
-				if (msg.arg2 == ResponseCode.METHOD_COTROL_COMMAND_AMX)
+				if (msg.arg2 == ResponseCode.METHOD_AMX_COTROL_COMMAND)
 				{
 					handleControlMessage(msg);
 				}
-				else if (msg.arg2 == ResponseCode.METHOD_STATUS_COMMAND_AMX)
+				else if (msg.arg2 == ResponseCode.METHOD_AMX_STATUS_COMMAND)
 				{
 					handleStatusMessage(msg);
 				}
 			}
-			if(msg.what == CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER)
+			else if (msg.what == CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER)
 			{
-				
-				//Logs.showTrace("Broadcast Status message: " + msg.obj);
-				
+				handleStatusMessage(msg);
 			}
 		}
 
@@ -70,66 +70,47 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	protected void handleControlResponseMessage(int what, Message msg)
 	{
-		HashMap<String, String> message = new HashMap<String, String>();
-
 		switch (msg.arg1)
 		{
 		// 訊息成功傳送
-		case Controller.STATUS_ROK:
-			message.put("message", "success");
-			super.callBackMessage(ResponseCode.ERR_SUCCESS, what, ResponseCode.METHOD_COTROL_COMMAND_AMX, message);
-			break;
-
-		// Json 格式丟錯
-		case Controller.STATUS_RINVJSON:
-
+		case ResponseCode.ERR_SUCCESS:
+			callBackMessage(ResponseCode.ERR_SUCCESS, what, ResponseCode.METHOD_AMX_COTROL_COMMAND,
+					(HashMap<String, String>) msg.obj);
 			break;
 		default:
-			if (msg.arg1 < Controller.ERR_CMP)
-			{
-				// 內部Exception
+			callBackMessage(msg.arg1, what, ResponseCode.METHOD_AMX_COTROL_COMMAND, (HashMap<String, String>) msg.obj);
 
-			}
-			else
-			{
-				// socket 訊息有通
-
-			}
 			break;
 
 		}
 
 	}
 
-	protected void handleStatusResponseMessage(int what, Message msg)
+	protected void handleStatusResponseMessage(int what, int from, Message msg)
 	{
-		// 做彈性化處理 有可能會收到status ok或是有 body的data
-		HashMap<String, String> message = (HashMap<String, String>) msg.obj;
-		JSONObject data = null;
-		switch (msg.arg1)
+		callBackMessage(msg.arg1, what, from, (HashMap<String, String>) msg.obj);
+	}
+
+	private int getFunctionNumByJsonObj(String message) throws JSONException
+	{
+		JSONObject broadcastData = new JSONObject(message);
+		return broadcastData.getInt("function");
+
+	}
+
+	protected boolean isEqual(int a, int b)
+	{
+		if (a == b)
 		{
-		// 收到成功查詢訊息結果
-		case Controller.STATUS_ROK:
-
-			super.callBackMessage(ResponseCode.ERR_SUCCESS, what, ResponseCode.METHOD_STATUS_COMMAND_AMX, message);
-
-			break;
-
-		// Json 格式丟錯
-		case Controller.STATUS_RINVJSON:
-
-			break;
-
-		default:
-
-			break;
-
+			return true;
 		}
-
+		return false;
 	}
 
-	protected void handleBroadCastStatusMessage(int what, Message msg)
+	protected boolean isFunctionIDSame(String message, int functionID) throws JSONException
 	{
+		int func = getFunctionNumByJsonObj(message);
+		return isEqual(func, functionID);
 
 	}
 

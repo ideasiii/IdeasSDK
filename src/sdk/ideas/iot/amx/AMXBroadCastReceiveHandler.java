@@ -1,8 +1,6 @@
 package sdk.ideas.iot.amx;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +34,7 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 	{
 		if (null != recieveBroadCastReceiveThread && recieveBroadCastReceiveThread.isAlive())
 		{
-			Logs.showTrace("recieveBroadCastReceiveThread is Running");
+			Logs.showTrace("[AMXBroadCastReceiveHandler] RecieveBroadCastReceiveThread is Running");
 		}
 		else
 		{
@@ -92,32 +90,39 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 				{
 
 					CMP_PACKET receivePacket = new CMP_PACKET();
-					Logs.showTrace("Now Start to Receive BroadCast Message!");
 					int boardcastStatus = Controller.cmpReceive(receivePacket, mSocketData.getSocket(), -1);
-					Logs.showTrace("End to Receive BroadCast Message!");
+					
 					if (boardcastStatus == Controller.STATUS_ROK)
 					{
 						HashMap<String, String> message = new HashMap<String, String>();
 						message.put("message", receivePacket.cmpBody);
-						Logs.showTrace("[AMXBroadCastReceiveHandler] Receive Message: " + receivePacket.cmpBody);
+						
+						//debug using
+						//Logs.showTrace("[AMXBroadCastReceiveHandler] Receive Message: " + receivePacket.cmpBody);
+						
 						callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER,
 								0, message);
 
-						// response message
+						
+						// response message start
 						CMP_PACKET sendPacket = new CMP_PACKET();
 						int sendStatus = Controller.cmpSend(Controller.amx_broadcast_status_command_response, null,
 								sendPacket, mSocketData.getSocket(), receivePacket.cmpHeader.sequence_number);
 						if (sendStatus == Controller.STATUS_ROK)
 						{
-
+							//do nothing
 						}
+						else
+						{
+							//do something handle
+						}
+						// response message end
 
 					}
 					else if (boardcastStatus == Controller.ERR_IOEXCEPTION
 							|| boardcastStatus == Controller.ERR_SOCKET_INVALID)
 					{
 						Logs.showError("[AMXBroadCastReceiveHandler] Broken Socket IO Exception! while Receiving");
-
 						break;
 					}
 

@@ -102,7 +102,7 @@ public abstract class BaseHandler
 	{
 		if (null != handler)
 		{
-			Logs.showTrace("handlerID: " + handlerID + " ");
+		//	Logs.showTrace("handlerID: " + handlerID + " ");
 			theHashMapHandler.put(handlerID, handler);
 
 			isHashMapHandlerEnable = true;

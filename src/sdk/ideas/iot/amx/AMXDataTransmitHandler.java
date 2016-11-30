@@ -28,6 +28,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 	private int nPort = -1;
 	private Handler privateHandler = new Handler()
 	{
+		@SuppressWarnings("unchecked")
 		@Override
 		public void handleMessage(Message msg)
 		{
@@ -41,8 +42,8 @@ public class AMXDataTransmitHandler extends BaseHandler
 				Logs.showError(e.toString());
 			}
 			// debug using
-			Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " what: " + String.valueOf(msg.what) + " From: "
-					+ String.valueOf(msg.arg2) + " message: " + message);
+			//Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " what: " + String.valueOf(msg.what) + " From: "
+			//		+ String.valueOf(msg.arg2) + " message: " + message);
 
 			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER, 0, message);
 
@@ -100,8 +101,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 			}
 			catch (JSONException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logs.showError(e.toString());
 			}
 		}
 	}
@@ -120,8 +120,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 			}
 			catch (JSONException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logs.showError(e.toString());
 			}
 		}
 	}
@@ -141,28 +140,44 @@ public class AMXDataTransmitHandler extends BaseHandler
 
 		int whichFunction = 0;
 
+		int result = ResponseCode.ERR_SUCCESS;
+
+		switch (returnstate)
+		{
+		case Controller.STATUS_ROK:
+			result = ResponseCode.ERR_SUCCESS;
+			message.put("message", "success!");
+			break;
+			
+		case Controller.ERR_SOCKET_INVALID:
+		case Controller.ERR_IOEXCEPTION:
+			result = ResponseCode.ERR_IO_EXCEPTION;
+			break;
+			
+		default:
+			Logs.showError("[AMXDataTransmitHandler] return state code num: " + String.valueOf(returnstate));
+			result = ResponseCode.ERR_UNKNOWN;
+			break;
+		}
+
 		if (returnstate != respPacket.cmpHeader.command_status)
 		{
-			Logs.showError("@@Return State@@: " + String.valueOf(returnstate));
+			message.put("message", "network ERROR!");
+			callBackMessage(result, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER, whichFunction, message, callbackID);
 		}
 		else
 		{
-			
 			if (respPacket.cmpHeader.command_id == (Controller.amx_control_command_response & 0x00ffffff))
 			{
-				whichFunction = ResponseCode.METHOD_COTROL_COMMAND_AMX;
+				whichFunction = ResponseCode.METHOD_AMX_COTROL_COMMAND;
 				callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
 						whichFunction, message, callbackID);
 			}
 			else if (respPacket.cmpHeader.command_id == (Controller.amx_status_command_response & 0x00ffffff))
 			{
-				whichFunction = ResponseCode.METHOD_STATUS_COMMAND_AMX;
+				whichFunction = ResponseCode.METHOD_AMX_STATUS_COMMAND;
 				callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
 						whichFunction, message, callbackID);
-			}
-			else
-			{
-				Logs.showError("@@UNKnown Command ID@@");
 			}
 		}
 
@@ -170,7 +185,6 @@ public class AMXDataTransmitHandler extends BaseHandler
 
 	private class SocketReceiveRunnable implements Runnable
 	{
-
 		private Controller.CMP_PACKET receivePacket = null;
 
 		@Override
@@ -178,24 +192,9 @@ public class AMXDataTransmitHandler extends BaseHandler
 		{
 			while (true)
 			{
-				/*
-				 * if (!commandSendSockectData.isConnected() ||
-				 * !commandSendSockectData.getIsLinkable()) { try {
-				 * Logs.showTrace("!Now Socket Receive try to reconnect!");
-				 * commandSendSockectData.connect();
-				 * commandSendSockectData.setIsLinkable(true); } catch
-				 * (IOException e) { Logs.showError(e.toString());
-				 * 
-				 * commandSendSockectData.setIsLinkable(false);
-				 * socketReceiveThreadAlive = false;
-				 * 
-				 * break; } }
-				 */
-
 				int status = Controller.cmpReceive(receivePacket, commandSendSockectData.getSocket(), -1);
 
-				
-				//例外事件
+				// 例外事件
 				if (status == Controller.ERR_IOEXCEPTION || status == Controller.ERR_SOCKET_INVALID)
 				{
 					commandSendSockectData.setIsLinkable(false);
@@ -209,39 +208,34 @@ public class AMXDataTransmitHandler extends BaseHandler
 							message);
 					break;
 				}
-				
-				
-				
-				
-				
-
-				int sequence = receivePacket.cmpHeader.sequence_number;
-				boolean isFind = false;
-				for (String callbackID : callbackIDSequence.keySet())
+				else
 				{
-
-					if (callbackIDSequence.get(callbackID).contains(sequence))
+					int sequence = receivePacket.cmpHeader.sequence_number;
+					boolean isFind = false;
+					for (String callbackID : callbackIDSequence.keySet())
 					{
-						callbackIDSequence.get(callbackID).remove(Integer.valueOf(sequence));
-						isFind = true;
-						analyzeResponseData(status, receivePacket, callbackID);
-						break;
+
+						if (callbackIDSequence.get(callbackID).contains(sequence))
+						{
+							callbackIDSequence.get(callbackID).remove(Integer.valueOf(sequence));
+							isFind = true;
+							analyzeResponseData(status, receivePacket, callbackID);
+							break;
+						}
+					}
+					if (isFind == false)
+					{
+						Logs.showTrace(
+								"[AMXDataTransmitHandler] Cannot found this sequence: " + String.valueOf(sequence));
 					}
 				}
-				if (isFind == false)
-				{
-					Logs.showTrace("[AMXDataTransmitHandler] Cannot found this sequence: " + String.valueOf(sequence));
-				}
-
 			}
-
 		}
 
 		public SocketReceiveRunnable()
 		{
 			receivePacket = new Controller.CMP_PACKET();
 		}
-
 	}
 
 	private static void cleanCallbackIDSequenceBuff()
@@ -255,7 +249,6 @@ public class AMXDataTransmitHandler extends BaseHandler
 
 	private class SocketSendRunnable implements Runnable
 	{
-
 		private int nCommand = 0;
 		private String strBody = null;
 		private Controller.CMP_PACKET sendPacket = null;
