@@ -76,6 +76,7 @@ public abstract class AMXParameterSetting
 	public final static int CONTROL_MATRIX_INPUT_7 = 15;
 	public final static int CONTROL_MATRIX_INPUT_8 = 16;
 
+	public final static int CONTROL_BD_POWER = 17;
 	public final static int CONTROL_BD_OPEN = 18;
 	public final static int CONTROL_BD_PLAY = 19;
 	public final static int CONTROL_BD_STOP = 20;

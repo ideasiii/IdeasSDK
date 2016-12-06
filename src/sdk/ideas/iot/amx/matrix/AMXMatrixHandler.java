@@ -15,13 +15,13 @@ import sdk.ideas.iot.amx.StatusQueryBehavior;
 public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, StatusQueryBehavior
 {
 	@Override
-	public void handleControlMessage(Message msg)
+	protected void handleControlMessage(Message msg)
 	{
 		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_MATRIX_HANDLER, msg);
 	}
 
 	@Override
-	public void handleStatusMessage(Message msg)
+	protected void handleStatusMessage(Message msg)
 	{
 		if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
 		{
@@ -55,20 +55,19 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 			{
 				Logs.showTrace("[AMXMatrixHandler] ERROR while AMXBROADCAST, message: " + msg.obj);
 			}
-
 		}
-		
+
 	}
 
 	public AMXMatrixHandler(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_MATRIX_SWITCH));
+		super(mContext, strIP, nPort, String.valueOf(AMXParameterSetting.FUNCTION_MATRIX_SWITCH));
 	}
 
 	@SuppressWarnings("static-access")
 	@Override
 	public void changeMatrixBehavior(int index)
-	{    
+	{
 		if (super.isInInterval(index, AMXParameterSetting.CONTROL_MATRIX_INPUT_1,
 				AMXParameterSetting.CONTROL_MATRIX_INPUT_8))
 		{
@@ -78,6 +77,8 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 		else
 		{
 			// callback ERROR: invalid value
+			sendIllegalArgumentResponse(CtrlType.MSG_RESPONSE_AMX_MATRIX_HANDLER,
+					ResponseCode.METHOD_AMX_COTROL_COMMAND, "index");
 
 		}
 	}
@@ -85,18 +86,11 @@ public class AMXMatrixHandler extends AMXBaseHandler implements MatrixBehavior, 
 	@Override
 	public void statusQuery(int index, int requestState)
 	{
-		if (isInInterval(requestState, AMXParameterSetting.REQUEST_STATUS_MATRIX,
-				AMXParameterSetting.REQUEST_STATUS_MATRIX))
-		{
-			super.mAMXDataTransmitHandler
-					.sendStatusCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_STATUS_COMMAND,
-							AMXParameterSetting.FUNCTION_MATRIX_SWITCH, 0, requestState));
-		}
-		else
-		{
-			// callback ERROR: invalid value
 
-		}
+		super.mAMXDataTransmitHandler
+				.sendStatusCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_STATUS_COMMAND,
+						AMXParameterSetting.FUNCTION_MATRIX_SWITCH, 0, AMXParameterSetting.REQUEST_STATUS_MATRIX));
+
 	}
 
 	@Override

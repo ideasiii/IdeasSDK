@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Message;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.PowerBehavior;
@@ -24,37 +25,51 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 	@Override
 	protected void handleStatusMessage(Message msg)
 	{
-		HashMap<String, String> message = new HashMap<String, String>();
-
-		if (msg.arg1 == Controller.STATUS_ROK)
+		if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
 		{
-			JSONObject data = null;
-			try
-			{
-				data = new JSONObject((String) msg.obj);
-			}
-			catch (JSONException e)
-			{
-				Logs.showError(e.toString());
-			}
-
+			super.handleStatusResponseMessage(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER,
+					ResponseCode.METHOD_AMX_STATUS_COMMAND, msg);
 		}
-		else
+		else if (msg.what == CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER)
 		{
+			if (msg.arg1 == ResponseCode.ERR_SUCCESS)
+			{
+				try
+				{
+					if (isFunctionIDSame(((HashMap<String, String>) msg.obj).get("message"),
+							AMXParameterSetting.FUNCTION_LIGHT))
+					{
+						super.handleStatusResponseMessage(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER,
+								ResponseCode.METHOD_AMX_STATUS_RESPONSE_COMMAND, msg);
+					}
 
+				}
+				catch (JSONException e)
+				{
+					Logs.showTrace(e.toString());
+				}
+				catch (ClassCastException e)
+				{
+					Logs.showTrace(e.toString());
+				}
+			}
+			else
+			{
+				Logs.showTrace("[AMXLightHandler] ERROR while AMXBROADCAST, message: " + msg.obj);
+			}
 		}
 
 	}
 
 	public AMXLightHandler(Context mContext, String strIP, int port)
 	{
-		super(mContext, strIP, port,String.valueOf(AMXParameterSetting.FUNCTION_LIGHT));
+		super(mContext, strIP, port, String.valueOf(AMXParameterSetting.FUNCTION_LIGHT));
 	}
 
 	@Override
 	public void onBehavior(int index)
 	{
-		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_8)
+		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_7)
 				|| index == AMXParameterSetting.DEVICE_LIGHT_ALL)
 		{
 			super.mAMXDataTransmitHandler
@@ -64,13 +79,15 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 		else
 		{
 			// callback ERROR: invalid value
+			sendIllegalArgumentResponse(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER, ResponseCode.METHOD_AMX_COTROL_COMMAND,
+					"index");
 		}
 	}
 
 	@Override
 	public void offBehavior(int index)
 	{
-		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_8)
+		if (isInInterval(index, AMXParameterSetting.DEVICE_LIGHT_1, AMXParameterSetting.DEVICE_LIGHT_7)
 				|| index == AMXParameterSetting.DEVICE_LIGHT_ALL)
 		{
 			super.mAMXDataTransmitHandler
@@ -80,6 +97,8 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 		else
 		{
 			// callback ERROR: invalid value
+			sendIllegalArgumentResponse(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER, ResponseCode.METHOD_AMX_COTROL_COMMAND,
+					"index");
 		}
 	}
 
@@ -95,6 +114,8 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 		else
 		{
 			// callback ERROR: invalid value
+			sendIllegalArgumentResponse(CtrlType.MSG_RESPONSE_AMX_LIGHT_HANDLER, ResponseCode.METHOD_AMX_STATUS_COMMAND,
+					"index or requestState");
 
 		}
 	}

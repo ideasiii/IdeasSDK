@@ -3,6 +3,7 @@ package sdk.ideas.iot.amx.mode;
 import android.content.Context;
 import android.os.Message;
 import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.ResponseCode;
 import sdk.ideas.iot.amx.AMXBaseHandler;
 import sdk.ideas.iot.amx.AMXParameterSetting;
 import sdk.ideas.iot.amx.ModeBehavior;
@@ -24,9 +25,10 @@ public class AMXModeHandler extends AMXBaseHandler implements ModeBehavior
 
 	public AMXModeHandler(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_MODE_SWITCH));
+		super(mContext, strIP, nPort, String.valueOf(AMXParameterSetting.FUNCTION_MODE_SWITCH));
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void changeModeBehavior(int index)
 	{
@@ -38,9 +40,9 @@ public class AMXModeHandler extends AMXBaseHandler implements ModeBehavior
 		else
 		{
 			// callback ERROR: invalid value
+			sendIllegalArgumentResponse(CtrlType.MSG_RESPONSE_AMX_MODE_HANDLER,
+					ResponseCode.METHOD_AMX_COTROL_COMMAND, "index");
 
-			
-			
 		}
 	}
 

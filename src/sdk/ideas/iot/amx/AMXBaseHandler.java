@@ -23,10 +23,10 @@ public abstract class AMXBaseHandler extends BaseHandler
 		@Override
 		public void handleMessage(Message msg)
 		{
-			// debug using
-			// Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: "
-			// + String.valueOf(msg.what) + " From: "
-			// + String.valueOf(msg.arg2) + " message: " + msg.obj);
+			 //debug using
+			 //Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: "
+			 //+ String.valueOf(msg.what) + " From: "
+			 //+ String.valueOf(msg.arg2) + " message: " + msg.obj);
 			if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
 			{
 				if (msg.arg2 == ResponseCode.METHOD_AMX_COTROL_COMMAND)
@@ -142,6 +142,14 @@ public abstract class AMXBaseHandler extends BaseHandler
 		}
 		return obj;
 
+	}
+
+	protected void sendIllegalArgumentResponse(int what, int from, String whichArgumentWrong)
+	{
+		HashMap<String, String> message = new HashMap<String, String>();
+		message.put("message", "the "+ whichArgumentWrong+" ERROR ILLEGAL ARGUMENT EXCEPTION ");
+		callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, what,
+				from, message);
 	}
 
 }

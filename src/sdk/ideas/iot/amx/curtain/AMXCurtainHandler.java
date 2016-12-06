@@ -10,13 +10,13 @@ import sdk.ideas.iot.amx.LiftingBehavior;
 public class AMXCurtainHandler extends AMXBaseHandler implements LiftingBehavior
 {
 	@Override
-	public void handleControlMessage(Message msg)
+	protected void handleControlMessage(Message msg)
 	{
 		super.handleControlResponseMessage(CtrlType.MSG_RESPONSE_AMX_CURTAIN_HANDLER, msg);
 	}
 
 	@Override
-	public void handleStatusMessage(Message msg)
+	protected void handleStatusMessage(Message msg)
 	{
 		return;
 	}

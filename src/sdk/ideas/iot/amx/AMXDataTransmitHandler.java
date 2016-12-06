@@ -42,8 +42,9 @@ public class AMXDataTransmitHandler extends BaseHandler
 				Logs.showError(e.toString());
 			}
 			// debug using
-			//Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " what: " + String.valueOf(msg.what) + " From: "
-			//		+ String.valueOf(msg.arg2) + " message: " + message);
+			// Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " what: "
+			// + String.valueOf(msg.what) + " From: "
+			// + String.valueOf(msg.arg2) + " message: " + message);
 
 			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_AMXBROADCAST_TRANSMIT_HANDLER, 0, message);
 
@@ -148,12 +149,13 @@ public class AMXDataTransmitHandler extends BaseHandler
 			result = ResponseCode.ERR_SUCCESS;
 			message.put("message", "success!");
 			break;
-			
+
 		case Controller.ERR_SOCKET_INVALID:
 		case Controller.ERR_IOEXCEPTION:
+		case Controller.ERR_PACKET_LENGTH:
 			result = ResponseCode.ERR_IO_EXCEPTION;
 			break;
-			
+
 		default:
 			Logs.showError("[AMXDataTransmitHandler] return state code num: " + String.valueOf(returnstate));
 			result = ResponseCode.ERR_UNKNOWN;
@@ -170,14 +172,14 @@ public class AMXDataTransmitHandler extends BaseHandler
 			if (respPacket.cmpHeader.command_id == (Controller.amx_control_command_response & 0x00ffffff))
 			{
 				whichFunction = ResponseCode.METHOD_AMX_COTROL_COMMAND;
-				callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
-						whichFunction, message, callbackID);
+				callBackMessage(result, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER, whichFunction, message,
+						callbackID);
 			}
 			else if (respPacket.cmpHeader.command_id == (Controller.amx_status_command_response & 0x00ffffff))
 			{
 				whichFunction = ResponseCode.METHOD_AMX_STATUS_COMMAND;
-				callBackMessage(respPacket.cmpHeader.command_status, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER,
-						whichFunction, message, callbackID);
+				callBackMessage(result, CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER, whichFunction, message,
+						callbackID);
 			}
 		}
 
@@ -194,8 +196,11 @@ public class AMXDataTransmitHandler extends BaseHandler
 			{
 				int status = Controller.cmpReceive(receivePacket, commandSendSockectData.getSocket(), -1);
 
+				Logs.showTrace("Now status: " + String.valueOf(status));
+
 				// 例外事件
-				if (status == Controller.ERR_IOEXCEPTION || status == Controller.ERR_SOCKET_INVALID)
+				if (status == Controller.ERR_IOEXCEPTION || status == Controller.ERR_SOCKET_INVALID
+						|| status == Controller.ERR_PACKET_LENGTH)
 				{
 					commandSendSockectData.setIsLinkable(false);
 
@@ -225,6 +230,8 @@ public class AMXDataTransmitHandler extends BaseHandler
 					}
 					if (isFind == false)
 					{
+
+						// 會發生bug!! 當AMX Controller GG時，這裡會進入無窮迴圈 status = -1006
 						Logs.showTrace(
 								"[AMXDataTransmitHandler] Cannot found this sequence: " + String.valueOf(sequence));
 					}
