@@ -18,6 +18,14 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	protected abstract void handleStatusMessage(Message msg);
 
+	private String amxUserID = null;
+	
+	public void setUserID(String amxUserID)
+	{
+		this.amxUserID = amxUserID;
+	}
+	
+	
 	protected Handler privateHandler = new Handler()
 	{
 		@Override
@@ -119,6 +127,8 @@ public abstract class AMXBaseHandler extends BaseHandler
 		JSONObject obj = new JSONObject();
 		try
 		{
+			obj.put("ID", amxUserID);
+			
 			obj.put("function", function);
 
 			obj.put("device", device);

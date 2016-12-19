@@ -196,7 +196,7 @@ public class AMXDataTransmitHandler extends BaseHandler
 			{
 				int status = Controller.cmpReceive(receivePacket, commandSendSockectData.getSocket(), -1);
 
-				Logs.showTrace("Now status: " + String.valueOf(status));
+				//Logs.showTrace("Now status: " + String.valueOf(status));
 
 				// 例外事件
 				if (status == Controller.ERR_IOEXCEPTION || status == Controller.ERR_SOCKET_INVALID
@@ -292,7 +292,8 @@ public class AMXDataTransmitHandler extends BaseHandler
 			// handler cmp receive thread
 			if (null != socketReceiveThread && socketReceiveThread.isAlive())
 			{
-				Logs.showTrace("[AMXDataTransmitHandler] SocketReceiveThread is running");
+				//debug using
+				//Logs.showTrace("[AMXDataTransmitHandler] SocketReceiveThread is running");
 			}
 			else
 			{

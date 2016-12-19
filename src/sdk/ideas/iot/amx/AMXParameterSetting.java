@@ -58,6 +58,7 @@ public abstract class AMXParameterSetting
 	public final static int DEVICE_LIGHT_ALL = 99;
 
 	/* Define AMX Control */
+	public final static int CONTROL = 0;
 	public final static int CONTROL_ON = 1;
 	public final static int CONTROL_OFF = 2;
 	public final static int CONTROL_MUTE = 3;

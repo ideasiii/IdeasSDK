@@ -65,6 +65,15 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 	{
 		super(mContext, strIP, port, String.valueOf(AMXParameterSetting.FUNCTION_LIGHT));
 	}
+	
+	//簡報燈光
+	public void brief()
+	{
+		super.mAMXDataTransmitHandler
+		.sendControlCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_CONTROL_COMMAND,
+				AMXParameterSetting.FUNCTION_LIGHT, AMXParameterSetting.DEVICE_LIGHT_8, AMXParameterSetting.CONTROL));
+		
+	}
 
 	@Override
 	public void onBehavior(int index)

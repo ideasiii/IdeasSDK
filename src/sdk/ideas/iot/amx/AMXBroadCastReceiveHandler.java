@@ -34,7 +34,8 @@ public class AMXBroadCastReceiveHandler extends BaseHandler
 	{
 		if (null != recieveBroadCastReceiveThread && recieveBroadCastReceiveThread.isAlive())
 		{
-			Logs.showTrace("[AMXBroadCastReceiveHandler] RecieveBroadCastReceiveThread is Running");
+			//debug using
+			//Logs.showTrace("[AMXBroadCastReceiveHandler] RecieveBroadCastReceiveThread is Running");
 		}
 		else
 		{
