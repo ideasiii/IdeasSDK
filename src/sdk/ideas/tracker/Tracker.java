@@ -2,15 +2,21 @@ package sdk.ideas.tracker;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.SparseArray;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.Common;
 import sdk.ideas.common.CtrlType;
+import sdk.ideas.common.GenerateUUID;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.Protocol;
 import sdk.ideas.common.ResponseCode;
@@ -32,11 +38,9 @@ public class Tracker extends BaseHandler
 
 	// MAC + Phone + APP ID +Email(facebook first)
 	private String ID = "";
-	//private 
+	// private
 	private HashMap<String, String> startTrackerParm = null;
 
-	
-	
 	private Handler privateHandler = new Handler()
 	{
 		@Override
@@ -85,15 +89,15 @@ public class Tracker extends BaseHandler
 					// CMPClient ERROR
 					else if (msg.arg1 <= ResponseCode.ERR_MAX)
 					{
-						//message.put("message", "error in transfer data to server ");
-						//callBackMessage(ResponseCode.ERR_IO_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-						//		ResponseCode.METHOLD_TRACKER, message);
+						// message.put("message", "error in transfer data to
+						// server ");
+						// callBackMessage(ResponseCode.ERR_IO_EXCEPTION,
+						// CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						// ResponseCode.METHOLD_TRACKER, message);
 						// debug use
-						 message.put("message", (String) msg.obj);
-						 callBackMessage(msg.arg1,
-						 CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-						 ResponseCode.METHOLD_TRACKER,
-						 message);
+						message.put("message", (String) msg.obj);
+						callBackMessage(msg.arg1, CtrlType.MSG_RESPONSE_TRACKER_HANDLER, ResponseCode.METHOLD_TRACKER,
+								message);
 
 					}
 					else
@@ -114,7 +118,7 @@ public class Tracker extends BaseHandler
 	public Tracker(Context context)
 	{
 		super(context);
-		
+
 	}
 
 	/**
@@ -144,29 +148,24 @@ public class Tracker extends BaseHandler
 
 	public void startTracker(final String app_id, final String fb_id, final String fb_name, final String fb_email)
 	{/*
-		if(super.getAppIDVaild() == false)
-		{
-			message.put("message", "app id is not vaild");
-			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-					ResponseCode.METHOLD_START_TRACKER, message);
-			return;
-		}*/
-		
-		//add in sdk tracker
-		//sdkTrackerMessage("tracker","startTracker");
-		
-		
-		
+		 * if(super.getAppIDVaild() == false) { message.put("message",
+		 * "app id is not vaild");
+		 * callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD,
+		 * CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+		 * ResponseCode.METHOLD_START_TRACKER, message); return; }
+		 */
+
+		// add in sdk tracker
+		// sdkTrackerMessage("tracker","startTracker");
+
 		/*
-		if (permissonCheck == false)
-		{
-			message.put("message",
-					"use android.Manifest.permission denied, check permisson is existed in android manifest");
-			callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-					ResponseCode.METHOLD_TRACKER, message);
-			return;
-		}*/
-		
+		 * if (permissonCheck == false) { message.put("message",
+		 * "use android.Manifest.permission denied, check permisson is existed in android manifest"
+		 * ); callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION,
+		 * CtrlType.MSG_RESPONSE_TRACKER_HANDLER, ResponseCode.METHOLD_TRACKER,
+		 * message); return; }
+		 */
+
 		/*
 		 * if(availableTracker == true) { message.clear();
 		 * message.put("message", "already call this method ");
@@ -213,16 +212,15 @@ public class Tracker extends BaseHandler
 	public void track(HashMap<String, String> parm)
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
-		
+
 		/*
-		if(super.getAppIDVaild() == false)
-		{
-			message.put("message", "app id is not vaild");
-			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-					ResponseCode.METHOLD_TRACKER, message);
-			return;
-		}*/
-	
+		 * if(super.getAppIDVaild() == false) { message.put("message",
+		 * "app id is not vaild");
+		 * callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD,
+		 * CtrlType.MSG_RESPONSE_TRACKER_HANDLER, ResponseCode.METHOLD_TRACKER,
+		 * message); return; }
+		 */
+
 		try
 		{
 
@@ -240,13 +238,9 @@ public class Tracker extends BaseHandler
 						ResponseCode.METHOLD_TRACKER, message);
 				return;
 			}
-			
-			
-			//add in sdk tracker
-			//super.sdkTrackerMessage("tracker", "tracker");
-		
-			
-			
+
+			// add in sdk tracker
+			// super.sdkTrackerMessage("tracker", "tracker");
 
 			parm.put("ID", this.ID);
 
@@ -285,21 +279,19 @@ public class Tracker extends BaseHandler
 	public void stopTracker()
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
-		/*if(super.getAppIDVaild() == false)
-		{
-			message.put("message", "app id is not vaild");
-			callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-					ResponseCode.METHOLD_STOP_TRACKER, message);
-			return;
-		}*/
-		
-		//add in sdk tracker
-		//super.sdkTrackerMessage("tracker", "stopTracker");
-	
-		
-		
+		/*
+		 * if(super.getAppIDVaild() == false) { message.put("message",
+		 * "app id is not vaild");
+		 * callBackMessage(ResponseCode.ERR_SDK_APP_ID_INVAILD,
+		 * CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+		 * ResponseCode.METHOLD_STOP_TRACKER, message); return; }
+		 */
+
+		// add in sdk tracker
+		// super.sdkTrackerMessage("tracker", "stopTracker");
+
 		availableTracker = false;
-		
+
 		message.put("message", "success");
 		callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
 				ResponseCode.METHOLD_STOP_TRACKER, message);
@@ -315,6 +307,10 @@ public class Tracker extends BaseHandler
 			startTrackerParm.values().removeAll(Collections.singleton(""));
 			startTrackerParm.values().removeAll(Collections.singleton(null));
 
+			// debug using START
+			Logs.showTrace("start tracker data: " + startTrackerParm);
+			//debug using END
+			
 			JSONObject jsonParm = new JSONObject(startTrackerParm);
 
 			this.sendEvent(jsonParm.toString(), TAG_STARTTRACKER);
@@ -402,8 +398,44 @@ public class Tracker extends BaseHandler
 			}
 		}
 
-		ID = (startTrackerParm.get("MAC") + startTrackerParm.get("PHONE") + startTrackerParm.get("APP_ID") + mailForID);
+		// joe fix MAC BUG 2017/01/03 START
+
+		// will get MAC = 020000000000 cause by Android 6.0, 6.0.1 and might later
+		// version
+		if (!startTrackerParm.get("MAC").equals("020000000000"))
+		{
+			ID = (startTrackerParm.get("MAC") + startTrackerParm.get("PHONE") + startTrackerParm.get("APP_ID")
+					+ mailForID);
+		}
+		else if (android.os.Build.VERSION.SDK_INT >= 9)
+		{
+			ID = (android.os.Build.SERIAL + startTrackerParm.get("PHONE") + startTrackerParm.get("APP_ID") + mailForID);
+		}
+		else
+		{
+			try
+			{
+				String iii_sdk_key = getSharedPreferencesValue("III_SDK_KEY");
+				if (null == iii_sdk_key)
+				{
+					iii_sdk_key = GenerateUUID.uuIDRandom().toUpperCase(Locale.UK);
+					saveInSharedPref("III_SDK_KEY", iii_sdk_key);
+
+				}
+				ID = (iii_sdk_key + startTrackerParm.get("PHONE") + startTrackerParm.get("APP_ID") + mailForID);
+
+			}
+			catch (Exception e)
+			{
+				Log.d("III Tracker", "GenerateUUID Exception: " + e.toString());
+			}
+
+		}
+		// joe fix MAC BUG 2017/01/03 END
+
 		startTrackerParm.put("ID", ID);
+
+		
 
 	}
 
@@ -532,6 +564,37 @@ public class Tracker extends BaseHandler
 			this.mnTag = nTag;
 		}
 
+	}
+
+	public String getSharedPreferencesValue(String key)
+	{
+		SharedPreferences prefs = getSharedPreferences();
+
+		return prefs.getString(key, null);
+	}
+
+	public void releaseSharedPreferences()
+	{
+		Editor editor = getSharedPreferences().edit();
+		editor.clear();
+		editor.apply();
+	}
+
+	public SharedPreferences getSharedPreferences()
+	{
+		return PreferenceManager.getDefaultSharedPreferences(mContext);
+	}
+
+	public void saveInSharedPref(String key, String value)
+	{
+		Logs.showTrace("Save Pref: Key: " + key + " value: " + value);
+		Editor editor = getSharedPreferences().edit();
+		editor.putString(key, value);
+
+		if (!editor.commit())
+		{
+			Logs.showError("error to write SharedPref");
+		}
 	}
 
 }

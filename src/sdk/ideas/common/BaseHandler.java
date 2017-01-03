@@ -74,10 +74,7 @@ public abstract class BaseHandler
 	 * //if Control Center ok //need to realese //return false; return true; }
 	 */
 
-	protected BaseHandler()
-	{
 
-	}
 	/*
 	 * protected boolean permissionCheck(String [] permissonList) { for (int i =
 	 * 0; i < permissonList.length; i++) { Logs.showTrace(
