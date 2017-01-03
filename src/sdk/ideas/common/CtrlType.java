@@ -50,5 +50,6 @@ public abstract class CtrlType
 	public final static int MSG_RESPONSE_AMX_CURTAIN_HANDLER = 1056;
 	public final static int MSG_RESPONSE_AMX_LIGHT_HANDLER = 1057;
 	public final static int MSG_RESPONSE_AMX_BDPLAYER_HANDLER = 1058;
-
+	
+	public final static int MSG_RESPONSE_VOICE_RECOGNITION_HANDLER = 1070;
 }

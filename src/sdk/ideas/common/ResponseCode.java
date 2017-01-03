@@ -55,6 +55,9 @@ public abstract class ResponseCode
 	public final static int ERR_ACTIVITY_NOT_FOUND = -32;
 	public final static int ERR_DEVICE_NOT_SUPPORT = -33;
 	public final static int ERR_PASSWORD_FORMAT_NOT_SUPPORT = -34;
+	
+	public final static int ERR_MICROPHONE_NOT_EXISTS = -35;
+	
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */
@@ -149,6 +152,10 @@ public abstract class ResponseCode
 	public final static int METHOD_AMX_COTROL_COMMAND = 0;
 	public final static int METHOD_AMX_STATUS_COMMAND = 1;
 	public final static int METHOD_AMX_STATUS_RESPONSE_COMMAND = 2;
+	
+	public final static int METHOD_START_VOICE_RECOGNIZER = 0;
+	public final static int METHOD_RETURN_TEXT_VOICE_RECOGNIZER = 1;
+	
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;
