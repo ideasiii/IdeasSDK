@@ -29,7 +29,17 @@ public class VoiceRecognition extends BaseHandler
 
 	public void stopListen()
 	{
-		speech.stopListening();
+		if (null == speech)
+		{
+			HashMap<String, String> message = new HashMap<String, String>();
+			message.put("message", "please ''startListen()'' first");
+			callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+					ResponseCode.METHOD_START_VOICE_RECOGNIZER, message);
+		}
+		else
+		{
+			speech.stopListening();
+		}		
 	}
 
 	public void startListen()
@@ -83,7 +93,7 @@ public class VoiceRecognition extends BaseHandler
 						// Logs.showTrace("onError: " + errorMessage);
 						HashMap<String, String> message = new HashMap<String, String>();
 						message.put("message", errorMessage);
-						callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+						callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
 								ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
 					}
 
@@ -200,7 +210,7 @@ public class VoiceRecognition extends BaseHandler
 			msg = "RecognitionService busy";
 			break;
 		case SpeechRecognizer.ERROR_SERVER:
-			msg = "error from server";
+			msg = "Error from server, please check network connection";
 			break;
 		case SpeechRecognizer.ERROR_SPEECH_TIMEOUT:
 			msg = "No speech input";
