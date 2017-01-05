@@ -20,7 +20,23 @@ public abstract class CmpClient
 	public static final int ERR_LOG_DATA_LENGTH = -11 + ERR_CMP;
 	private static final String CODE_TYPE = "UTF-8";
 	private static final int nConnectTimeOut = 3000; // 3 秒
-	private final String VERSION = "CMP Client Version 0.16.07.27";
+	private final String VERSION = "CMP Client Version 0.17.01.04";
+
+	public static boolean isReachableByTcp(String host, int port, int timeout)
+	{
+		try
+		{
+			Socket socket = new Socket();
+			SocketAddress socketAddress = new InetSocketAddress(host, port);
+			socket.connect(socketAddress, timeout);
+			socket.close();
+			return true;
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
+	}
 
 	public static class Response
 	{
@@ -331,7 +347,7 @@ public abstract class CmpClient
 	public static void accessLogRequest(final String strIP, final int nPort, final int nServiceType,
 			String accessLogData, HashMap<String, String> respData, Response response)
 	{
-		Logs.showTrace(accessLogData);
+		//Logs.showTrace("track Data:" + accessLogData);
 
 		if (null == response)
 			return;
@@ -411,7 +427,7 @@ public abstract class CmpClient
 			respData.put("REQ_BODY_ACCESS_LOG_DATA", accessLogData);
 
 			buf.put((byte) 0);
-			//Logs.showTrace("put success");
+			// Logs.showTrace("put success");
 
 			buf.flip();
 			// Logs.showTrace("434");
@@ -425,8 +441,7 @@ public abstract class CmpClient
 			nLength = inSocket.read(buf.array());
 
 			buf.rewind();
-			// Logs.showTrace("445");
-			Logs.showTrace("socket Length:" + nLength);
+			// Logs.showTrace("socket Length:" + nLength);
 			if (Protocol.CMP_HEADER_SIZE == nLength)
 			{
 				response.mnCode = checkResponse(buf, nSequence);
@@ -816,10 +831,10 @@ public abstract class CmpClient
 	 * 取得MDM指令 get command request/operate request
 	 */
 	public static void mdmGetCommandRequest(final String strIP, final int nPort, String mdmData,
-			HashMap<String, String> respData, Response response,Socket msocket)
+			HashMap<String, String> respData, Response response, Socket msocket)
 	{
 		boolean isOutsideSocket = false;
-		
+
 		if (null == mdmData || null == respData || null == response)
 		{
 			return;
@@ -865,29 +880,29 @@ public abstract class CmpClient
 			buf.putInt(Protocol.MDM_OPERATE_REQUEST);
 			buf.putInt(0);
 			buf.putInt(nSequence);
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "mdm_operate_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
-			
-			// Body Field Name Size 
-			//mdmData string
+
+			// Body Field Name Size
+			// mdmData string
 			buf.put(mdmData.getBytes(CODE_TYPE));
 			respData.put("REQ_BODY_MDM_DATA", mdmData);
-			//add endChar
+			// add endChar
 			buf.put((byte) 0);
-			//Logs.showTrace("end put socket");
+			// Logs.showTrace("end put socket");
 
 			buf.flip();
 			outSocket.write(buf.array());
 
 			buf.clear();
-			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE+2048);
+			buf = ByteBuffer.allocate(Protocol.CMP_HEADER_SIZE + 2048);
 
 			nLength = inSocket.read(buf.array());
 			buf.rewind();
-			
+
 			if (Protocol.CMP_HEADER_SIZE <= nLength)
 			{
 				response.mnCode = checkResponse(buf, nSequence);
@@ -914,16 +929,18 @@ public abstract class CmpClient
 
 				// debug
 				/*
-				Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
-				Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
-				Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
-				Logs.showTrace("REQ_SEQUENCE: " + respData.get("REQ_SEQUENCE"));
-				Logs.showTrace("REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
-				Logs.showTrace("RESP_LENGTH: " + respData.get("RESP_LENGTH"));
-				Logs.showTrace("RESP_ID: " + respData.get("RESP_ID"));
-				Logs.showTrace("RESP_STATUS: " + respData.get("RESP_STATUS"));
-				Logs.showTrace("RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
-				Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
+				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				 * Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
+				 * Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
+				 * Logs.showTrace("REQ_SEQUENCE: " +
+				 * respData.get("REQ_SEQUENCE")); Logs.showTrace(
+				 * "REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
+				 * Logs.showTrace("RESP_LENGTH: " +
+				 * respData.get("RESP_LENGTH")); Logs.showTrace("RESP_ID: " +
+				 * respData.get("RESP_ID")); Logs.showTrace("RESP_STATUS: " +
+				 * respData.get("RESP_STATUS")); Logs.showTrace(
+				 * "RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
+				 * Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
 				 */
 
 			}
@@ -935,7 +952,7 @@ public abstract class CmpClient
 
 			buf.clear();
 			buf = null;
-			if(isOutsideSocket == false)
+			if (isOutsideSocket == false)
 			{
 				msocket.close();
 			}
@@ -998,19 +1015,19 @@ public abstract class CmpClient
 			buf.putInt(Protocol.MDM_LOGIN_REQUEST);
 			buf.putInt(0);
 			buf.putInt(nSequence);
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "mdm_login_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
-			
+
 			// Body Field Name Size
 			// mdmData string
 			buf.put(mdmData.getBytes(CODE_TYPE));
 			respData.put("REQ_BODY_MDM_DATA", mdmData);
-			//add endChar
+			// add endChar
 			buf.put((byte) 0);
-			//Logs.showTrace("end put socket");
+			// Logs.showTrace("end put socket");
 
 			buf.flip();
 			outSocket.write(buf.array());
@@ -1047,16 +1064,18 @@ public abstract class CmpClient
 
 				// debug
 				/*
-				Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
-				Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
-				Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
-				Logs.showTrace("REQ_SEQUENCE: " + respData.get("REQ_SEQUENCE"));
-				Logs.showTrace("REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
-				Logs.showTrace("RESP_LENGTH: " + respData.get("RESP_LENGTH"));
-				Logs.showTrace("RESP_ID: " + respData.get("RESP_ID"));
-				Logs.showTrace("RESP_STATUS: " + respData.get("RESP_STATUS"));
-				Logs.showTrace("RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
-				Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
+				 * Logs.showTrace("REQ_LENGTH: " + respData.get("REQ_LENGTH"));
+				 * Logs.showTrace("REQ_ID: " + respData.get("REQ_ID"));
+				 * Logs.showTrace("REQ_STATUS: " + respData.get("REQ_STATUS"));
+				 * Logs.showTrace("REQ_SEQUENCE: " +
+				 * respData.get("REQ_SEQUENCE")); Logs.showTrace(
+				 * "REQ_BODY_INIT_TYPE: " + respData.get("REQ_BODY_INIT_TYPE"));
+				 * Logs.showTrace("RESP_LENGTH: " +
+				 * respData.get("RESP_LENGTH")); Logs.showTrace("RESP_ID: " +
+				 * respData.get("RESP_ID")); Logs.showTrace("RESP_STATUS: " +
+				 * respData.get("RESP_STATUS")); Logs.showTrace(
+				 * "RESP_SEQUENCE: " + respData.get("RESP_SEQUENCE"));
+				 * Logs.showTrace("RESP_BODY: " + respData.get("RESP_BODY"));
 				 */
 
 			}
@@ -1069,7 +1088,7 @@ public abstract class CmpClient
 			buf.clear();
 			buf = null;
 			msocket.close();
-			
+
 		}
 		catch (IOException e)
 		{
@@ -1128,19 +1147,19 @@ public abstract class CmpClient
 			buf.putInt(Protocol.MDM_LOGOUT_REQUEST);
 			buf.putInt(0);
 			buf.putInt(nSequence);
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "mdm_logout_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
-			
+
 			// Body Field Name Size
 			// mdmData string
 			buf.put(mdmData.getBytes(CODE_TYPE));
 			respData.put("REQ_BODY_MDM_DATA", mdmData);
-			//add endChar
+			// add endChar
 			buf.put((byte) 0);
-			//Logs.showTrace("end put socket");
+			// Logs.showTrace("end put socket");
 
 			buf.flip();
 			outSocket.write(buf.array());
@@ -1150,7 +1169,7 @@ public abstract class CmpClient
 
 			nLength = inSocket.read(buf.array());
 			buf.rewind();
-			
+
 			if (Protocol.CMP_HEADER_SIZE == nLength)
 			{
 				response.mnCode = checkResponse(buf, nSequence);
@@ -1177,10 +1196,7 @@ public abstract class CmpClient
 			buf.clear();
 			buf = null;
 			msocket.close();
-			
-			
-			
-			
+
 		}
 		catch (IOException e)
 		{
@@ -1217,7 +1233,7 @@ public abstract class CmpClient
 			{
 				isOutsideSocket = true;
 			}
-			
+
 			if (!validSocket(msocket))
 			{
 				response.mstrContent = "not validSocket";
@@ -1247,19 +1263,19 @@ public abstract class CmpClient
 			buf.putInt(Protocol.MDM_STATE_REQUEST);
 			buf.putInt(0);
 			buf.putInt(nSequence);
-			
+
 			respData.put("REQ_LENGTH", String.valueOf(nLength));
 			respData.put("REQ_ID", "mdm_state_request");
 			respData.put("REQ_STATUS", "0");
 			respData.put("REQ_SEQUENCE", String.valueOf(nSequence));
-			
+
 			// Body Field Name Size
 			// mdmData string
 			buf.put(mdmData.getBytes(CODE_TYPE));
 			respData.put("REQ_BODY_MDM_DATA", mdmData);
-			//add endChar
+			// add endChar
 			buf.put((byte) 0);
-			//Logs.showTrace("end put socket");
+			// Logs.showTrace("end put socket");
 
 			buf.flip();
 			outSocket.write(buf.array());
@@ -1269,7 +1285,7 @@ public abstract class CmpClient
 
 			nLength = inSocket.read(buf.array());
 			buf.rewind();
-			
+
 			if (Protocol.CMP_HEADER_SIZE == nLength)
 			{
 				response.mnCode = checkResponse(buf, nSequence);
@@ -1295,13 +1311,11 @@ public abstract class CmpClient
 
 			buf.clear();
 			buf = null;
-			
-			if(isOutsideSocket == false)
+
+			if (isOutsideSocket == false)
 			{
 				msocket.close();
 			}
-			
-			
 
 		}
 		catch (IOException e)

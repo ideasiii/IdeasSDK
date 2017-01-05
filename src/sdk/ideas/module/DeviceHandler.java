@@ -104,7 +104,7 @@ public class DeviceHandler
 				byte[] macBytes = nif.getHardwareAddress();
 				if (macBytes == null)
 				{
-					return "";
+					return "02:00:00:00:00:00";
 				}
 
 				StringBuilder res1 = new StringBuilder();
@@ -297,7 +297,7 @@ public class DeviceHandler
 		criteria.setPowerRequirement(Criteria.POWER_LOW);
 		String provider = manager.getBestProvider(criteria, false);
 
-		Logs.showTrace("Location Provider:" + provider);
+		//Logs.showTrace("Location Provider:" + provider);
 
 		if (null != provider)
 		{
@@ -350,11 +350,11 @@ public class DeviceHandler
 		{
 			DeviceHandler.lat = location.getLatitude();
 			DeviceHandler.lng = location.getLongitude();
-			Logs.showTrace("updateLocation Success!");
+			//Logs.showTrace("updateLocation Success!");
 		}
 		else
 		{
-			Logs.showTrace("Location: location have some problem about GPS");
+			//Logs.showTrace("Location: location have some problem about GPS");
 			DeviceHandler.lat = -1;
 			DeviceHandler.lng = -1;
 		}

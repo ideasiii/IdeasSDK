@@ -308,9 +308,9 @@ public class Tracker extends BaseHandler
 			startTrackerParm.values().removeAll(Collections.singleton(null));
 
 			// debug using START
-			Logs.showTrace("start tracker data: " + startTrackerParm);
-			//debug using END
-			
+			// Logs.showTrace("start tracker data: " + startTrackerParm);
+			// debug using END
+
 			JSONObject jsonParm = new JSONObject(startTrackerParm);
 
 			this.sendEvent(jsonParm.toString(), TAG_STARTTRACKER);
@@ -341,7 +341,7 @@ public class Tracker extends BaseHandler
 		String macAddress = deviceHandler.getMacAddress();
 		if (macAddress == null)
 		{
-			startTrackerParm.put("MAC", "");
+			startTrackerParm.put("MAC", "020000000000");
 		}
 		else
 		{
@@ -400,7 +400,8 @@ public class Tracker extends BaseHandler
 
 		// joe fix MAC BUG 2017/01/03 START
 
-		// will get MAC = 020000000000 cause by Android 6.0, 6.0.1 and might later
+		// will get MAC = 020000000000 cause by Android 6.0, 6.0.1 and might
+		// later
 		// version
 		if (!startTrackerParm.get("MAC").equals("020000000000"))
 		{
@@ -435,8 +436,6 @@ public class Tracker extends BaseHandler
 
 		startTrackerParm.put("ID", ID);
 
-		
-
 	}
 
 	private void init()
@@ -466,10 +465,11 @@ public class Tracker extends BaseHandler
 					trackerData = ((JSONObject) dataArray.getJSONArray("server").get(0));
 				}
 
-				// debug use
-				Logs.showTrace(startTrackerData.toString());
-				Logs.showTrace(trackerData.toString());
-
+				// debug use START
+				// show INIT startTracker and Tracker IP and Port
+				// Logs.showTrace(startTrackerData.toString());
+				// Logs.showTrace(trackerData.toString());
+				// debug use END
 				Common.URL_TRACKER_STARTTRACKER = startTrackerData.getString("ip");
 				Common.PORT_TRACKER_STARTTRACKER = startTrackerData.getInt("port");
 
@@ -492,9 +492,11 @@ public class Tracker extends BaseHandler
 		}
 		else
 		{
-			message.put("message", "Start Tracker Fail: Can't connect Server");
-			callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
-					ResponseCode.METHOLD_START_TRACKER, message);
+			//joe fix bug 2017/01/05 START
+			//message.put("message", "Start Tracker Fail: Can't connect Server");
+			//callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+			//		ResponseCode.METHOLD_START_TRACKER, message);
+			//joe fix bug 2017/01/05 END
 		}
 
 	}
@@ -521,9 +523,21 @@ public class Tracker extends BaseHandler
 			}
 			else if (mnfag == TAG_INIT)
 			{
-				CmpClient.init(Common.HOST_SERVICE_INIT, Common.PORT_SERVICE_INIT, Protocol.TYPE_MOBILE_TRACKER,
-						respData, response);
-				Logs.showTrace("init OK");
+				// joe fix bug 2017/01/04 START
+				String ip = Common.HOST_SERVICE_INIT;
+				int port = Common.PORT_SERVICE_INIT;
+
+				if (!CmpClient.isReachableByTcp(ip, port, 3000))
+				{
+					ip = Common.HOST_SERVICE_INIT_BACKUP;
+					port = Common.PORT_SERVICE_INIT_BACKUP;
+				}
+				//Logs.showTrace("[Tracker]INIT IP:" + ip + " Port:" + String.valueOf(port));
+				// joe fix bug 2017/01/04 END
+
+				CmpClient.init(ip, port, Protocol.TYPE_MOBILE_TRACKER, respData, response);
+
+				// Logs.showTrace("init OK");
 			}
 			else if (mnfag == TAG_STARTTRACKER)
 			{
