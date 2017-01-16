@@ -60,6 +60,8 @@ public abstract class ResponseCode
 	
 	public final static int ERR_SPEECH_ERRORMESSAGE = -36;
 	
+	public final static int ERR_TIMEOUT = -38;
+	
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */
@@ -158,6 +160,13 @@ public abstract class ResponseCode
 	public final static int METHOD_START_VOICE_RECOGNIZER = 0;
 	public final static int METHOD_RETURN_TEXT_VOICE_RECOGNIZER = 1;
 	
+	//presentation helper
+	public static final int METHOD_PRES_HELPER_CONNECT_TO_SERVER = 0;
+	public static final int METHOD_PRES_HELPER_SEND_COMMAND = 1;
+	public static final int METHOD_PRES_HELPER_RECV_MSG = 2;
+	public static final int METHOD_PRES_HELPER_RECV_MSG_SLIDE_INDEX = 3;
+	public static final int METHOD_PRES_HELPER_RECV_MSG_CMD_ACK = 4;
+		
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;
@@ -171,11 +180,6 @@ public abstract class ResponseCode
 			mStrContent = new HashMap<String,String>(tmp.mStrContent);
 		};
 		
-		
 	}
-
-
-
-
 
 }
