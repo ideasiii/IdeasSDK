@@ -59,9 +59,7 @@ public abstract class ResponseCode
 	public final static int ERR_MICROPHONE_NOT_EXISTS = -35;
 	
 	public final static int ERR_SPEECH_ERRORMESSAGE = -36;
-	
-	public final static int ERR_TIMEOUT = -38;
-	
+		
 	public static final int ERR_MAX                            = -100;
 
 	/* FROM which method */

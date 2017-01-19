@@ -229,7 +229,7 @@ public class PresententionHelperHandler extends BaseHandler
 					}
 
 					Logs.showTrace("connection failed (timeout)");
-					sendMessageOnlyCallBackMessage(ResponseCode.ERR_TIMEOUT,
+					sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION,
 							ResponseCode.METHOD_PRES_HELPER_CONNECT_TO_SERVER, "timeout while connecting to server");
 
 					mIsConnecting = false;
@@ -646,7 +646,7 @@ public class PresententionHelperHandler extends BaseHandler
 			if (now - mLastCommandSentTime > CMD_ACK_MAX_WAIT && ackBalance > 0)
 			{
 				mCommandAckBalance.set(0);
-				sendMessageOnlyCallBackMessage(ResponseCode.ERR_TIMEOUT, ResponseCode.METHOD_PRES_HELPER_SEND_COMMAND,
+				sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION, ResponseCode.METHOD_PRES_HELPER_SEND_COMMAND,
 						"network not stable, some command did not sent");
 			}
 		}
