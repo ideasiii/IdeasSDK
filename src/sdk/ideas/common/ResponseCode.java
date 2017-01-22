@@ -164,7 +164,8 @@ public abstract class ResponseCode
 	public static final int METHOD_PRES_HELPER_RECV_MSG = 2;
 	public static final int METHOD_PRES_HELPER_RECV_MSG_SLIDE_INDEX = 3;
 	public static final int METHOD_PRES_HELPER_RECV_MSG_CMD_ACK = 4;
-		
+	public static final int METHOD_PRES_HELPER_RECEIVER_DISCOVERY = 15;
+	
 	public static class ResponseMessage
 	{
 		public int mnCode = 0;

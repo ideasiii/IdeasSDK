@@ -78,7 +78,7 @@ public class UdpSocketWrapper
 	public void close()
 	{
 		// DO NOT call disconnect() when receive() is in progress
-		// on API 25 or later this will hang disconnect()
+		// on API 25 or later this hangs the thread calling disconnect()
 
 		// mSocket.disconnect();
 		mSocket.close();

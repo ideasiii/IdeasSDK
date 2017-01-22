@@ -6,7 +6,7 @@ import java.net.UnknownHostException;
 
 abstract class UdpSocketThread extends Thread
 {
-	protected UdpSocketWrapper mSocket = null;
+	protected volatile UdpSocketWrapper mSocket = null;
 	protected volatile boolean explicitClosed = false;
 
 	public UdpSocketThread(String address, int port)

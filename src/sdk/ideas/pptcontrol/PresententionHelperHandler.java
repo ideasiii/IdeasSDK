@@ -7,7 +7,6 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import android.content.Context;
 import sdk.ideas.common.BaseHandler;
@@ -21,20 +20,80 @@ import sdk.ideas.common.ResponseCode;
  */
 public class PresententionHelperHandler extends BaseHandler
 {
+	private static final String RECEIVER_DISCOVERY_GROUP_ADDRESS = "224.0.0.251";
+	private static final int RECEIVER_DISCOVERY_GROUP_PORT = 32529;
+	private static final long CMD_ACK_MAX_WAIT = 3000;
+
 	private static final DecimalFormat mFloatFormatter = new DecimalFormat("#.##");
 
-	private ReceiveMsgThread mReceiveMsgThread;
-	private SendMsgThread mSendMsgThread;
+	private volatile ReceiverDiscoveryThread mReceiverDiscoveryThread;
+	private volatile ReceiveMsgThread mReceiveMsgThread;
+	private volatile SendMsgThread mSendMsgThread;
 
 	/** 紀錄送出後未收到伺服器 ack 回應的指令數目 */
-	private AtomicInteger mCommandAckBalance = new AtomicInteger(0);
+	private final AtomicInteger mCommandAckBalance = new AtomicInteger(0);
+	private volatile long mLastCommandSentTime = -1;
+
 	/** 建立連線的 socket 是否被 timer 關閉 */
-	private volatile boolean mInitIsClosedByTimer = false;
+	private volatile boolean mInitIsCanceledByTimer = false;
 	private volatile boolean mIsConnecting = false;
 
 	public PresententionHelperHandler(Context context)
 	{
 		super(context);
+	}
+
+	public void startReceiverDiscovery()
+	{
+		if (mReceiverDiscoveryThread != null)
+		{
+			return;
+		}
+
+		mReceiverDiscoveryThread = new ReceiverDiscoveryThread(RECEIVER_DISCOVERY_GROUP_ADDRESS,
+				RECEIVER_DISCOVERY_GROUP_PORT, new ReceiverDiscoveryThread.EventListener()
+				{
+					@Override
+					public void onIOException(String message)
+					{
+						sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION,
+								ResponseCode.METHOD_PRES_HELPER_RECEIVER_DISCOVERY, message);
+					}
+
+					@Override
+					public void onDiscoverReceiver(String ip, int port)
+					{
+						HashMap<String, String> newReceiver = new HashMap<String, String>();
+						newReceiver.put("discoveredIp", ip);
+						newReceiver.put("discoveredPort", Integer.toString(port));
+						sendMapCallBackMessage(ResponseCode.ERR_SUCCESS,
+								ResponseCode.METHOD_PRES_HELPER_RECEIVER_DISCOVERY, newReceiver);
+					}
+				});
+
+		mReceiverDiscoveryThread.start();
+	}
+
+	public void stopReceiverDiscovery()
+	{
+		if (mReceiverDiscoveryThread == null)
+		{
+			return;
+		}
+
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mReceiverDiscoveryThread != null)
+				{
+					mReceiverDiscoveryThread.removeListener();
+					mReceiverDiscoveryThread.stopDiscovery();
+					mReceiverDiscoveryThread = null;
+				}
+			}
+		}).start();
 	}
 
 	/**
@@ -44,13 +103,20 @@ public class PresententionHelperHandler extends BaseHandler
 	 */
 	public void connect(final String address, final int port)
 	{
+		if (port < 0 || port > 65535)
+		{
+			sendMessageOnlyCallBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION,
+					ResponseCode.METHOD_PRES_HELPER_CONNECT_TO_SERVER, "Port is out of range");
+			return;
+		}
+
 		if (mIsConnecting)
 		{
 			return;
 		}
 
 		mIsConnecting = true;
-		mInitIsClosedByTimer = false;
+		mInitIsCanceledByTimer = false;
 		mCommandAckBalance.set(0);
 
 		final UdpSocketWrapper initSocket = new UdpSocketWrapper(address, port);
@@ -64,14 +130,17 @@ public class PresententionHelperHandler extends BaseHandler
 			{
 				Logs.showTrace("Connecting to " + address + ":" + port);
 
+				// close any previous opened sockets
 				if (null != mReceiveMsgThread)
 				{
+					mReceiveMsgThread.removeListener();
 					mReceiveMsgThread.closeSocket();
 					mReceiveMsgThread = null;
 				}
 
 				if (null != mSendMsgThread)
 				{
+					mSendMsgThread.removeListener();
 					mSendMsgThread.closeSocket();
 					mSendMsgThread = null;
 				}
@@ -89,19 +158,19 @@ public class PresententionHelperHandler extends BaseHandler
 					return;
 				}
 
-				// wait server for saying hi
 				byte[] recvBuffer = new byte[128];
-				DatagramPacket pack = new DatagramPacket(recvBuffer, recvBuffer.length);
+				DatagramPacket datagramPacket = new DatagramPacket(recvBuffer, recvBuffer.length);
 
-				while (!mInitIsClosedByTimer && initSocket.isConnected() && !initSocket.isClosed())
+				// wait server for saying hi
+				while (!mInitIsCanceledByTimer && initSocket.isConnected() && !initSocket.isClosed())
 				{
 					try
 					{
-						initSocket.receive(pack);
+						initSocket.receive(datagramPacket);
 					}
 					catch (IOException e)
 					{
-						if (!mInitIsClosedByTimer)
+						if (!mInitIsCanceledByTimer)
 						{
 							cancelInit(ResponseCode.ERR_IO_EXCEPTION, e.toString());
 						}
@@ -109,7 +178,7 @@ public class PresententionHelperHandler extends BaseHandler
 						return;
 					}
 
-					String initSocketReceivedMsg = new String(pack.getData());
+					String initSocketReceivedMsg = new String(datagramPacket.getData());
 					if (!initSocketReceivedMsg.startsWith(Consts.MSG_CONFIRM))
 					{
 						continue;
@@ -118,11 +187,11 @@ public class PresententionHelperHandler extends BaseHandler
 					try
 					{
 						// establish socket for receiving message
-						mReceiveMsgThread = new ReceiveMsgThread(address, port);
+						mReceiveMsgThread = new ReceiveMsgThread(address, port, mReceiveEventListener);
 						mReceiveMsgThread.connect();
 
 						// establish socket for sending message
-						mSendMsgThread = new SendMsgThread(address, port);
+						mSendMsgThread = new SendMsgThread(address, port, mSendEventListener);
 						mSendMsgThread.connect();
 					}
 					catch (IOException e)
@@ -132,7 +201,7 @@ public class PresententionHelperHandler extends BaseHandler
 						return;
 					}
 
-					// inform server which PORT is used to receive message
+					// inform server which PORT mReceiveMsgThread is bound to
 					try
 					{
 						initSocket.sendMsg(Consts.MSG_RECEIVE_PORT + mReceiveMsgThread.getLocalPort());
@@ -145,8 +214,9 @@ public class PresententionHelperHandler extends BaseHandler
 					}
 					finally
 					{
-						// done handshaking, now ok to cancel timer
-						// regardless message is sent successfully or not
+						// done handshaking, ok to cancel timer
+						// regardless MSG_RECEIVE_PORT message is sent
+						// successfully or not
 						if (null != initTimeoutTimer)
 						{
 							initTimeoutTimer.cancel();
@@ -156,6 +226,7 @@ public class PresententionHelperHandler extends BaseHandler
 
 					mReceiveMsgThread.start();
 					mSendMsgThread.start();
+					runCheckBalanceThread();
 
 					Logs.showTrace("connection established");
 					sendMessageOnlyCallBackMessage(ResponseCode.ERR_SUCCESS,
@@ -182,18 +253,20 @@ public class PresententionHelperHandler extends BaseHandler
 
 				if (null != mSendMsgThread)
 				{
+					mSendMsgThread.removeListener();
 					mSendMsgThread.closeSocket();
 					mSendMsgThread = null;
 				}
 
 				if (null != mReceiveMsgThread)
 				{
+					mReceiveMsgThread.removeListener();
 					mReceiveMsgThread.closeSocket();
 					mReceiveMsgThread = null;
 				}
 
 				mIsConnecting = false;
-				mInitIsClosedByTimer = false;
+				mInitIsCanceledByTimer = false;
 
 				sendMessageOnlyCallBackMessage(errorCode, ResponseCode.METHOD_PRES_HELPER_CONNECT_TO_SERVER, msg);
 			}
@@ -209,7 +282,7 @@ public class PresententionHelperHandler extends BaseHandler
 			{
 				if (null != initConnectionThread && initConnectionThread.isAlive())
 				{
-					mInitIsClosedByTimer = true;
+					mInitIsCanceledByTimer = true;
 
 					if (null != initSocket)
 					{
@@ -218,12 +291,14 @@ public class PresententionHelperHandler extends BaseHandler
 
 					if (null != mSendMsgThread)
 					{
+						mSendMsgThread.removeListener();
 						mSendMsgThread.closeSocket();
 						mSendMsgThread = null;
 					}
 
 					if (null != mReceiveMsgThread)
 					{
+						mReceiveMsgThread.removeListener();
 						mReceiveMsgThread.closeSocket();
 						mReceiveMsgThread = null;
 					}
@@ -239,7 +314,7 @@ public class PresententionHelperHandler extends BaseHandler
 	}
 
 	/** 結束連線 */
-	public void close()
+	public void disconnect()
 	{
 		new Thread()
 		{
@@ -248,12 +323,14 @@ public class PresententionHelperHandler extends BaseHandler
 			{
 				if (null != mReceiveMsgThread)
 				{
+					mReceiveMsgThread.removeListener();
 					mReceiveMsgThread.closeSocket();
 					mReceiveMsgThread = null;
 				}
 
 				if (null != mSendMsgThread)
 				{
+					mSendMsgThread.removeListener();
 					mSendMsgThread.closeSocket();
 					mSendMsgThread = null;
 				}
@@ -365,19 +442,18 @@ public class PresententionHelperHandler extends BaseHandler
 	{
 		sendCommand(Consts.CMD_PREFIX + Consts.CMD_LAZER_SHOW);
 	}
-	
+
 	public void hideLazer()
 	{
 		sendCommand(Consts.CMD_PREFIX + Consts.CMD_LAZER_OFF);
 	}
-		
+
 	public void moveLazer(float dx, float dy)
 	{
-		sendCommand(Consts.CMD_PREFIX + Consts.CMD_MOVE_LAZER_PREFIX
-				+ mFloatFormatter.format(dx) + Consts.CMD_PARAM_SEPERATOR + mFloatFormatter.format(dy)
-				+ Consts.CMD_PARAM_SEPERATOR);
+		sendCommand(Consts.CMD_PREFIX + Consts.CMD_MOVE_LAZER_PREFIX + mFloatFormatter.format(dx)
+				+ Consts.CMD_PARAM_SEPERATOR + mFloatFormatter.format(dy) + Consts.CMD_PARAM_SEPERATOR);
 	}
-	
+
 	public InetAddress getInetAddress()
 	{
 		if (null != mSendMsgThread)
@@ -427,228 +503,102 @@ public class PresententionHelperHandler extends BaseHandler
 	{
 		super.finalize();
 
+		disconnect();
+		stopReceiverDiscovery();
+	}
+
+	/** 此 Thread 每隔一段時間會檢查是否有收到 server 的 ack 訊息 */
+	private void runCheckBalanceThread()
+	{
 		new Thread(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				if (null != mReceiveMsgThread)
+				while (mReceiveMsgThread != null && mSendMsgThread != null)
 				{
-					mReceiveMsgThread.closeSocket();
-				}
+					try
+					{
+						Thread.sleep(CMD_ACK_MAX_WAIT / 2);
+					}
+					catch (InterruptedException e)
+					{
+					}
 
-				if (null != mSendMsgThread)
-				{
-					mSendMsgThread.closeSocket();
+					if (mReceiveMsgThread != null && mSendMsgThread != null)
+					{
+						return;
+					}
+
+					checkCommandAckBalance();
 				}
 			}
 		}).start();
 	}
 
-	/** 負責接收伺服器訊息的 Thread */
-	private class ReceiveMsgThread extends UdpSocketThread
+	private void checkCommandAckBalance()
 	{
-		public ReceiveMsgThread(String address, int port)
+		long now = System.currentTimeMillis();
+		int ackBalance = mCommandAckBalance.get();
+
+		if (now - mLastCommandSentTime > CMD_ACK_MAX_WAIT && ackBalance > 0)
 		{
-			super(address, port);
-		}
-
-		@Override
-		public void run()
-		{
-			byte[] buffer = new byte[128];
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-			while (null != mSocket && !mSocket.isClosed())
-			{
-				try
-				{
-					mSocket.receive(packet);
-				}
-				catch (IOException e)
-				{
-					if (explicitClosed)
-					{
-						// exception is caused by closeSocket()
-						// this is expected
-						break;
-					}
-
-					e.printStackTrace();
-					Logs.showTrace("recieve error");
-					sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION,
-							ResponseCode.METHOD_PRES_HELPER_RECV_MSG, e.toString());
-
-					// wait for networking connection back again
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e1)
-					{
-					}
-
-					continue;
-				}
-
-				// resolve received message
-				String recv = new String(packet.getData()).substring(0, packet.getLength());
-				String[] msgs = recv.split(Consts.CMD_PREFIX);
-				for (String msg : msgs)
-				{
-					if (msg.length() < 1)
-					{
-						continue;
-					}
-
-					if (msg.startsWith(Consts.FROM_SERVER_MSG_PPT_PAGE))
-					{
-						String[] tmp = msg.substring(4).split(Consts.CMD_PARAM_SEPERATOR);
-
-						HashMap<String, String> message = new HashMap<String, String>();
-						message.put("message", "server sent slide index");
-						message.put("presSlideIndex", tmp[0]);
-						message.put("presSlideCount", tmp[1]);
-
-						sendMapCallBackMessage(ResponseCode.ERR_SUCCESS,
-								ResponseCode.METHOD_PRES_HELPER_RECV_MSG_SLIDE_INDEX, message);
-					}
-					else if (msg.startsWith(Consts.FROM_SERVER_MSG_SEND_COMMAND_ACK))
-					{
-						mCommandAckBalance.set(0);
-
-						HashMap<String, String> message = new HashMap<String, String>();
-						message.put("message", "got cmd ack from server");
-						message.put("debugAckBalance", Integer.toString(mCommandAckBalance.get()));
-
-						sendMapCallBackMessage(ResponseCode.ERR_SUCCESS,
-								ResponseCode.METHOD_PRES_HELPER_RECV_MSG_CMD_ACK, message);
-					}
-				}
-			}
+			mCommandAckBalance.set(0);
+			sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION, ResponseCode.METHOD_PRES_HELPER_SEND_COMMAND,
+					"network not stable, some command did not sent");
 		}
 	}
 
-	/** 負責傳送訊息的 Thread，此 Thread 每隔一段時間還會檢查是否有收到 server 的 ack 訊息 */
-	private class SendMsgThread extends UdpSocketThread
+	/** 負責接收伺服器訊息的 Thread 的 listener */
+	private ReceiveMsgThread.EventListener mReceiveEventListener = new ReceiveMsgThread.EventListener()
 	{
-		private final ConcurrentLinkedQueue<String> mCmdQueue = new ConcurrentLinkedQueue<String>();
-
-		private long mLastCommandSentTime = -1;
-		private static final long CMD_ACK_MAX_WAIT = 3000;
-
-		public SendMsgThread(String address, int port)
+		@Override
+		public void onSlideIndex(String message, String index, String total)
 		{
-			super(address, port);
-		}
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("message", "server sent slide index");
+			map.put("presSlideIndex", index);
+			map.put("presSlideCount", total);
 
-		public void enqueue(String command)
-		{
-			mCmdQueue.add(command);
+			sendMapCallBackMessage(ResponseCode.ERR_SUCCESS, ResponseCode.METHOD_PRES_HELPER_RECV_MSG_SLIDE_INDEX, map);
 		}
 
 		@Override
-		public void run()
+		public void onIOException(String message)
 		{
-			runCheckBalanceThread();
-
-			while (!explicitClosed && null != mSocket && !mSocket.isClosed())
-			{
-				while (mCmdQueue.isEmpty())
-				{
-					try
-					{
-						Thread.sleep(200);
-					}
-					catch (InterruptedException e)
-					{
-						// e.printStackTrace();
-					}
-
-					if (explicitClosed || null == mSocket || mSocket.isClosed())
-					{
-						return;
-					}
-				}
-
-				if (explicitClosed || null == mSocket || mSocket.isClosed())
-				{
-					return;
-				}
-
-				String queueCmd = mCmdQueue.poll();
-				if (null != queueCmd)
-				{
-					Logs.showTrace("Send Command:" + queueCmd);
-					try
-					{
-						if (!explicitClosed && null != mSocket && !mSocket.isClosed())
-						{
-							mSocket.sendMsg(queueCmd);
-
-							mLastCommandSentTime = System.currentTimeMillis();
-							mCommandAckBalance.addAndGet(1);
-						}
-					}
-					catch (IOException e)
-					{
-						if (explicitClosed)
-						{
-							// exception caused by closeSocket()
-							// this is expected
-							return;
-						}
-
-						e.printStackTrace();
-						Logs.showTrace("send error");
-						sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION,
-								ResponseCode.METHOD_PRES_HELPER_SEND_COMMAND, e.toString());
-
-						// continue try to send
-					}
-				}
-			}
+			sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION, ResponseCode.METHOD_PRES_HELPER_RECV_MSG,
+					message);
 		}
 
-		private void runCheckBalanceThread()
+		@Override
+		public void onCommandAck(String message)
 		{
-			new Thread(new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					while (!explicitClosed && null != mSocket && !mSocket.isClosed())
-					{
-						try
-						{
-							Thread.sleep(CMD_ACK_MAX_WAIT / 2);
-						}
-						catch (InterruptedException e)
-						{
-						}
+			mCommandAckBalance.set(0);
 
-						if (explicitClosed || null == mSocket || mSocket.isClosed())
-						{
-							return;
-						}
+			HashMap<String, String> map = new HashMap<String, String>();
+			map.put("message", "got cmd ack from server");
+			map.put("debugAckBalance", Integer.toString(mCommandAckBalance.get()));
 
-						checkCommandAckBalance();
-					}
-				}
-			}).start();
+			sendMapCallBackMessage(ResponseCode.ERR_SUCCESS, ResponseCode.METHOD_PRES_HELPER_RECV_MSG_CMD_ACK, map);
+		}
+	};
+
+	/** 負責傳送訊息的 Thread 的 listener */
+	private SendMsgThread.EventListener mSendEventListener = new SendMsgThread.EventListener()
+	{
+		@Override
+		public void onIOException(String message)
+		{
+			sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION, ResponseCode.METHOD_PRES_HELPER_SEND_COMMAND,
+					message);
 		}
 
-		private void checkCommandAckBalance()
+		@Override
+		public void onCommandSent(String message)
 		{
-			long now = System.currentTimeMillis();
-			int ackBalance = mCommandAckBalance.get();
-
-			if (now - mLastCommandSentTime > CMD_ACK_MAX_WAIT && ackBalance > 0)
-			{
-				mCommandAckBalance.set(0);
-				sendMessageOnlyCallBackMessage(ResponseCode.ERR_IO_EXCEPTION, ResponseCode.METHOD_PRES_HELPER_SEND_COMMAND,
-						"network not stable, some command did not sent");
-			}
+			mLastCommandSentTime = System.currentTimeMillis();
+			mCommandAckBalance.addAndGet(1);
 		}
-	}
+	};
+
 }
