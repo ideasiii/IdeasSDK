@@ -10,7 +10,6 @@ import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
 import sdk.ideas.common.ResponseCode;
-import sdk.ideas.module.Controller;
 
 public abstract class AMXBaseHandler extends BaseHandler
 {
@@ -19,10 +18,15 @@ public abstract class AMXBaseHandler extends BaseHandler
 	protected abstract void handleStatusMessage(Message msg);
 
 	private String amxUserID = null;
+	private String amxUserToken = null;
 	
 	public void setUserID(String amxUserID)
 	{
 		this.amxUserID = amxUserID;
+	}
+	public void setUserToken(String amxUserToken)
+	{
+		this.amxUserToken = amxUserToken;
 	}
 	
 	
@@ -127,8 +131,12 @@ public abstract class AMXBaseHandler extends BaseHandler
 		JSONObject obj = new JSONObject();
 		try
 		{
+			if(amxUserID == null || amxUserToken == null)
+			{
+				return null;
+			}
 			obj.put("ID", amxUserID);
-			
+			obj.put("TOKEN", amxUserToken);
 			obj.put("function", function);
 
 			obj.put("device", device);
