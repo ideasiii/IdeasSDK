@@ -222,7 +222,7 @@ public abstract class CmpClient
 		}
 		try
 		{
-			if (signUpData.getBytes("US-ASCII").length > 2000)
+			if (signUpData.getBytes(CODE_TYPE).length > 2000)
 			{
 				response.mstrContent = "signUpData too much character";
 				response.mnCode = ResponseCode.ERR_ILLEGAL_STRING_LENGTH_OR_NULL;
@@ -261,7 +261,7 @@ public abstract class CmpClient
 
 			inSocket = msocket.getInputStream();
 
-			int nLength = Protocol.CMP_HEADER_SIZE + 4 + signUpData.length() + 1;
+			int nLength = Protocol.CMP_HEADER_SIZE + 4 + signUpData.getBytes(CODE_TYPE).length + 1;
 
 			ByteBuffer buf = ByteBuffer.allocate(nLength);
 			// Logs.showTrace("test in 262");
@@ -289,7 +289,7 @@ public abstract class CmpClient
 			buf.putInt(nServiceType);
 			respData.put("REQ_BODY_SIGN_UP_TYPE", String.valueOf(nServiceType));
 
-			buf.put(signUpData.getBytes("US-ASCII"));
+			buf.put(signUpData.getBytes(CODE_TYPE));
 			respData.put("REQ_BODY_SIGN_UP_DATA", signUpData);
 
 			buf.put((byte) 0);
