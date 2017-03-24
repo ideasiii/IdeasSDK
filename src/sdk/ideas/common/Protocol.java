@@ -77,6 +77,7 @@ public abstract class Protocol
 	static public final int	STATUS_RINVCMDID			= 0x00000003;
 	static public final int	STATUS_RINVBNDSTS			= 0x00000004;
 	static public final int	STATUS_RALYBND				= 0x00000005;
+	static public final int	STATUS_SYSBUSY				= 0x00000006;
 	static public final int	STATUS_RSYSERR				= 0x00000008;
 	static public final int	STATUS_RBINDFAIL			= 0x00000010;
 	static public final int	STATUS_RPPSFAIL				= 0x00000011;

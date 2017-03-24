@@ -57,13 +57,12 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 				Logs.showTrace("[AMXVolumeHandler] ERROR while AMXBROADCAST, message: " + msg.obj);
 			}
 		}
-		
-		
+
 	}
 
 	public AMXVolumeHandler(Context mContext, String strIP, int nPort)
 	{
-		super(mContext, strIP, nPort,String.valueOf(AMXParameterSetting.FUNCTION_VOLUME));
+		super(mContext, strIP, nPort, String.valueOf(AMXParameterSetting.FUNCTION_VOLUME));
 
 	}
 
@@ -144,12 +143,12 @@ public class AMXVolumeHandler extends AMXBaseHandler implements LiftingBehavior,
 	{
 		if (super.isInInterval(index, AMXParameterSetting.DEVICE_VOLUME_INPUT_1,
 				AMXParameterSetting.DEVICE_VOLUME_OUTPUT_6)
-				&& super.isInInterval(requestState, AMXParameterSetting.REQUEST_STATUS_MUTE,
-						AMXParameterSetting.REQUEST_STATUS_MUTE))
+				&& (requestState == AMXParameterSetting.REQUEST_STATUS_MUTE
+						|| requestState == AMXParameterSetting.REQUEST_STATUS_LEVEL))
 		{
 			super.mAMXDataTransmitHandler
 					.sendStatusCommand(super.trasferToJsonCommand(AMXParameterSetting.TYPE_STATUS_COMMAND,
-							AMXParameterSetting.FUNCTION_VOLUME, index, AMXParameterSetting.REQUEST_STATUS_MUTE));
+							AMXParameterSetting.FUNCTION_VOLUME, index, requestState));
 		}
 		else
 		{

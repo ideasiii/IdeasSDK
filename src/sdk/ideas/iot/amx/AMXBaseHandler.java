@@ -19,26 +19,26 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	private String amxUserID = null;
 	private String amxUserToken = null;
-	
+
 	public void setUserID(String amxUserID)
 	{
 		this.amxUserID = amxUserID;
 	}
+
 	public void setUserToken(String amxUserToken)
 	{
 		this.amxUserToken = amxUserToken;
 	}
-	
-	
+
 	protected Handler privateHandler = new Handler()
 	{
 		@Override
 		public void handleMessage(Message msg)
 		{
-			 //debug using
-			 //Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: "
-			 //+ String.valueOf(msg.what) + " From: "
-			 //+ String.valueOf(msg.arg2) + " message: " + msg.obj);
+			// debug using
+			// Logs.showTrace("Result: " + String.valueOf(msg.arg1) + " What: "
+			// + String.valueOf(msg.what) + " From: "
+			// + String.valueOf(msg.arg2) + " message: " + msg.obj);
 			if (msg.what == CtrlType.MSG_RESPONSE_AMXDATA_TRANSMIT_HANDLER)
 			{
 				if (msg.arg2 == ResponseCode.METHOD_AMX_COTROL_COMMAND)
@@ -105,6 +105,7 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	private int getFunctionNumByJsonObj(String message) throws JSONException
 	{
+		// Logs.showTrace("[AMXBaseHandler] Data:"+message);
 		JSONObject broadcastData = new JSONObject(message);
 		return broadcastData.getInt("function");
 
@@ -126,12 +127,20 @@ public abstract class AMXBaseHandler extends BaseHandler
 
 	}
 
+	public void cancelBroadCastStatus()
+	{
+		if (null != mAMXDataTransmitHandler)
+		{
+			mAMXDataTransmitHandler.cancelBroadCastThread();
+		}
+	}
+
 	protected JSONObject trasferToJsonCommand(int commandType, int function, int device, int command)
 	{
 		JSONObject obj = new JSONObject();
 		try
 		{
-			if(amxUserID == null || amxUserToken == null)
+			if (amxUserID == null || amxUserToken == null)
 			{
 				return null;
 			}
@@ -165,9 +174,8 @@ public abstract class AMXBaseHandler extends BaseHandler
 	protected void sendIllegalArgumentResponse(int what, int from, String whichArgumentWrong)
 	{
 		HashMap<String, String> message = new HashMap<String, String>();
-		message.put("message", "the "+ whichArgumentWrong+" ERROR ILLEGAL ARGUMENT EXCEPTION ");
-		callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, what,
-				from, message);
+		message.put("message", "the " + whichArgumentWrong + " ERROR ILLEGAL ARGUMENT EXCEPTION ");
+		callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, what, from, message);
 	}
 
 }

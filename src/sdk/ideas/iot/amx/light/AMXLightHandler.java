@@ -46,7 +46,9 @@ public class AMXLightHandler extends AMXBaseHandler implements PowerBehavior, St
 				}
 				catch (JSONException e)
 				{
+					
 					Logs.showTrace(e.toString());
+					
 				}
 				catch (ClassCastException e)
 				{

@@ -134,6 +134,21 @@ public class SocketHandler
 			return socketID;
 		}
 
+		public void closeSocket()
+		{
+			if (null != mSocket)
+			{
+				try
+				{
+					mSocket.close();
+				}
+				catch (IOException e)
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 }

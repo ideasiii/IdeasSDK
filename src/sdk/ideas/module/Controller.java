@@ -86,7 +86,6 @@ public abstract class Controller
 	static public final int amx_status_command_response = 0x80000041;
 	static public final int amx_broadcast_status_command_request = 0x00000042;
 	static public final int amx_broadcast_status_command_response = 0x80000042;
-	
 
 	/*
 	 * CMP status set
@@ -102,6 +101,10 @@ public abstract class Controller
 															// command
 	static public final int STATUS_RALYBND = 0x00000005; // Already in Bound
 															// State
+
+	static public final int STATUS_SYSBUSY = 0x00000006; // Controller System
+															// Busy
+
 	static public final int STATUS_RSYSERR = 0x00000008; // System Error
 	static public final int STATUS_RBINDFAIL = 0x00000010; // Bind Failed
 	static public final int STATUS_RINVBODY = 0x00000040; // Invalid Packet Body
@@ -197,13 +200,14 @@ public abstract class Controller
 			buf.putInt(nSequence);
 
 			// debug using start
-			/*Logs.showTrace("@@Request Command@@ ");
-			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
-			Logs.showTrace("Command Length: " + String.valueOf(nLength));
-			Logs.showTrace("Command Status: " + String.valueOf(STATUS_ROK));
-			Logs.showTrace("Command Sequence: " + String.valueOf(nSequence));
-			Logs.showTrace("Command Body: " + strBody);
-			*/// debug using end
+			/*
+			 * Logs.showTrace("@@Request Command@@ "); Logs.showTrace(
+			 * "Command ID: " + String.valueOf(nCommand)); Logs.showTrace(
+			 * "Command Length: " + String.valueOf(nLength)); Logs.showTrace(
+			 * "Command Status: " + String.valueOf(STATUS_ROK)); Logs.showTrace(
+			 * "Command Sequence: " + String.valueOf(nSequence));
+			 * Logs.showTrace("Command Body: " + strBody);
+			 */// debug using end
 
 			if (null != strBody && 0 < strBody.length())
 			{
@@ -278,11 +282,16 @@ public abstract class Controller
 		}
 
 		// for debugging use Start
-		/*Logs.showTrace("@@Response Command@@ ");
-		Logs.showTrace("Command ID: " + String.valueOf(respPacket.cmpHeader.command_id));
-		Logs.showTrace("Command Length: " + String.valueOf(respPacket.cmpHeader.command_length));
-		Logs.showTrace("Command Status: " + String.valueOf(respPacket.cmpHeader.command_status));
-		Logs.showTrace("Sequence Number: " + String.valueOf(respPacket.cmpHeader.sequence_number));*/
+		/*
+		 * Logs.showTrace("@@Response Command@@ "); Logs.showTrace(
+		 * "Command ID: " + String.valueOf(respPacket.cmpHeader.command_id));
+		 * Logs.showTrace("Command Length: " +
+		 * String.valueOf(respPacket.cmpHeader.command_length)); Logs.showTrace(
+		 * "Command Status: " +
+		 * String.valueOf(respPacket.cmpHeader.command_status)); Logs.showTrace(
+		 * "Sequence Number: " +
+		 * String.valueOf(respPacket.cmpHeader.sequence_number));
+		 */
 		if (null != respPacket.cmpBody)
 		{
 			Logs.showTrace("Response Message: " + respPacket.cmpBody);
@@ -312,43 +321,47 @@ public abstract class Controller
 			CMP_PACKET respPacket)
 	{
 		int returnStatus = 0;
+		Socket msocket = null;
 		try
 		{
-			Socket msocket = new Socket();
+			msocket = new Socket();
 			msocket.connect(new InetSocketAddress(strIP, nPort), nConnectTimeOut);
 			msocket.setSoTimeout(nReceiveTimeOut);
 			returnStatus = cmpRequest(nCommand, strBody, respPacket, msocket);
-			msocket.close();
-			msocket = null;
 
-			return returnStatus;
 		}
 		catch (SocketException e)
 		{
-			return ERR_SOCKET_INVALID;
+			returnStatus = ERR_SOCKET_INVALID;
 		}
 		catch (IOException e)
 		{
-			return ERR_IOEXCEPTION;
+			returnStatus = ERR_IOEXCEPTION;
 		}
+		finally
+		{
+			if (null != msocket)
+			{
+				try
+				{
+					msocket.close();
+				}
+				catch (IOException e)
+				{
+					returnStatus = ERR_IOEXCEPTION;
+				}
+				msocket = null;
+			}
+
+		}
+		return returnStatus;
 
 	}
 
-	/*
-	 * public static int cmpRequestNew(final int nCommand, final String strBody,
-	 * CMP_PACKET respPacket, Socket msocket) { CMP_PACKET sendPacket = new
-	 * CMP_PACKET();
-	 * 
-	 * int sendStatus = cmpSend(nCommand, strBody, sendPacket, msocket); if
-	 * (sendStatus == STATUS_ROK) { cmpReceive(respPacket, msocket,
-	 * sendPacket.cmpHeader.sequence_number);
-	 * 
-	 * } else { return sendStatus; }
-	 * 
-	 * }
-	 */
-	
-	public static int cmpSend(final int nCommand, final String strBody, CMP_PACKET sendPacket, Socket msocket,final int nSequence)
+
+
+	public static int cmpSend(final int nCommand, final String strBody, CMP_PACKET sendPacket, Socket msocket,
+			final int nSequence)
 	{
 		int nCmpStatus = STATUS_ROK;
 		int nLength = 0;
@@ -378,14 +391,15 @@ public abstract class Controller
 			sendPacket.cmpHeader.command_status = nCmpStatus;
 			sendPacket.cmpHeader.sequence_number = nSequence;
 
-			/*
-			 * // debug using start Logs.showTrace("@@Request Command@@ ");
-			 * Logs.showTrace("Command ID: " + String.valueOf(nCommand));
-			 * Logs.showTrace("Command Length: " + String.valueOf(nLength));
-			 * Logs.showTrace("Command Status: " + String.valueOf(nCmpStatus));
-			 * Logs.showTrace("Command Sequence: " + String.valueOf(nSequence));
-			 * Logs.showTrace("Command Body: " + strBody); // debug using end
-			 */
+			// debug using start
+			/*Logs.showTrace("##Request Command## ");
+			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
+			Logs.showTrace("Command Length: " + String.valueOf(nLength));
+			Logs.showTrace("Command Status: " + String.valueOf(nCmpStatus));
+			Logs.showTrace("Command Sequence: " + String.valueOf(nSequence));
+			Logs.showTrace("Command Body: " + strBody);*/
+			// debug using end
+
 			if (null != strBody && 0 < strBody.length())
 			{
 				buf.put(strBody.getBytes(CODE_TYPE));
@@ -395,7 +409,10 @@ public abstract class Controller
 
 			buf.flip();
 			// Send Request
+
 			outSocket.write(buf.array());
+			// debug using
+			//Logs.showTrace("##Request Command## SUCCESS!!");
 
 			buf.clear();
 			buf = null;
@@ -404,27 +421,29 @@ public abstract class Controller
 		catch (IOException e)
 		{
 			// debug using start
-			Logs.showTrace("@@Request Command@@ ");
+			/*Logs.showTrace("@@Request Command@@ ");
 			Logs.showTrace("Command ID: " + String.valueOf(nCommand));
 			Logs.showTrace("Command Length: " + String.valueOf(nLength));
 			Logs.showTrace("Command Status: " + String.valueOf(nCmpStatus));
 			Logs.showTrace("Command Sequence: " + String.valueOf(nSequence));
-			Logs.showTrace("Command Body: " + strBody);
+			Logs.showTrace("Command Body: " + strBody);*/
 			// debug using end
 
 			Logs.showError(e.toString());
 			nCmpStatus = ERR_IOEXCEPTION;
 		}
 
+		// debug using start
+		//Logs.showTrace("### CMP Status" + String.valueOf(nCmpStatus));
 		return nCmpStatus;
 	}
 
 	public static int cmpSend(final int nCommand, final String strBody, CMP_PACKET sendPacket, Socket msocket)
 	{
-		
+
 		final int nSequence = getSequence();
-		return cmpSend(nCommand,  strBody,  sendPacket,  msocket, nSequence);
-		
+		int status = cmpSend(nCommand, strBody, sendPacket, msocket, nSequence);
+		return status;
 
 	}
 
@@ -452,14 +471,32 @@ public abstract class Controller
 			int nLength = inSocket.read(buf.array(), 0, CMP_HEADER_SIZE);
 			buf.rewind();
 
+			//debug using
+			//Logs.showTrace("[Controller]&&&&& BUF"+String.valueOf(buf));
+			
 			if (CMP_HEADER_SIZE <= nLength)
 			{
 				buf.order(ByteOrder.BIG_ENDIAN);
-
+				//Logs.showTrace("buf getString"+ buf);
 				receivePacket.cmpHeader.command_length = buf.getInt(0); // offset
 				receivePacket.cmpHeader.command_id = buf.getInt(4) & 0x00ffffff;
 				receivePacket.cmpHeader.command_status = buf.getInt(8);
 				receivePacket.cmpHeader.sequence_number = buf.getInt(12);
+
+				// for debugging use Start
+/*
+				Logs.showTrace("@@Response Command@@ ");
+				Logs.showTrace("Command ID: " + String.valueOf(receivePacket.cmpHeader.command_id));
+				Logs.showTrace("Command Length: " + String.valueOf(receivePacket.cmpHeader.command_length));
+				Logs.showTrace("Command Status: " + String.valueOf(receivePacket.cmpHeader.command_status));
+				Logs.showTrace("Sequence Number: " + String.valueOf(receivePacket.cmpHeader.sequence_number));
+
+				if (null != receivePacket.cmpBody)
+				{
+					Logs.showTrace("Response Message: " + receivePacket.cmpBody);
+				}*/
+
+				// for debugging use End
 
 				if (nSequence >= 0)
 				{
@@ -471,35 +508,28 @@ public abstract class Controller
 				}
 				nCmpStatus = receivePacket.cmpHeader.command_status;
 				int nBodySize = receivePacket.cmpHeader.command_length - CMP_HEADER_SIZE;
-
+				
+				//debug using
+				//Logs.showTrace("[Controller] Body Size:"+String.valueOf(nBodySize));
+				
+				//debug using
 				if (0 < nBodySize)
 				{
 					buf.clear();
 					buf = ByteBuffer.allocate(nBodySize);
-					nLength = inSocket.read(buf.array(), 0, --nBodySize); // not
-																			// read
-																			// end-char
+					nLength = inSocket.read(buf.array(), 0, nBodySize); //have end of char '\0'
+					
 					if (nLength == nBodySize)
 					{
 						byte[] bytes = new byte[nBodySize];
 						buf.get(bytes);
 						receivePacket.cmpBody = new String(bytes, Charset.forName(CODE_TYPE));
+						//Logs.showTrace("&^^^^ body data "+receivePacket.cmpBody);
 					}
-					buf.clear();
+					
 				}
+				buf.clear();
 
-				// for debugging use Start
-				/*Logs.showTrace("@@Response Command@@ ");
-				Logs.showTrace("Command ID: " + String.valueOf(receivePacket.cmpHeader.command_id));
-				Logs.showTrace("Command Length: " + String.valueOf(receivePacket.cmpHeader.command_length));
-				Logs.showTrace("Command Status: " + String.valueOf(receivePacket.cmpHeader.command_status));
-				Logs.showTrace("Sequence Number: " + String.valueOf(receivePacket.cmpHeader.sequence_number));
-				
-				if (null != receivePacket.cmpBody)
-				{
-					Logs.showTrace("Response Message: " + receivePacket.cmpBody);
-				}*/
-				// for debugging use End
 			}
 			else
 			{
@@ -523,7 +553,7 @@ public abstract class Controller
 			Logs.showError(e.toString());
 
 		}
-		
+
 		return nCmpStatus;
 
 	}

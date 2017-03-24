@@ -102,6 +102,7 @@ public abstract class AMXParameterSetting
 	public final static int REQUEST_STATUS_SIGNAL = 2;
 	public final static int REQUEST_STATUS_MUTE = 3;
 	public final static int REQUEST_STATUS_MATRIX = 4;
+	public final static int REQUEST_STATUS_LEVEL = 5;
 
 	/*Server端回覆 AMX status*/
 	public final static int STATUS_ON = 1;
