@@ -14,7 +14,7 @@ public abstract class Common
 	public static String		HOST_SERVICE_INIT			= "175.98.119.121";
 	public static int			PORT_SERVICE_INIT			= 6607;
 	
-	public static String        HOST_SERVICE_INIT_BACKUP    = "140.92.142.195";
+	public static String        HOST_SERVICE_INIT_BACKUP    = "54.199.198.94";
 	public static int			PORT_SERVICE_INIT_BACKUP	= 6607;
 	
 

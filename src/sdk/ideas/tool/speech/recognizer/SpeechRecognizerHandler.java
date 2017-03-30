@@ -7,6 +7,7 @@ import sdk.ideas.common.ResponseCode;
 import sdk.ideas.module.MediaCheckUtility;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -23,7 +24,7 @@ public class SpeechRecognizerHandler extends BaseHandler
 	private String promptInfomation = "Please Say Something!";
 	private HashMap<String, String> message = null;
 	private boolean isMediaCheckPassed = false;
-	
+	private Locale defaultLocale = Locale.getDefault();
 	//private int 
 	
 	
@@ -84,6 +85,11 @@ public class SpeechRecognizerHandler extends BaseHandler
 	{
 		Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
 		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+		
+		intent.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, defaultLocale);
+		intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, defaultLocale);
+		
 		intent.putExtra(RecognizerIntent.EXTRA_PROMPT, promptInfomation);
 		try
 		{

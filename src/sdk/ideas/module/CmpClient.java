@@ -331,7 +331,7 @@ public abstract class CmpClient
 
 			buf.clear();
 			buf = null;
-			msocket.close();
+
 			// Logs.showTrace("final sign up");
 
 		}
@@ -340,6 +340,20 @@ public abstract class CmpClient
 			response.mnCode = -1;
 			response.mstrContent = "connected fail, IO exception";
 		}
+		finally
+		{
+			if (msocket != null)
+			{
+				try
+				{
+					msocket.close();
+					msocket = null;
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		}
 
 		// Logs.showTrace(String.valueOf(response.mnCode));
 	}
@@ -347,7 +361,7 @@ public abstract class CmpClient
 	public static void accessLogRequest(final String strIP, final int nPort, final int nServiceType,
 			String accessLogData, HashMap<String, String> respData, Response response)
 	{
-		//Logs.showTrace("track Data:" + accessLogData);
+		// Logs.showTrace("track Data:" + accessLogData);
 
 		if (null == response)
 			return;
@@ -465,7 +479,6 @@ public abstract class CmpClient
 
 			buf.clear();
 			buf = null;
-			msocket.close();
 
 			// Logs.showTrace("final acess log");
 		}
@@ -474,6 +487,20 @@ public abstract class CmpClient
 			Logs.showTrace(e.toString());
 			response.mnCode = -1;
 			response.mstrContent = "IOException, network inconnect";
+		}
+		finally
+		{
+			if (msocket != null)
+			{
+				try
+				{
+					msocket.close();
+					msocket = null;
+				}
+				catch (IOException e)
+				{
+				}
+			}
 		}
 		/*
 		 * catch(Exception e) { response.mnCode = 0; response.mstrContent =

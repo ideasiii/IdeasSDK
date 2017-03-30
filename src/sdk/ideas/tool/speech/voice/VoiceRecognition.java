@@ -1,14 +1,13 @@
 package sdk.ideas.tool.speech.voice;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
-import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Locale;
 import sdk.ideas.common.BaseHandler;
 import sdk.ideas.common.CtrlType;
 import sdk.ideas.common.Logs;
@@ -17,153 +16,177 @@ import sdk.ideas.module.MediaCheckUtility;
 
 public class VoiceRecognition extends BaseHandler
 {
-	private SpeechRecognizer speech = null;
+	private Locale defaultLocale;
+	private boolean isListening = false;
+	private boolean isWarning = false;
 	private Intent recognizerIntent;
-	private Locale defaultLocale = Locale.getDefault();
-	private boolean returnInitValue = false;
+	private boolean returnInitValue;
+	private SpeechRecognizer speech;
+
+	class GoogleRecognitionListener implements RecognitionListener
+	{
+		GoogleRecognitionListener()
+		{
+		}
+
+		public void onReadyForSpeech(Bundle params)
+		{
+		}
+
+		public void onBeginningOfSpeech()
+		{
+		}
+
+		public void onRmsChanged(float rmsdB)
+		{
+		}
+
+		public void onBufferReceived(byte[] buffer)
+		{
+		}
+
+		public void onEndOfSpeech()
+		{
+			VoiceRecognition.this.speech = null;
+			VoiceRecognition.this.isListening = false;
+			VoiceRecognition.this.isWarning = false;
+		}
+
+		@Override
+		public void onError(int errorCode)
+		{
+			String errorMessage = getErrorText(errorCode);
+			// Logs.showTrace("onError: " + errorMessage);
+			HashMap<String, String> message = new HashMap<String, String>();
+			message.put("message", errorMessage);
+			if (errorMessage == "Network error" || errorMessage == "Network timeout"
+					|| errorMessage == "Error from server, please check network connection")
+				callBackMessage(ResponseCode.ERR_IO_EXCEPTION, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+						ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
+			else if (errorMessage == "Insufficient permissions")
+				callBackMessage(ResponseCode.ERR_NO_SPECIFY_USE_PERMISSION,
+						CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+						ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
+			else
+				callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+						ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
+		}
+
+		@Override
+		public void onResults(Bundle results)
+		{
+			// Logs.showTrace("onResults");
+			ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+			String text = matches.get(0);
+			HashMap<String, String> message = new HashMap<String, String>();
+			message = new HashMap<String, String>();
+			message.put("message", text);
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+					ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
+		}
+
+		public void onPartialResults(Bundle partialResults)
+		{
+			// Logs.showTrace("onPartialResults");
+			// String msg = "";
+			// HashMap<String, String> message = new HashMap<String,
+			// String>();
+			// if (null != partialResults)
+			// {
+			// ArrayList<String> matches = partialResults
+			// .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+			// if (null != matches)
+			// {
+			// for (int i = 0; i < matches.size(); ++i)
+			// {
+			// if (null != matches.get(i))
+			// {
+			// msg = matches.get(i);
+			// }
+			// }
+			// Logs.showTrace("onPartialResults Success");
+			// message = new HashMap<String, String>();
+			// message.put("message", msg);
+			// callBackMessage(ResponseCode.ERR_SUCCESS,
+			// CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+			// ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER,
+			// message);
+			// }
+			// }
+		}
+
+		public void onEvent(int eventType, Bundle params)
+		{
+		}
+	}
 
 	public VoiceRecognition(Context mContext)
 	{
 		super(mContext);
+		this.speech = null;
+		this.defaultLocale = Locale.TAIWAN;
+		this.returnInitValue = false;
+		this.isListening = false;
+		this.isWarning = false;
 	}
 
-	public void stopListen()
+	public void setLocale(Locale locale)
 	{
-		if (null == speech)
+		this.defaultLocale = locale;
+	}
+
+	public synchronized void stopListen()
+	{
+		if (this.isListening && this.speech != null)
+		{
+			this.speech.stopListening();
+			this.speech = null;
+			this.isListening = false;
+			this.isWarning = false;
+		}
+		else if (!this.isWarning)
 		{
 			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("message", "please ''startListen()'' first");
 			callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
 					ResponseCode.METHOD_START_VOICE_RECOGNIZER, message);
+			this.isWarning = true;
 		}
-		else
-		{
-			speech.stopListening();
-		}		
 	}
 
-	public void startListen()
+	public synchronized void startListen()
 	{
-		HashMap<String, String> message = new HashMap<String, String>();
-		if (MediaCheck() == true)
+		
+		if (!this.isListening)
 		{
-			startVoiceRecognitionActivity();
-			if (returnInitValue == true)
+			this.isListening = true;
+			HashMap<String, String> message = new HashMap<String, String>();
+			if (MediaCheck())
 			{
-				message.put("message", "start listening");
-				callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
-						ResponseCode.METHOD_START_VOICE_RECOGNIZER, message);
-				speech = SpeechRecognizer.createSpeechRecognizer(mContext);
-				speech.setRecognitionListener(new RecognitionListener()
+				startVoiceRecognitionActivity();
+				if (this.returnInitValue)
 				{
-					@Override
-					public void onReadyForSpeech(Bundle params)
-					{
-						// Logs.showTrace("onReadyForSpeech");
-					}
-
-					@Override
-					public void onBeginningOfSpeech()
-					{
-						// Logs.showTrace("onBeginningOfSpeech");
-					}
-
-					@Override
-					public void onRmsChanged(float rmsdB)
-					{
-						// Logs.showTrace("onRmsChanged: " + rmsdB);
-					}
-
-					@Override
-					public void onBufferReceived(byte[] buffer)
-					{
-						// Logs.showTrace("onBufferReceived: " + buffer);
-					}
-
-					@Override
-					public void onEndOfSpeech()
-					{
-						// Logs.showTrace("onEndOfSpeech");
-					}
-
-					@Override
-					public void onError(int errorCode)
-					{
-						String errorMessage = getErrorText(errorCode);
-						// Logs.showTrace("onError: " + errorMessage);
-						HashMap<String, String> message = new HashMap<String, String>();
-						message.put("message", errorMessage);
-						callBackMessage(ResponseCode.ERR_SPEECH_ERRORMESSAGE, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
-								ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
-					}
-
-					@Override
-					public void onResults(Bundle results)
-					{
-						// Logs.showTrace("onResults");
-						ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-						String text = matches.get(0);
-						HashMap<String, String> message = new HashMap<String, String>();
-						message = new HashMap<String, String>();
-						message.put("message", text);
-						callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
-								ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
-					}
-
-					@Override
-					public void onPartialResults(Bundle partialResults)
-					{
-						// Logs.showTrace("onPartialResults");
-						// String msg = "";
-						// HashMap<String, String> message = new HashMap<String,
-						// String>();
-						// if (null != partialResults)
-						// {
-						// ArrayList<String> matches = partialResults
-						// .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-						// if (null != matches)
-						// {
-						// for (int i = 0; i < matches.size(); ++i)
-						// {
-						// if (null != matches.get(i))
-						// {
-						// msg = matches.get(i);
-						// }
-						// }
-						// Logs.showTrace("onPartialResults Success");
-						// message = new HashMap<String, String>();
-						// message.put("message", msg);
-						// callBackMessage(ResponseCode.ERR_SUCCESS,
-						// CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
-						// ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER,
-						// message);
-						// }
-						// }
-					}
-
-					@Override
-					public void onEvent(int eventType, Bundle params)
-					{
-						// Logs.showTrace("onEvent");
-					}
-
-				});
-				speech.startListening(recognizerIntent);
+					message.put("message", "start listening");
+					callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+							ResponseCode.METHOD_START_VOICE_RECOGNIZER, message);
+					this.speech = SpeechRecognizer.createSpeechRecognizer(this.mContext);
+					this.speech.setRecognitionListener(new GoogleRecognitionListener());
+					this.speech.startListening(this.recognizerIntent);
+				}
 			}
-		}
-		else
-		{
-			message.put("message", "device UnSupported ");
-			callBackMessage(ResponseCode.ERR_MICROPHONE_NOT_EXISTS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
-					ResponseCode.METHOD_START_VOICE_RECOGNIZER, message);
-			return;
+			else
+			{
+				message.put("message", "device UnSupported ");
+				callBackMessage(ResponseCode.ERR_MICROPHONE_NOT_EXISTS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+						ResponseCode.METHOD_START_VOICE_RECOGNIZER, message);
+			}
 		}
 	}
 
 	private boolean MediaCheck()
 	{
-		if (MediaCheckUtility.getMicrophoneExists(mContext) == true
-				&& MediaCheckUtility.getSpeechRecognizeAvailable(mContext) == true)
+		if (MediaCheckUtility.getMicrophoneExists(this.mContext)
+				&& MediaCheckUtility.getSpeechRecognizeAvailable(this.mContext))
 		{
 			Logs.showTrace("MediaCheckUtility all GREEN");
 			return true;
@@ -174,13 +197,11 @@ public class VoiceRecognition extends BaseHandler
 
 	public void startVoiceRecognitionActivity()
 	{
-		recognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-		recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH);
-		recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
-		recognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-		recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, defaultLocale);
-		recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, defaultLocale);
-		returnInitValue = true;
+		this.recognizerIntent = new Intent("android.speech.action.RECOGNIZE_SPEECH");
+		this.recognizerIntent.putExtra("android.speech.extra.LANGUAGE_MODEL", "web_search");
+		this.recognizerIntent.putExtra("android.speech.extra.MAX_RESULTS", 1);
+		this.recognizerIntent.putExtra("android.speech.extra.LANGUAGE", this.defaultLocale.toString());
+		this.returnInitValue = true;
 	}
 
 	public static String getErrorText(int errorCode)
@@ -221,4 +242,5 @@ public class VoiceRecognition extends BaseHandler
 		}
 		return msg;
 	}
+
 }
