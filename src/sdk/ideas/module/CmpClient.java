@@ -34,6 +34,7 @@ public abstract class CmpClient
 		}
 		catch (Exception e)
 		{
+			Logs.showError(e.toString());
 			return false;
 		}
 	}

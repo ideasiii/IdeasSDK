@@ -68,6 +68,10 @@ public abstract class Logs
 
 	public static void showError(String msg)
 	{
+		if (Type.INVALID >= mnEnable)
+		{
+			return;
+		}
 		if (msg.length() > 0)
 		{
 			Throwable throwable = new Throwable();

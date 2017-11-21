@@ -80,9 +80,12 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	private IntentFilter autoBondDeviceFilter = null;
 	private int pairChance = MAX_CHANCE;
 	private final static int MAX_CHANCE = 10;
-	
+
 	private final static boolean stableVer = false;
-	
+
+	private final static byte END_BYTE_1 = (byte) 0x0D;
+	private final static byte END_BYTE_2 = (byte) 0x0A;
+	private final static int END_BYTE_NUM = 2;
 	public BluetoothHandler(Context context)
 	{
 		super(context);
@@ -138,7 +141,6 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 					Logs.showTrace("mBluetoothReceiver finalize");
 				}
 
-				
 				@Override
 				public void returnIntentAction(HashMap<String, String> action)
 				{
@@ -157,7 +159,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 						message.put("deviceName", action.get("deviceName"));
 						message.put("deviceAddress", action.get("deviceAddress"));
 						Logs.showTrace("[BOND_STATE]" + message);
-									
+
 						if (isNeedToPair == true && action.get("state").equals("BOND_BONDED"))
 						{
 							if (needToPairDevice.equals(action.get("deviceAddress"))
@@ -168,8 +170,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 								pairChance = MAX_CHANCE;
 								connectDeviceByMacAddress(action.get("deviceAddress"));
 							}
-							
-							
+
 							callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
 									ResponseCode.METHOD_BOND_STATE_CHANGE_BLUETOOTH, message);
 						}
@@ -179,22 +180,21 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 							if (needToPairDevice.equals(action.get("deviceAddress"))
 									|| needToPairDevice.equals(action.get("deviceName")))
 							{
-								pairChance --;
-								if(	pairChance < 0)
+								pairChance--;
+								if (pairChance < 0)
 								{
 									callBackMessage(ResponseCode.ERR_BLUETOOTH_DEVICE_BOND_FAIL,
-										CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
-										ResponseCode.METHOD_BOND_STATE_CHANGE_BLUETOOTH, message);
+											CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+											ResponseCode.METHOD_BOND_STATE_CHANGE_BLUETOOTH, message);
 								}
 								else
 								{
 									pairNewDevice(action.get("deviceAddress"));
 								}
 								// connectDeviceByMacAddress(action.get("deviceAddress"));
-								
-								
+
 							}
-							
+
 						}
 						// callBackMessage(ResponseCode.ERR_SUCCESS,
 						// CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
@@ -222,9 +222,8 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 								ResponseCode.METHOD_BLUETOOTH_DISCOVERING_NEW_DEVICE, message);
 
 						Logs.showTrace(String.valueOf(isNeedToPair) + " " + needToPairDevice);
-						if (isNeedToPair == true
-								&& (needToPairDevice.equals(action.get("deviceName"))
-										|| needToPairDevice.equals(action.get("deviceAddress"))))
+						if (isNeedToPair == true && (needToPairDevice.equals(action.get("deviceName"))
+								|| needToPairDevice.equals(action.get("deviceAddress"))))
 						{
 							stopDiscovery();
 							pairNewDevice(action.get("deviceAddress"));
@@ -272,9 +271,6 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			});
 			// Logs.showTrace("mBluetoothReceiver set finish");
 		}
-		
-		
-		
 
 		if (null == mBluetoothIntentFilter)
 		{
@@ -286,8 +282,8 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			mBluetoothIntentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
 
 		}
-		
-		// unstable code 
+
+		// unstable code
 		if (stableVersion() == true)
 		{
 			autoBondDeviceInit();
@@ -301,18 +297,19 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		stop();
 
 	}
+
 	private boolean stableVersion()
 	{
-		if(android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
 		{
-			if(stableVer == true)
+			if (stableVer == true)
 				return true;
 			else
 				return false;
-			
+
 		}
 		return false;
-		
+
 	}
 
 	public void closeBluetoothLink()
@@ -356,7 +353,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	public void connectDeviceByMacAddress(String address)
 	{
 		pairChance = MAX_CHANCE;
-		 BluetoothDevice mBluetoothDevice = isPairedDevices(address);
+		BluetoothDevice mBluetoothDevice = isPairedDevices(address);
 
 		if (null != mBluetoothDevice)
 		{
@@ -369,9 +366,8 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			// start to discover new device where it exist
 			needToPairDevice = address;
 			isNeedToPair = true;
-			Logs.showTrace("connectDeviceByMacAddress : " + String.valueOf(isNeedToPair)+" "+needToPairDevice);
+			Logs.showTrace("connectDeviceByMacAddress : " + String.valueOf(isNeedToPair) + " " + needToPairDevice);
 			this.startDiscovery();
-			
 
 		}
 	}
@@ -388,52 +384,39 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 				Logs.showTrace("device is null");
 				return;
 			}
-			//showDeviceService(mBluetoothDevice);
+			// showDeviceService(mBluetoothDevice);
 
-			
-			
 			Thread createBond = new Thread(new createBondRunnable(mBluetoothDevice));
 			createBond.start();
-			
-			
-		/*	
-			try
-			{
-				
-				//Boolean returnValue = false;
 
-				//Method createBondMethod = BluetoothDevice.class.getMethod("createBond");
-				//Logs.showTrace("start to pair to " + mBluetoothDevice.getName() + " address:" + mBluetoothDevice.getAddress());
-				//returnValue = (Boolean) createBondMethod.invoke(mBluetoothDevice);
-				
-				//returnValue = BluetoothPairUtils.createBond(mBluetoothDevice.getClass(), mBluetoothDevice);
-				if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-				{
-					returnValue = newVersionBondDevice(mBluetoothDevice);
-				}
-				else
-				{
-					
-				}
-				
-				if (returnValue == false)
-				{
-					Logs.showTrace("[pair New Device] fail to pair ~");
-				}
-				else
-				{
-					Logs.showTrace("[pair New Device] now cancel Pairing User Input");
-					if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-					{
-						BluetoothPairUtils.cancelPairingUserInput(mBluetoothDevice.getClass(),mBluetoothDevice);
-					}
-				}
-			}
-			catch (Exception e)
-			{
-				Logs.showTrace("[pair New Device] fail to pair: " + e.toString());
-			}
-		 */
+			/*
+			 * try {
+			 * 
+			 * //Boolean returnValue = false;
+			 * 
+			 * //Method createBondMethod =
+			 * BluetoothDevice.class.getMethod("createBond"); //Logs.showTrace(
+			 * "start to pair to " + mBluetoothDevice.getName() + " address:" +
+			 * mBluetoothDevice.getAddress()); //returnValue = (Boolean)
+			 * createBondMethod.invoke(mBluetoothDevice);
+			 * 
+			 * //returnValue =
+			 * BluetoothPairUtils.createBond(mBluetoothDevice.getClass(),
+			 * mBluetoothDevice); if (android.os.Build.VERSION.SDK_INT >=
+			 * Build.VERSION_CODES.KITKAT) { returnValue =
+			 * newVersionBondDevice(mBluetoothDevice); } else {
+			 * 
+			 * }
+			 * 
+			 * if (returnValue == false) { Logs.showTrace(
+			 * "[pair New Device] fail to pair ~"); } else { Logs.showTrace(
+			 * "[pair New Device] now cancel Pairing User Input"); if
+			 * (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+			 * { BluetoothPairUtils.cancelPairingUserInput(mBluetoothDevice.
+			 * getClass(),mBluetoothDevice); } } } catch (Exception e) {
+			 * Logs.showTrace("[pair New Device] fail to pair: " +
+			 * e.toString()); }
+			 */
 		}
 		else
 		{
@@ -441,7 +424,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			Logs.showTrace("[pair New Device] error BluetoothAdapter is null");
 		}
 	}
-	
+
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	private boolean newVersionBondDevice(BluetoothDevice mBluetoothDevice)
 	{
@@ -478,9 +461,9 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 					device.setPin(pinBytes);
 					// Logs.showTrace("[AUTO PAIRING] END device setPin");
 					// setPairing confirmation if neeeded
-					 Logs.showTrace("[AUTO PAIRING] device.setPairingConfirmation");
+					Logs.showTrace("[AUTO PAIRING] device.setPairingConfirmation");
 					device.setPairingConfirmation(true);
-					 Logs.showTrace("[AUTO PAIRING] END device.setPairingConfirmation");
+					Logs.showTrace("[AUTO PAIRING] END device.setPairingConfirmation");
 				}
 				catch (Exception e)
 				{
@@ -495,7 +478,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 	public boolean removePairedDevice(String nameOrAddress)
 	{
 		BluetoothDevice mDevice = isPairedDevices(nameOrAddress);
-		if(null == mDevice)
+		if (null == mDevice)
 		{
 			return true;
 		}
@@ -508,13 +491,12 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			}
 			catch (Exception e)
 			{
-				Logs.showTrace("[Remove Paired] ERROR "+ e.toString());
+				Logs.showTrace("[Remove Paired] ERROR " + e.toString());
 				return false;
 			}
 		}
 	}
-	
-	
+
 	private void showDeviceService(BluetoothDevice device)
 	{
 		if (device.fetchUuidsWithSdp() == true)
@@ -776,9 +758,7 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 
 		if (message.length() > 0)
 		{
-			char EOT = (char) 3;
-			// Get the message bytes and tell the BluetoothChatService to write
-			byte[] send = (message + EOT).getBytes();
+			byte[] send = (message).getBytes();
 			this.write(send);
 		}
 		Logs.showTrace("send success: " + message);
@@ -941,7 +921,6 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		r.write(out);
 	}
 
-	
 	private void connectionFailed()
 	{
 		// Send a failure message back to the Activity
@@ -951,7 +930,6 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		BluetoothHandler.this.start();
 	}
 
-	
 	private void connectionLost()
 	{
 		// Send a failure message back to the Activity
@@ -1259,27 +1237,79 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 		public void run()
 		{
 			Logs.showTrace("[ConnectedThread] BEGIN mConnectedThread");
-			byte[] buffer = new byte[1024];
-			int bytes;
+
 			HashMap<String, String> message = new HashMap<String, String>();
+
+			ArrayList<DataStreamStruct> inputDataStream = new ArrayList<DataStreamStruct>();
+			int findEndByteCount = END_BYTE_NUM;
 			// Keep listening to the InputStream while connected
 			while (true)
 			{
+
 				try
 				{
-					// Read from the InputStream
-					bytes = mmInStream.read(buffer);
-					Logs.showTrace("[ConnectedThread]message bytes: " + String.valueOf(bytes));
-					Logs.showTrace("[ConnectedThread]message buffer: " + new String(buffer));
 
-					// Send the obtained bytes to the UI Activity
-					if (bytes > 0)
+					int bytesLength = 0;
+					byte[] buffer = new byte[1024];
+					boolean bufferFoundEndByte = false;
+					// Read from the InputStream
+					bytesLength = mmInStream.read(buffer);
+
+					/* debug using
+					Logs.showTrace("[ConnectedThread]message bytes: " + String.valueOf(bytesLength));
+					Logs.showTrace("[ConnectedThread]message buffer: " + new String(buffer));
+					
+					for (int i = 0; i < bytesLength; i++)
 					{
-						message.put("message", new String(buffer));
-						callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
-								ResponseCode.METHOD_GET_MESSAGE_BLUETOOTH, message);
-						message.clear();
+						Logs.showError("buffer.data:: " + String.format("Byte: %x", buffer[i]));
 					}
+					 */
+					for (int i = 0; i < bytesLength; i++)
+					{
+						if (buffer[i] == END_BYTE_1 || (buffer[i] == END_BYTE_2))
+						{
+							findEndByteCount -= 1;
+							// bufferFoundEndByte = true;
+						}
+					}
+
+					inputDataStream.add(new DataStreamStruct(bytesLength, buffer, bufferFoundEndByte));
+
+					if (findEndByteCount <= 0)
+					{
+						// if (bufferFoundEndByte == true)
+						{
+							findEndByteCount = END_BYTE_NUM;
+							int totalDataLength = 0;
+							for (int i = 0; i < inputDataStream.size(); i++)
+							{
+								totalDataLength += inputDataStream.get(i).bytesLength;
+							}
+							byte[] totalBuffer = new byte[totalDataLength];
+							int index = 0;
+							for (int i = 0; i < inputDataStream.size(); i++)
+							{
+								for (int j = 0; j < inputDataStream.get(i).bytesLength; j++)
+								{
+									totalBuffer[index++] = (inputDataStream.get(i).data)[j];
+								}
+							}
+							byte[] totalCheckBuffer = new byte[totalDataLength - END_BYTE_NUM];
+
+							for (int i = 0; i < totalCheckBuffer.length; i++)
+							{
+								totalCheckBuffer[i] = totalBuffer[i];
+							}
+
+							message.put("message", new String(totalCheckBuffer));
+							callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_BLUETOOTH_HANDLER,
+									ResponseCode.METHOD_GET_MESSAGE_BLUETOOTH, message);
+							message.clear();
+
+							inputDataStream.clear();
+						}
+					}
+
 				}
 				catch (IOException e)
 				{
@@ -1302,7 +1332,21 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			HashMap<String, String> message = new HashMap<String, String>();
 			try
 			{
-				mmOutStream.write(buffer);
+				// add end Byte
+				byte[] outputbufferWithEnd = new byte[buffer.length + 1];
+
+				for (int i = 0; i < buffer.length; i++)
+				{
+					outputbufferWithEnd[i] = buffer[i];
+				}
+				outputbufferWithEnd[buffer.length] = END_BYTE_1;
+
+				/* debug using
+				for (int i = 0; i < buffer.length; i++)
+				{
+					Logs.showError("buffer.data:: " + String.format("Byte: %x", buffer[i]));
+				}*/
+				mmOutStream.write(outputbufferWithEnd);
 
 				// Share the sent message back to the UI Activity
 				message.put("message", "bluetooth socket send message successfully!");
@@ -1327,10 +1371,11 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			}
 		}
 	}
-	
+
 	class createBondRunnable implements Runnable
 	{
 		private BluetoothDevice mBluetoothDevice = null;
+
 		public createBondRunnable(BluetoothDevice mBluetoothDevice)
 		{
 			this.mBluetoothDevice = mBluetoothDevice;
@@ -1342,25 +1387,36 @@ public class BluetoothHandler extends BaseHandler implements ListenReceiverActio
 			// TODO Auto-generated method stub
 			Boolean returnValue = false;
 
-			
 			try
 			{
 				Method createBondMethod;
 				createBondMethod = BluetoothDevice.class.getMethod("createBond");
-				Logs.showTrace("start to pair to " + mBluetoothDevice.getName() + " address:" + mBluetoothDevice.getAddress());
+				Logs.showTrace(
+						"start to pair to " + mBluetoothDevice.getName() + " address:" + mBluetoothDevice.getAddress());
 				returnValue = (Boolean) createBondMethod.invoke(mBluetoothDevice);
 			}
 			catch (Exception e)
 			{
 				Logs.showTrace("[pair New Device] fail to pair: " + e.toString());
 			}
-			
+
 		}
-		
-		
+
 	}
-	
-	
-	
+
+	class DataStreamStruct
+	{
+		public int bytesLength = 0;
+		public byte[] data;
+		public boolean isFoundEndByte = false;
+
+		public DataStreamStruct(int bytesLength, byte[] data, boolean isFoundEndByte)
+		{
+			this.bytesLength = bytesLength;
+			this.data = data;
+			this.isFoundEndByte = isFoundEndByte;
+		}
+
+	}
 
 }

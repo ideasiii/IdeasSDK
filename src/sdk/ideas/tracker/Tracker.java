@@ -52,6 +52,8 @@ public class Tracker extends BaseHandler
 				switch (msg.arg2)
 				{
 				case TAG_INIT:
+					Logs.showTrace("***INIT DATA:"+((String) msg.obj) );
+					
 					setTrackerIPAndPort(msg.arg1, (String) msg.obj);
 					sendStartTrackerData();
 					break;

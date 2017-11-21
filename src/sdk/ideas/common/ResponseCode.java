@@ -159,7 +159,8 @@ public abstract class ResponseCode
 	
 	public final static int METHOD_START_VOICE_RECOGNIZER = 0;
 	public final static int METHOD_RETURN_TEXT_VOICE_RECOGNIZER = 1;
-	
+	public final static int METHOD_RETURN_RMS_VOICE_RECOGNIZER = 2;
+	public final static int METHOD_RETURN_BUFF_VOICE_RECOGNIZER = 3;
 	//presentation helper
 	public static final int METHOD_PRES_HELPER_CONNECT_TO_SERVER = 0;
 	public static final int METHOD_PRES_HELPER_SEND_COMMAND = 1;

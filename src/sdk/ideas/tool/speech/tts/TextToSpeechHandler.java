@@ -21,7 +21,7 @@ import sdk.ideas.common.ResponseCode;
 public class TextToSpeechHandler extends BaseHandler
 {
 	private TextToSpeech tts = null;
-	private Locale defaultLocale = Locale.getDefault();
+	private Locale defaultLocale = Locale.TAIWAN;
 	private static int textID = 0;
 	private boolean returnInitValue = false;
 
@@ -36,6 +36,15 @@ public class TextToSpeechHandler extends BaseHandler
 		defaultLocale = mLocale;
 	}
 
+	public void setLocale(Locale mLocale)
+	{
+		defaultLocale = mLocale;
+	}	
+	public Locale getLocale()
+	{
+		return defaultLocale ;
+	}
+	
 	public void init()
 	{
 
@@ -53,20 +62,28 @@ public class TextToSpeechHandler extends BaseHandler
 		{
 			try
 			{
+				if (null != tts)
+				{
+					tts.shutdown();
+					tts = null;
+				}
+
 				tts = new TextToSpeech(mContext, new TextToSpeech.OnInitListener()
 				{
 
 					@Override
 					public void onInit(int status)
 					{
-						//Logs.showTrace("status: " + String.valueOf(status));
+						// Logs.showTrace("status: " +
+						// String.valueOf(status));
 
 						if (status == TextToSpeech.SUCCESS)
 						{
-							//Logs.showTrace("TextToSpeech onInit");
+							// Logs.showTrace("TextToSpeech onInit");
 							int result = tts.setLanguage(defaultLocale);
 
-							//Logs.showTrace("Set Language Result: " + result);
+							// Logs.showTrace("Set Language Result: " +
+							// result);
 
 							if (result == TextToSpeech.LANG_MISSING_DATA)
 							{
@@ -93,14 +110,13 @@ public class TextToSpeechHandler extends BaseHandler
 							else
 							{
 								returnInitValue = true;
-								
+
 								HashMap<String, String> message = new HashMap<String, String>();
 								message.put("message", "init success");
 
-								callBackMessage(ResponseCode.ERR_SUCCESS,
-										CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
+								callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
 										ResponseCode.METHOD_TEXT_TO_SPEECH_INIT, message);
-								
+
 								tts.setOnUtteranceProgressListener(new UtteranceProgressListener()
 								{
 
@@ -108,9 +124,12 @@ public class TextToSpeechHandler extends BaseHandler
 									@Override
 									public void onError(String utteranceId, int errorCode)
 									{
-									//	Logs.showTrace("speech onError!!!");
-									//	Logs.showTrace(
-									//			"Text ID: " + utteranceId + "ERROR Code: " + String.valueOf(errorCode));
+										// Logs.showTrace("speech
+										// onError!!!");
+										// Logs.showTrace(
+										// "Text ID: " + utteranceId +
+										// "ERROR Code: " +
+										// String.valueOf(errorCode));
 
 										HashMap<String, String> message = new HashMap<String, String>();
 
@@ -131,9 +150,10 @@ public class TextToSpeechHandler extends BaseHandler
 									@Override
 									public void onStop(String utteranceId, boolean interrupted)
 									{
-									//	Logs.showTrace("speech onStop!");
-									//	Logs.showTrace("Text ID: " + utteranceId + "Interrupted: "
-									//			+ String.valueOf(interrupted));
+										// Logs.showTrace("speech onStop!");
+										// Logs.showTrace("Text ID: " +
+										// utteranceId + "Interrupted: "
+										// + String.valueOf(interrupted));
 
 										HashMap<String, String> message = new HashMap<String, String>();
 
@@ -150,8 +170,9 @@ public class TextToSpeechHandler extends BaseHandler
 									@Override
 									public void onStart(String utteranceId)
 									{
-									//	Logs.showTrace(utteranceId);
-									//	Logs.showTrace("speech onStart!");
+										// Logs.showTrace(utteranceId);
+										// Logs.showTrace("speech
+										// onStart!");
 
 										HashMap<String, String> message = new HashMap<String, String>();
 
@@ -166,8 +187,8 @@ public class TextToSpeechHandler extends BaseHandler
 									@Override
 									public void onDone(String utteranceId)
 									{
-									//	Logs.showTrace(utteranceId);
-									//	Logs.showTrace("speech onDone!");
+										// Logs.showTrace(utteranceId);
+										// Logs.showTrace("speech onDone!");
 										HashMap<String, String> message = new HashMap<String, String>();
 
 										message.put("TextID", utteranceId);
@@ -182,8 +203,9 @@ public class TextToSpeechHandler extends BaseHandler
 									@Override
 									public void onError(String utteranceId)
 									{
-									//	Logs.showTrace(utteranceId);
-									//	Logs.showTrace("speech onError!");
+										// Logs.showTrace(utteranceId);
+										// Logs.showTrace("speech
+										// onError!");
 
 										HashMap<String, String> message = new HashMap<String, String>();
 
@@ -266,7 +288,7 @@ public class TextToSpeechHandler extends BaseHandler
 		{
 			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("message", "init frist");
-
+			//Logs.showTrace("line 291");
 			callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
 					ResponseCode.METHOD_TEXT_TO_SPEECH_SPEECHING, message);
 		}
@@ -282,6 +304,7 @@ public class TextToSpeechHandler extends BaseHandler
 		{
 			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("message", "init frist");
+			//Logs.showTrace("line 307");
 			callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
 					ResponseCode.METHOD_TEXT_TO_SPEECH_SPEECHING, message);
 		}

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -39,24 +40,40 @@ public class VoiceRecognition extends BaseHandler
 
 		public void onRmsChanged(float rmsdB)
 		{
+			HashMap<String, String> message = new HashMap<String, String>();
+			message.put("message", String.valueOf(rmsdB));
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+					ResponseCode.METHOD_RETURN_RMS_VOICE_RECOGNIZER, message);
 		}
 
 		public void onBufferReceived(byte[] buffer)
 		{
+			HashMap<String, String> message = new HashMap<String, String>();
+			String test = "";
+			try
+			{
+				test = new String(buffer, "UTF-8");
+				Logs.showTrace("[VocieRecognition] onBufferReceived:" + test);
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				// TODO Auto-generated catch block
+				Logs.showError(e.toString());
+			}
+			message.put("message", test);
+			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
+					ResponseCode.METHOD_RETURN_BUFF_VOICE_RECOGNIZER, message);
 		}
 
 		public void onEndOfSpeech()
 		{
-			VoiceRecognition.this.speech = null;
-			VoiceRecognition.this.isListening = false;
-			VoiceRecognition.this.isWarning = false;
+
 		}
 
 		@Override
 		public void onError(int errorCode)
 		{
 			String errorMessage = getErrorText(errorCode);
-			// Logs.showTrace("onError: " + errorMessage);
 			HashMap<String, String> message = new HashMap<String, String>();
 			message.put("message", errorMessage);
 			if (errorMessage == "Network error" || errorMessage == "Network timeout"
@@ -75,11 +92,10 @@ public class VoiceRecognition extends BaseHandler
 		@Override
 		public void onResults(Bundle results)
 		{
-			// Logs.showTrace("onResults");
+
 			ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
 			String text = matches.get(0);
 			HashMap<String, String> message = new HashMap<String, String>();
-			message = new HashMap<String, String>();
 			message.put("message", text);
 			callBackMessage(ResponseCode.ERR_SUCCESS, CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
 					ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER, message);
@@ -87,32 +103,7 @@ public class VoiceRecognition extends BaseHandler
 
 		public void onPartialResults(Bundle partialResults)
 		{
-			// Logs.showTrace("onPartialResults");
-			// String msg = "";
-			// HashMap<String, String> message = new HashMap<String,
-			// String>();
-			// if (null != partialResults)
-			// {
-			// ArrayList<String> matches = partialResults
-			// .getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-			// if (null != matches)
-			// {
-			// for (int i = 0; i < matches.size(); ++i)
-			// {
-			// if (null != matches.get(i))
-			// {
-			// msg = matches.get(i);
-			// }
-			// }
-			// Logs.showTrace("onPartialResults Success");
-			// message = new HashMap<String, String>();
-			// message.put("message", msg);
-			// callBackMessage(ResponseCode.ERR_SUCCESS,
-			// CtrlType.MSG_RESPONSE_VOICE_RECOGNITION_HANDLER,
-			// ResponseCode.METHOD_RETURN_TEXT_VOICE_RECOGNIZER,
-			// message);
-			// }
-			// }
+
 		}
 
 		public void onEvent(int eventType, Bundle params)
@@ -135,11 +126,21 @@ public class VoiceRecognition extends BaseHandler
 		this.defaultLocale = locale;
 	}
 
+	public Locale getLocale()
+	{
+		return this.defaultLocale;
+	}
+
 	public synchronized void stopListen()
 	{
+		Logs.showTrace("$$$this.isListening is: " + String.valueOf(this.isListening));
+		if (this.speech == null)
+			Logs.showTrace("$$$this.speech is null ");
+
 		if (this.isListening && this.speech != null)
 		{
-			this.speech.stopListening();
+			// this.speech.stopListening();
+			this.speech.destroy();
 			this.speech = null;
 			this.isListening = false;
 			this.isWarning = false;
@@ -156,7 +157,7 @@ public class VoiceRecognition extends BaseHandler
 
 	public synchronized void startListen()
 	{
-		
+
 		if (!this.isListening)
 		{
 			this.isListening = true;
@@ -240,6 +241,7 @@ public class VoiceRecognition extends BaseHandler
 			msg = "Didn't understand, please try again.";
 			break;
 		}
+		Logs.showTrace("&&&&&" + msg);
 		return msg;
 	}
 
