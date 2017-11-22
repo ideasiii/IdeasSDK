@@ -39,6 +39,7 @@ class ReceiverDiscoveryThread extends Thread
 
 	public void stopDiscovery()
 	{
+		Logs.showTrace("stopping receiver discovery");
 		mCalledStop = true;
 
 		try
@@ -60,6 +61,8 @@ class ReceiverDiscoveryThread extends Thread
 	@Override
 	public void run()
 	{
+		Logs.showTrace("starting receiver discovery");
+		
 		try
 		{
 			// TODO 在僅開啟無線熱點的狀況下無法使用
@@ -92,19 +95,21 @@ class ReceiverDiscoveryThread extends Thread
 			}
 			catch (IOException e)
 			{
-				if (!mCalledStop)
+				if (mCalledStop)
 				{
-					// TODO how if wifi is off , will we receive this?
-					if (mListener != null)
-					{
-						mListener.onIOException(e.toString());
-					}
-
-					// TODO should we continue if wifi is turned off??
-					continue;
+					return;
 				}
 
 				e.printStackTrace();
+				
+				// TODO how if wifi is off , will we receive this?
+				if (mListener != null)
+				{
+					mListener.onIOException(e.toString());
+				}
+
+				// TODO should we continue if wifi is turned off??
+				continue;
 			}
 
 			ArrayList<byte[]> localIpAddresses = getLocalIpv4Address();
@@ -112,9 +117,9 @@ class ReceiverDiscoveryThread extends Thread
 			String srcHostAddress = dgPacket.getAddress().getHostAddress();
 
 			// only consider IPv4 address
-			if (localIpAddresses.size() == 0)
+			if (localIpAddresses == null || localIpAddresses.size() == 0)
 			{
-				Logs.showTrace("localIpAddress == null");
+				Logs.showTrace("localIpAddress is empty");
 				continue;
 			}
 
