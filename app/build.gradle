@@ -1,0 +1,138 @@
+apply plugin: 'com.android.application'
+
+ext {
+    compiledClassSourceDir = 'build/intermediates/classes/release'
+    exportJarDestinationDir = file("$buildDir/outputs/libs")
+}
+
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "sdk.ideas"
+        minSdkVersion 16
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'org.mongodb:mongo-java-driver:3.2.2'
+    implementation 'com.google.android.gms:play-services-location:11.6.0'
+}
+
+task cleanSDKJar(type: Delete) {
+    delete 'build/outputs/libs/'
+}
+
+// 產生很多 SDK 的 jar
+task exportSDKJar(type: Jar) {
+    dependsOn(
+            'exportSDKJarBluetooth',
+            'exportSDKJarCommon',
+            'exportSDKJarModule',
+            'exportSDKJarTracker',
+            'exportSDKJarRuntimePermission',
+            'exportSDKJarTTS',
+            'exportSDKJarVoiceRecognition')
+}
+
+// 將 sdk.ideas.ctrl.bluetooth 下所有的 class 檔案打包為一個 jar
+task exportSDKJarBluetooth(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/ctrl/bluetooth/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'bluetooth.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarCommon(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/common/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'common.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarModule(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/module/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'module.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarTracker(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/tracker/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'tracker.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarRuntimePermission(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/tool/permisson/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'permisson.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarTTS(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/tool/speech/tts/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'TTS.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarVoiceRecognition(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/tool/speech/voice/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'voice.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
