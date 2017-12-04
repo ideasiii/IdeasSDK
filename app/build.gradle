@@ -36,6 +36,7 @@ task cleanSDKJar(type: Delete) {
 // 產生很多 SDK 的 jar
 task exportSDKJar(type: Jar) {
     dependsOn(
+            'cleanSDKJar',
             'exportSDKJarBluetooth',
             'exportSDKJarCommon',
             'exportSDKJarModule',

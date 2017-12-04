@@ -263,7 +263,6 @@ public class Tracker extends BaseHandler
 			this.sendEvent(jsonParm.toString(), TAG_TRACKER);
 
 			parm.clear();
-			parm = null;
 		}
 		catch (Exception e)
 		{
@@ -276,6 +275,68 @@ public class Tracker extends BaseHandler
 			message.clear();
 		}
 
+	}
+
+	/**
+	 *
+	 * @param parm
+	 *            : HashMap
+	 */
+	public void trackWithObjectMap(HashMap<String, Object> parm)
+	{
+		HashMap<String, String> message = new HashMap<>();
+
+		try
+		{
+
+			if (availableTracker == false)
+			{
+				message.put("message", "can not start tracker cause startTarcker fail or stopTracker run");
+				callBackMessage(ResponseCode.ERR_NOT_INIT, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						ResponseCode.METHOLD_TRACKER, message);
+				return;
+			}
+			else if (null == parm)
+			{
+				message.put("message", "tracker parm is null");
+				callBackMessage(ResponseCode.ERR_ILLEGAL_ARGUMENT_EXCEPTION, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+						ResponseCode.METHOLD_TRACKER, message);
+				return;
+			}
+
+			// add in sdk tracker
+			// super.sdkTrackerMessage("tracker", "tracker");
+
+			parm.put("ID", this.ID);
+
+			if (DeviceHandler.lat != -1.0 && DeviceHandler.lng != -1.0)
+			{
+				parm.put("LOCATION", (String.valueOf(DeviceHandler.lat) + "," + String.valueOf(DeviceHandler.lng)));
+			}
+			if (!StringUtility.isValid((String)parm.get("TYPE")))
+			{
+				parm.put("TYPE", "0");
+			}
+
+			parm.values().removeAll(Collections.singleton(""));
+			parm.values().removeAll(Collections.singleton(null));
+
+			JSONObject jsonParm = new JSONObject(parm);
+
+			this.sendEvent(jsonParm.toString(), TAG_TRACKER);
+
+			parm.clear();
+		}
+		catch (Exception e)
+		{
+			message.put("message", e.toString());
+			callBackMessage(ResponseCode.ERR_UNKNOWN, CtrlType.MSG_RESPONSE_TRACKER_HANDLER,
+					ResponseCode.METHOLD_TRACKER, message);
+		}
+		finally
+		{
+			message.clear();
+		}
 	}
 
 	public void stopTracker()
@@ -512,7 +573,7 @@ public class Tracker extends BaseHandler
 	private int sendSocketData(String parm, HashMap<String, String> respData, CmpClient.Response response,
 			final int mnfag)
 	{
-		if (StringUtility.isValid(parm) == false && mnfag != TAG_INIT)
+		if (!StringUtility.isValid(parm) && mnfag != TAG_INIT)
 		{
 			return -1;
 		}
@@ -529,11 +590,11 @@ public class Tracker extends BaseHandler
 				String ip = Common.HOST_SERVICE_INIT;
 				int port = Common.PORT_SERVICE_INIT;
 
-				if (!CmpClient.isReachableByTcp(ip, port, 3000))
+				/*if (!CmpClient.isReachableByTcp(ip, port, 3000))
 				{
 					ip = Common.HOST_SERVICE_INIT_BACKUP;
 					port = Common.PORT_SERVICE_INIT_BACKUP;
-				}
+				}*/
 				//Logs.showTrace("[Tracker]INIT IP:" + ip + " Port:" + String.valueOf(port));
 				// joe fix bug 2017/01/04 END
 

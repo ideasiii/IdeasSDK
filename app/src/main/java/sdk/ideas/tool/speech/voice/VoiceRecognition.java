@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -196,18 +197,18 @@ public class VoiceRecognition extends BaseHandler
 		return false;
 	}
 
-	public void startVoiceRecognitionActivity()
+	private void startVoiceRecognitionActivity()
 	{
-		this.recognizerIntent = new Intent("android.speech.action.RECOGNIZE_SPEECH");
-		this.recognizerIntent.putExtra("android.speech.extra.LANGUAGE_MODEL", "web_search");
-		this.recognizerIntent.putExtra("android.speech.extra.MAX_RESULTS", 1);
-		this.recognizerIntent.putExtra("android.speech.extra.LANGUAGE", this.defaultLocale.toString());
-		this.returnInitValue = true;
+		recognizerIntent = new Intent("android.speech.action.RECOGNIZE_SPEECH");
+		recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+		recognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+		recognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, defaultLocale.toString());
+		returnInitValue = true;
 	}
 
-	public static String getErrorText(int errorCode)
+	private static String getErrorText(int errorCode)
 	{
-		String msg = "";
+		String msg;
 		switch (errorCode)
 		{
 		case SpeechRecognizer.ERROR_AUDIO:
@@ -241,8 +242,8 @@ public class VoiceRecognition extends BaseHandler
 			msg = "Didn't understand, please try again.";
 			break;
 		}
+
 		Logs.showTrace("&&&&&" + msg);
 		return msg;
 	}
-
 }
