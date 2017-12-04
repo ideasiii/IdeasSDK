@@ -22,9 +22,14 @@ public class TextToSpeechHandler extends BaseHandler
 {
 	private TextToSpeech tts = null;
 	private Locale mLocale = Locale.TAIWAN;
+
+	// 要切換的語言，當執行 TextToSpeech() 方法時會檢查是否需重新產生一個不同語言的 TTS  物件
 	private Locale mPostponedChangingLocale = null;
 	private float mPitch;
 	private float mRate;
+
+	// 尚未成功說完的TTS要求，尚未說完的原因可能有：正在切換語言、正在執行...等
+	private SpeechElement pendingSpeech;
 
 	private static int textID = 0;
 	private boolean mTtsServiceHasInitialized = false;
@@ -55,7 +60,6 @@ public class TextToSpeechHandler extends BaseHandler
 	
 	public void init()
 	{
-
 		if (!checkPackageExist(mContext, "com.google.android.tts"))
 		{
 			HashMap<String, String> message = new HashMap<String, String>();
@@ -69,12 +73,7 @@ public class TextToSpeechHandler extends BaseHandler
 		{
 			try
 			{
-				if (null != tts)
-				{
-					tts.shutdown();
-					mTtsServiceHasInitialized = false;
-					tts = null;
-				}
+                shutdown();
 
 				tts = new TextToSpeech(mContext, new TextToSpeech.OnInitListener()
 				{
@@ -95,7 +94,7 @@ public class TextToSpeechHandler extends BaseHandler
 							int result = tts.setLanguage(mLocale);
 							if (result == TextToSpeech.LANG_MISSING_DATA)
 							{
-								HashMap<String, String> message = new HashMap<String, String>();
+								HashMap<String, String> message = new HashMap<>();
 								message.put("message", "this Language is missing data, please download it");
 
 								callBackMessage(ResponseCode.ERR_FILE_NOT_FOUND_EXCEPTION,
@@ -129,13 +128,19 @@ public class TextToSpeechHandler extends BaseHandler
 								tts.setOnUtteranceProgressListener(mUtteranceProgressListener);
 
                                 // flush cache
-                                HashMap<String, String> ttsCache = TTSCache.getTTSCache();
-                                if (null != ttsCache)
+                                if (null != pendingSpeech)
                                 {
-                                    Logs.showTrace("TTSCache holds a pending request, do it");
-                                    setPitch(Float.parseFloat(ttsCache.get("pitch")));
-                                    setSpeechRate(Float.parseFloat(ttsCache.get("rate")));
-                                    textToSpeech(ttsCache.get("tts"), ttsCache.get("id"));
+                                    if (pendingSpeech.tryCount <= 1)
+                                    {
+                                        Logs.showTrace("TTSCache holds a pending request, do it");
+                                        setPitch(pendingSpeech.pitch);
+                                        setSpeechRate(pendingSpeech.rate);
+                                        textToSpeech(pendingSpeech.text, pendingSpeech.utteranceId);
+                                    }
+                                    else
+                                    {
+                                        pendingSpeech = null;
+                                    }
                                 }
 							}
 						}
@@ -196,15 +201,16 @@ public class TextToSpeechHandler extends BaseHandler
 
 	public void textToSpeech(String text, String textID)
 	{
-	    Logs.showTrace("textToSpeech() mLocale = " + mLocale.getDisplayName());
-        Logs.showTrace("textToSpeech() mPostponedChangingLocale = " + (mPostponedChangingLocale == null ? "nil" : mPostponedChangingLocale.getDisplayName()));
+        pendingSpeech = new SpeechElement();
+        pendingSpeech.text = text;
+        pendingSpeech.utteranceId = textID;
+        pendingSpeech.pitch = mPitch;
+        pendingSpeech.rate = mRate;
 
 		if (mPostponedChangingLocale != null)
 		{
 			Logs.showTrace("Need to regenerate TTS service to change language");
 			Logs.showTrace("Queue this request until new TTS service is initialized: `" + text + "`");
-
-			TTSCache.setTTSCache(text, textID, String.valueOf(mPitch), String.valueOf(mRate));
 
 			init();
 			return;
@@ -252,7 +258,7 @@ public class TextToSpeechHandler extends BaseHandler
 
 	public void shutdown()
 	{
-		if (mTtsServiceHasInitialized && null != tts)
+		if (null != tts)
 		{
 			tts.shutdown();
 			mTtsServiceHasInitialized = false;
@@ -291,12 +297,11 @@ public class TextToSpeechHandler extends BaseHandler
 	{
 		if (null != mContext && null != packageName)
 		{
-			boolean getSysPackages = false;
 			List<PackageInfo> packs = mContext.getPackageManager().getInstalledPackages(0);
 			for (int i = 0; i < packs.size(); i++)
 			{
 				PackageInfo p = packs.get(i);
-				if ((!getSysPackages) && (p.versionName == null))
+				if (p.versionName == null)
 				{
 					continue;
 				}
@@ -309,8 +314,16 @@ public class TextToSpeechHandler extends BaseHandler
 			return false;
 		}
 		return false;
-
 	}
+
+    private static class SpeechElement
+    {
+        String text;
+        String utteranceId;
+        float pitch;
+        float rate;
+        byte tryCount = 0;
+    }
 
 	private UtteranceProgressListener mUtteranceProgressListener = new UtteranceProgressListener()
     {
@@ -318,15 +331,31 @@ public class TextToSpeechHandler extends BaseHandler
         @Override
         public void onError(String utteranceId, int errorCode)
         {
-            // Logs.showTrace("speech
-            // onError!!!");
-            // Logs.showTrace(
-            // "Text ID: " + utteranceId +
-            // "ERROR Code: " +
-            // String.valueOf(errorCode));
+            // Logs.showTrace("speech onError!!!");
+            // Logs.showTrace("Text ID: " + utteranceId + "ERROR Code: " + String.valueOf(errorCode));
 
-            HashMap<String, String> message = new HashMap<String, String>();
+            if (pendingSpeech != null && pendingSpeech.tryCount < 1)
+            {
+                pendingSpeech.tryCount++;
 
+                try
+                {
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+
+                shutdown();
+                init();
+
+                return;
+            }
+
+            pendingSpeech = null;
+
+            HashMap<String, String> message = new HashMap<>();
             message.put("TextID", utteranceId);
             message.put("TextStatus", "ERROR");
             message.put("message", "ERROR code is" + errorCode
@@ -337,7 +366,6 @@ public class TextToSpeechHandler extends BaseHandler
                     ResponseCode.METHOD_TEXT_TO_SPEECH_SPEECHING, message);
 
             super.onError(utteranceId, errorCode);
-
         }
 
         @SuppressLint("NewApi")
@@ -345,15 +373,15 @@ public class TextToSpeechHandler extends BaseHandler
         public void onStop(String utteranceId, boolean interrupted)
         {
             // Logs.showTrace("speech onStop!");
-            // Logs.showTrace("Text ID: " +
-            // utteranceId + "Interrupted: "
-            // + String.valueOf(interrupted));
+            // Logs.showTrace("Text ID: " + utteranceId + "Interrupted: " + String.valueOf(interrupted));
+
+            pendingSpeech = null;
 
             HashMap<String, String> message = new HashMap<String, String>();
-
             message.put("TextID", utteranceId);
             message.put("TextStatus", "STOP");
-            message.put("message", "the speech is stoped");
+            message.put("message", "the speech is stopped");
+
             callBackMessage(ResponseCode.ERR_SUCCESS,
                     CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
                     ResponseCode.METHOD_TEXT_TO_SPEECH_SPEECHING, message);
@@ -365,8 +393,7 @@ public class TextToSpeechHandler extends BaseHandler
         public void onStart(String utteranceId)
         {
             // Logs.showTrace(utteranceId);
-            // Logs.showTrace("speech
-            // onStart!");
+            // Logs.showTrace("speech onStart!");
 
             HashMap<String, String> message = new HashMap<String, String>();
 
@@ -383,7 +410,9 @@ public class TextToSpeechHandler extends BaseHandler
         {
             // Logs.showTrace(utteranceId);
             // Logs.showTrace("speech onDone!");
-            HashMap<String, String> message = new HashMap<String, String>();
+
+            pendingSpeech = null;
+            HashMap<String, String> message = new HashMap<>();
 
             message.put("TextID", utteranceId);
             message.put("TextStatus", "DONE");
@@ -391,21 +420,37 @@ public class TextToSpeechHandler extends BaseHandler
             callBackMessage(ResponseCode.ERR_SUCCESS,
                     CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
                     ResponseCode.METHOD_TEXT_TO_SPEECH_SPEECHING, message);
-
         }
 
         @Override
         public void onError(String utteranceId)
         {
             // Logs.showTrace(utteranceId);
-            // Logs.showTrace("speech
-            // onError!");
+            // Logs.showTrace("speech onError!");
 
-            HashMap<String, String> message = new HashMap<String, String>();
+            if (pendingSpeech != null && pendingSpeech.tryCount < 1)
+            {
+                pendingSpeech.tryCount++;
+
+                try
+                {
+                    Thread.sleep(10);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+
+                return;
+            }
+
+            pendingSpeech = null;
+
+            HashMap<String, String> message = new HashMap<>();
 
             message.put("TextID", utteranceId);
             message.put("TextStatus", "ERROR");
-            message.put("message", "the speech occured error while speeching");
+            message.put("message", "the speech occurred error while speeching");
 
             callBackMessage(ResponseCode.ERR_UNKNOWN,
                     CtrlType.MSG_RESPONSE_TEXT_TO_SPEECH_HANDLER,
