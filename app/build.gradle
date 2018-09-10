@@ -43,7 +43,8 @@ task exportSDKJar(type: Jar) {
             'exportSDKJarTracker',
             'exportSDKJarRuntimePermission',
             'exportSDKJarTTS',
-            'exportSDKJarVoiceRecognition')
+            'exportSDKJarVoiceRecognition',
+            'exportSDKJarSemanticCMP')
 }
 
 // 將 sdk.ideas.ctrl.bluetooth 下所有的 class 檔案打包為一個 jar
@@ -131,6 +132,20 @@ task exportSDKJarVoiceRecognition(type: Jar) {
 
     destinationDir exportJarDestinationDir
     archiveName 'voice.jar'
+
+    dependsOn ('assembleRelease')
+    doFirst {
+        println 'Exporting jar to ' + archivePath +  ' ...'
+    }
+}
+
+task exportSDKJarSemanticCMP(type: Jar) {
+    from compiledClassSourceDir
+    include 'sdk/ideas/cmp/*.class'
+    include 'sdk/ideas/cmp/semantic/*.class'
+
+    destinationDir exportJarDestinationDir
+    archiveName 'semantic_cmp.jar'
 
     dependsOn ('assembleRelease')
     doFirst {
